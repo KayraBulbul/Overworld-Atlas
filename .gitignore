@@ -7,6 +7,7 @@ web/.env.local
 # Local build and tooling output
 web/node_modules/
 web/dist/
+/api/server
 *.log
 
 # Editor and operating system files

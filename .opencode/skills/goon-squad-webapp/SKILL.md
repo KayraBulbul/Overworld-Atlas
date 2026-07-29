@@ -602,7 +602,7 @@ Set up PostgreSQL, Goose, and sqlc, but do not add application tables or make th
 ### Exit Criteria
 
 - Product, layout, routes, role semantics, login/application separation, and phase placement are documented.
-- The React application can call the Go health endpoint.
+- The backend health endpoint and browser-origin CORS contract are verified internally; API connectivity is not rendered in the public React interface.
 - Local PostgreSQL starts predictably.
 - CI can build both applications.
 

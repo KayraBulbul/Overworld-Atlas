@@ -1,87 +1,74 @@
 # Goon Squad SMP
 
-Foundation scaffolding for the Goon Squad Minecraft community website. The repository is a modular monolith with a React frontend, a future Go API, and local PostgreSQL.
-
-The frontend currently provides only an unstyled application shell. The backend intentionally contains no executable code, handlers, services, queries, or migrations.
+The Goon Squad Minecraft community website is a modular monolith with a React frontend, a Go API, and PostgreSQL. The repository contains the Phase 0 foundation; the public editorial shell and design system are the next implementation phase.
 
 Product and implementation planning is documented in:
 
-- `PRODUCT_REQUIREMENTS.md` for the canonical product, design, route, authentication, joining, account, and administration requirements
+- `PRODUCT_REQUIREMENTS.md` for canonical product and experience requirements
 - `AGENTS.md` for repository-wide engineering constraints
-- `.opencode/skills/goon-squad-webapp/SKILL.md` for the architecture and phased delivery roadmap
+- `.opencode/skills/goon-squad-webapp/SKILL.md` for architecture and the phased delivery roadmap
 
-The current repository remains in Phase 0. These planning documents do not scaffold or implement the described product features.
+## Foundation
 
-## Repository structure
+The current foundation includes:
 
-```text
-goon-squad-SMP/
-├── web/                       React, TypeScript, and Vite
-│   ├── public/
-│   └── src/
-│       ├── api/
-│       ├── assets/
-│       ├── components/
-│       ├── features/          Empty domain placeholders
-│       ├── hooks/
-│       ├── layouts/
-│       ├── pages/
-│       ├── routes/
-│       ├── schemas/
-│       └── types/
-├── api/                       Go module and backend scaffold
-│   ├── cmd/server/
-│   └── internal/
-│       ├── auth/
-│       ├── config/
-│       ├── database/
-│       │   ├── generated/
-│       │   ├── migrations/
-│       │   └── queries/
-│       ├── handlers/
-│       ├── middleware/
-│       ├── minecraft/
-│       ├── models/
-│       ├── services/
-│       └── storage/
-├── docker-compose.yml
-├── PRODUCT_REQUIREMENTS.md
-├── AGENTS.md
-└── Makefile
-```
+- React, TypeScript, Vite, React Router, TanStack Query, and Tailwind CSS
+- Go, Chi, structured request logging, and HTTP server timeouts
+- An internal `GET /api/v1/health` endpoint with CORS coverage
+- Local PostgreSQL through Docker Compose
+- Goose and sqlc configuration, with application migrations deferred until Phase 3
+- Frontend formatting, linting, type checking, and production builds
+- Go formatting checks, vetting, tests, and builds
+- GitHub Actions CI for both applications
 
-Some empty feature directories still use the earlier `announcements`, `builds`, and `members` scaffold names. They are not current product requirements. Reconcile them with the player, story, event, authentication, application, BlueMap, gallery, and server-status domains only when implementation reaches the relevant phase; this documentation update intentionally does not restructure application code.
+The health endpoint verifies backend availability internally. The public frontend does not request or display API connectivity as user-facing server status; live Minecraft status belongs to Phase 2.
 
 ## Requirements
 
 - Node.js 22.12 or newer
 - npm
-- Go 1.26 or newer for future backend work
+- Go 1.26 or newer
 - Docker with Docker Compose
 
-## Install frontend dependencies
+## Environment
+
+Frontend variables are documented in `web/.env.example`. API variables are documented in `api/.env.example`.
+
+The committed examples contain local development values only. Keep local overrides in ignored `.env` files and never point default development commands at production services.
+
+## Install Dependencies
 
 ```bash
 make install
 ```
 
-The Go module has no dependencies yet because backend code has intentionally not been implemented.
+Go dependencies are downloaded automatically by standard Go commands.
 
-## Start the frontend
+## Run Locally
 
-```bash
-make web
-```
-
-Vite serves the site at <http://localhost:5173>.
-
-## Start PostgreSQL
+Start PostgreSQL:
 
 ```bash
 make db-up
 ```
 
-PostgreSQL is exposed at `localhost:5432`. The Compose defaults match `api/.env.example` and are for local development only.
+PostgreSQL is exposed at `localhost:5432` using the local-only defaults from `docker-compose.yml`.
+
+Start the API:
+
+```bash
+make api
+```
+
+The API listens on `http://localhost:8080` by default.
+
+Start the frontend in another terminal:
+
+```bash
+make web
+```
+
+Vite serves the site at `http://localhost:5173`.
 
 Stop PostgreSQL with:
 
@@ -89,16 +76,49 @@ Stop PostgreSQL with:
 make db-down
 ```
 
-No tables or migrations exist yet.
+## Internal Health Check
+
+With the API running, verify its backend-only health endpoint:
+
+```bash
+curl --fail --show-error \
+  -H 'Origin: http://localhost:5173' \
+  http://localhost:8080/api/v1/health
+```
+
+The expected response is:
+
+```json
+{"status":"ok"}
+```
+
+The endpoint is independent of PostgreSQL and Minecraft server availability.
 
 ## Checks
+
+Run the complete local check suite:
 
 ```bash
 make check
 ```
 
-Until the first Go package is implemented, the backend checks are skipped. Once a Go package exists, `make check` automatically runs Go formatting, vetting, tests, and a build in addition to the frontend checks.
+This checks frontend formatting, linting, types, and the production build. It also checks Go formatting without modifying files, then runs `go vet`, tests, and a build.
 
-## First backend task
+To format frontend files intentionally:
 
-Follow `api/cmd/server/TODO.md` to implement a minimal Chi server and `GET /api/v1/health` yourself. Keep the first endpoint independent of PostgreSQL.
+```bash
+npm --prefix web run format
+```
+
+GitHub Actions runs the same categories of checks on pushes and pull requests.
+
+## Database Tooling
+
+No application tables or migrations exist during Phase 0. When persistent public content begins in Phase 3:
+
+1. Add Goose migrations under `api/internal/database/migrations`.
+2. Add handwritten queries under `api/internal/database/queries`.
+3. Run sqlc generation using `api/sqlc.yaml`.
+4. Commit generated code under `api/internal/database/generated`.
+
+Never edit generated sqlc files manually or use the production database as the local default.

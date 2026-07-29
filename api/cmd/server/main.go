@@ -7,15 +7,19 @@ import (
 	"time"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/cors"
 	"github.com/go-chi/httplog/v3"
 	"github.com/joho/godotenv"
 )
 
-func newRouter(logger *slog.Logger) http.Handler {
+func newRouter(logger *slog.Logger, options cors.Options) http.Handler {
 	r := chi.NewRouter()
+
 	r.Use(httplog.RequestLogger(logger, &httplog.Options{
 		Level: slog.LevelInfo,
 	}))
+
+	r.Use(cors.Handler(options))
 
 	r.Route("/api/v1", func(r chi.Router) {
 		r.Get("/health", healthHandler)
@@ -35,8 +39,25 @@ func main() {
 	if apiAddress == "" {
 		apiAddress = ":8080"
 	}
+	corsAllowedOrigin := os.Getenv("CORS_ALLOWED_ORIGIN")
+	if corsAllowedOrigin == "" {
+		corsAllowedOrigin = "http://localhost:5173"
+	}
 
-	router := newRouter(logger)
+	router := newRouter(logger, cors.Options{
+		AllowedOrigins: []string{corsAllowedOrigin},
+		AllowedMethods: []string{
+			http.MethodGet,
+			http.MethodOptions,
+		},
+		AllowedHeaders: []string{
+			"Accept",
+			"Authorization",
+			"Content-Type",
+		},
+		AllowCredentials: true,
+		MaxAge:           300,
+	})
 
 	server := &http.Server{
 		Addr:              apiAddress,
