@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { useAccessPreview } from '../../features/access/accessContext'
 import { ThemeToggle } from '../../features/theme/ThemeToggle'
 
 const navigation = [
@@ -13,6 +14,7 @@ const navigation = [
 
 export function SiteHeader() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const { openJoinPreview, openLoginPreview } = useAccessPreview()
 
   function closeMenu() {
     setIsMenuOpen(false)
@@ -53,14 +55,25 @@ export function SiteHeader() {
               {item.label}
             </Link>
           ))}
-          <button className="nav-join" type="button" disabled>
+          <button
+            className="nav-join"
+            type="button"
+            onClick={() => {
+              closeMenu()
+              openJoinPreview()
+            }}
+          >
             Join
           </button>
         </nav>
 
         <div className="header-actions">
           <ThemeToggle />
-          <button className="login-button" type="button" disabled>
+          <button
+            className="login-button"
+            type="button"
+            onClick={openLoginPreview}
+          >
             Log In
           </button>
         </div>

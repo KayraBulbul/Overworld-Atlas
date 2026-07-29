@@ -7,8 +7,10 @@ import {
   siteContent,
   stories,
 } from '../content/siteContent'
+import { useAccessPreview } from '../features/access/accessContext'
 
 export function HomePage() {
+  const { openJoinPreview } = useAccessPreview()
   const onlinePlayers = players.slice(0, 4)
   const upcomingEvents = events.filter((event) => event.period === 'upcoming')
 
@@ -26,7 +28,11 @@ export function HomePage() {
           <p className="hero-intro">{siteContent.server.description}</p>
           <div className="hero-actions">
             <CopyServerAddressButton address={siteContent.server.address} />
-            <button className="button-secondary" type="button" disabled>
+            <button
+              className="button-secondary"
+              type="button"
+              onClick={openJoinPreview}
+            >
               Request Access
             </button>
           </div>

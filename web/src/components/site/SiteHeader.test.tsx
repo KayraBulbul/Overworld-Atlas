@@ -1,6 +1,8 @@
 import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { describe, expect, it } from 'vitest'
+import { AccessPreviewProvider } from '../../features/access/AccessPreviewProvider'
 import { ThemeProvider } from '../../features/theme/ThemeProvider'
 import { SiteHeader } from './SiteHeader'
 
@@ -9,7 +11,9 @@ describe('SiteHeader', () => {
     render(
       <MemoryRouter>
         <ThemeProvider>
-          <SiteHeader />
+          <AccessPreviewProvider>
+            <SiteHeader />
+          </AccessPreviewProvider>
         </ThemeProvider>
       </MemoryRouter>,
     )
@@ -28,7 +32,29 @@ describe('SiteHeader', () => {
       )
     }
 
-    expect(screen.getByRole('button', { name: 'Join' })).toBeDisabled()
-    expect(screen.getByRole('button', { name: 'Log In' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'Join' })).toBeEnabled()
+    expect(screen.getByRole('button', { name: 'Log In' })).toBeEnabled()
+  })
+
+  it('keeps login and join as separate intents', async () => {
+    const user = userEvent.setup()
+
+    render(
+      <MemoryRouter>
+        <ThemeProvider>
+          <AccessPreviewProvider>
+            <SiteHeader />
+          </AccessPreviewProvider>
+        </ThemeProvider>
+      </MemoryRouter>,
+    )
+
+    await user.click(screen.getByRole('button', { name: 'Log In' }))
+    expect(
+      screen.getByRole('dialog', { name: 'Log in as a returning member' }),
+    ).toBeInTheDocument()
+    expect(
+      screen.queryByLabelText('Minecraft Java username'),
+    ).not.toBeInTheDocument()
   })
 })
