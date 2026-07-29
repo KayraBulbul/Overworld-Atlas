@@ -1,8 +1,9 @@
 export function HomePage() {
   return (
-    <section>
+    <section className="page-shell placeholder-page" id="home">
+      <p className="eyebrow">The world archive</p>
       <h1>Goon Squad SMP</h1>
-      <p>The frontend scaffold is ready for a chosen visual direction.</p>
+      <p>The first pages of the atlas are being assembled.</p>
     </section>
   )
 }
