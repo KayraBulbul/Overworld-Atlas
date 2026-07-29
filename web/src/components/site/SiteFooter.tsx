@@ -5,8 +5,7 @@ export function SiteFooter() {
     <footer className="site-footer">
       <div className="footer-inner">
         <Link className="footer-brand" to="/#home">
-          <span aria-hidden="true">GS</span>
-          <strong>Goon Squad</strong>
+          <img src="/images/branding/goon-squad-logo.png" alt="Goon Squad" />
         </Link>
         <p className="footer-credit">Built by the people who document it.</p>
         <nav className="footer-links" aria-label="Footer navigation">

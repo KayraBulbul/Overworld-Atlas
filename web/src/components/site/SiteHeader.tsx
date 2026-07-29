@@ -24,12 +24,11 @@ export function SiteHeader() {
     <header className="site-header">
       <div className="header-inner">
         <Link className="brand" to="/#home" onClick={closeMenu}>
-          <span className="brand-mark" aria-hidden="true">
-            GS
-          </span>
-          <span className="brand-copy">
-            <strong>Goon Squad</strong>
-          </span>
+          <img
+            className="brand-logo"
+            src="/images/branding/goon-squad-logo.png"
+            alt="Goon Squad"
+          />
         </Link>
 
         <button

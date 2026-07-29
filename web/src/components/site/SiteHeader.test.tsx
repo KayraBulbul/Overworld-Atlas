@@ -18,6 +18,11 @@ describe('SiteHeader', () => {
       </MemoryRouter>,
     )
 
+    expect(screen.getByRole('img', { name: 'Goon Squad' })).toHaveAttribute(
+      'src',
+      '/images/branding/goon-squad-logo.png',
+    )
+
     const destinations = [
       'Home',
       'Players',

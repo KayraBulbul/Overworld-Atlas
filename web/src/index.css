@@ -149,37 +149,11 @@ svg {
   text-decoration: none;
 }
 
-.brand-mark {
-  display: grid;
-  width: 2.15rem;
-  height: 2.15rem;
-  place-items: center;
-  border: 1px solid var(--border-strong);
-  background: var(--text);
-  color: var(--background);
-  font-family: var(--font-display);
-  font-size: 0.85rem;
-  line-height: 1;
-}
-
-.brand-copy {
-  display: grid;
-  line-height: 1.05;
-}
-
-.brand-copy strong {
-  font-family: var(--font-display);
-  font-size: 1.15rem;
-  font-weight: 400;
-}
-
-.brand-copy small {
-  margin-top: 0.2rem;
-  color: var(--text-muted);
-  font-size: 0.65rem;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+.brand-logo {
+  width: clamp(4.75rem, 6vw, 6rem);
+  height: auto;
+  max-height: 3.5rem;
+  object-fit: contain;
 }
 
 .primary-navigation {
@@ -1955,26 +1929,14 @@ main {
   display: inline-flex;
   align-items: center;
   justify-self: start;
-  gap: 0.75rem;
   text-decoration: none;
 }
 
-.footer-brand > span {
-  display: grid;
-  width: 2.1rem;
-  height: 2.1rem;
-  place-items: center;
-  border: 1px solid var(--border-strong);
-  background: var(--text);
-  color: var(--background);
-  font-family: var(--font-display);
-  font-size: 0.7rem;
-}
-
-.footer-brand strong {
-  font-family: var(--font-display);
-  font-size: 1.15rem;
-  font-weight: 400;
+.footer-brand img {
+  width: 4.5rem;
+  height: auto;
+  max-height: 2.75rem;
+  object-fit: contain;
 }
 
 .footer-credit {
@@ -2117,13 +2079,8 @@ main {
     gap: 0.65rem;
   }
 
-  .brand-copy {
-    display: none;
-  }
-
-  .brand-mark {
-    width: 2.35rem;
-    height: 2.35rem;
+  .brand-logo {
+    width: 4.5rem;
   }
 
   .menu-button > span:first-child {
