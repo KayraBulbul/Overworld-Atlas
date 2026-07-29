@@ -102,7 +102,7 @@ Run the complete local check suite:
 make check
 ```
 
-This checks frontend formatting, linting, types, and the production build. It also checks Go formatting without modifying files, then runs `go vet`, tests, and a build.
+This checks frontend formatting, linting, types, tests, and the production build. It also checks Go formatting without modifying files, then runs `go vet`, tests, and a build.
 
 To format frontend files intentionally:
 
