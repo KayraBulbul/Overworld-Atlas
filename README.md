@@ -1,6 +1,6 @@
 # Goon Squad SMP
 
-The Goon Squad Minecraft community website is a modular monolith with a React frontend, a Go API, and PostgreSQL. The repository contains the Phase 0 foundation; the public editorial shell and design system are the next implementation phase.
+The Goon Squad Minecraft community website is a modular monolith with a React frontend, a Go API, and PostgreSQL. Work is organised through the phased product roadmap, beginning with the foundation and public editorial interface.
 
 Product and implementation planning is documented in:
 
@@ -111,6 +111,21 @@ npm --prefix web run format
 ```
 
 GitHub Actions runs the same categories of checks on pushes and pull requests.
+
+## Phase 1 Assets
+
+Keep manually managed, replaceable images under `web/public/images/`. Place the primary logo at `web/public/images/branding/goon-squad-logo.png`, or use the same basename with an `.svg` extension for a vector source. Until a final logo is supplied, the interface uses a text monogram fallback.
+
+Use the remaining directories by content type:
+
+```text
+web/public/images/maps/
+web/public/images/screenshots/
+web/public/images/settlements/
+web/public/images/stories/
+```
+
+Phase 1 public content is centralised static preview data. Later phases replace those fixtures with the live Minecraft status API, BlueMap, PostgreSQL-backed community content, and storage-backed media without changing the public information architecture.
 
 ## Database Tooling
 

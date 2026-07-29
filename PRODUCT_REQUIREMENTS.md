@@ -96,7 +96,7 @@ Use a distinctive editorial serif display face for major page titles and section
 - Effective at large display sizes
 - Not excessively ornamental
 
-Candidates such as Cormorant Garamond, EB Garamond, Libre Baskerville, or a similar old-style editorial serif should be tested during implementation. No font is final at the requirements stage.
+Phase 1 uses Libre Caslon Display for editorial headings and DM Sans for body and interface copy, following the supplied homepage mock. Revisit the choice only if implementation testing finds a material readability, glyph, or performance problem.
 
 Use a clean, highly readable sans-serif face for body copy, navigation, buttons, forms, metadata, and interface labels.
 
@@ -118,7 +118,7 @@ These are provisional design tokens, not immutable final values.
 - Dark mode should use charcoal grey with muted copper or burnt-orange accents.
 - Theme-dependent texture and imagery must retain sufficient contrast.
 - The theme control must be keyboard accessible and expose its current state.
-- The default and persistence policy for theme selection remains an implementation-stage decision.
+- The default theme is light. Guest theme changes last only for the current rendered application session and reset to light after a page refresh. Persist a preference only for a signed-in account when account-backed preferences are introduced.
 
 ### Layout and Accessibility
 
@@ -142,11 +142,12 @@ The primary navigation includes:
 - Players
 - Stories
 - Events
+- Screenshots
 - Join
 - Theme toggle
 - Login or account controls
 
-Use direct labels. Do not hide major public pages inside vague dropdowns. On constrained mobile layouts, the navigation may collapse for space, but every destination must remain directly labelled and easy to reach.
+Use direct labels. Home, Map, Players, Stories, Events, and Screenshots target their corresponding homepage sections. From another page, they return to the homepage and scroll to that section. Each homepage section provides a clearly labelled action to its expanded page. Do not hide these destinations inside vague dropdowns. On constrained mobile layouts, the navigation may collapse for space, but every destination must remain directly labelled and easy to reach.
 
 The `Join` item may open the request-access dialog rather than navigate to a dedicated route.
 
@@ -172,6 +173,7 @@ The normal `Log In` action must never open the request-access dialog.
 | `/stories/:slug` | Individual public story |
 | `/events` | Public upcoming and past event listing |
 | `/events/:slug` | Individual public event |
+| `/screenshots` | Public screenshot gallery; static and replaceable in Phase 1, storage-backed in Phase 7 |
 | `/account` | Authenticated profile, content, and application status |
 | `/admin` | Admin-only dashboard |
 
@@ -194,6 +196,8 @@ Rules and server information may be structured sections within the Join experien
 
 The homepage is the server's community hub, not a generic promotional landing page.
 
+Phase 1 may use centralised static preview data to demonstrate layouts and future interactions before their APIs exist. Preview data must remain easy to replace and must not imply that an application was submitted or persisted. Live integrations replace these fixtures in their assigned phases.
+
 ### Opening and Server Overview
 
 Include:
@@ -209,7 +213,11 @@ Include:
 
 Copying the server IP should happen immediately. The button should briefly change to `Copied` and provide an accessible status announcement before returning to its normal label.
 
-`Request Access` opens the join-request dialog. During earlier implementation phases, this action must not silently masquerade as a working application if its backend does not exist.
+The server address is `51.161.199.235:25584`.
+
+`Request Access` opens the join-request dialog. In Phase 1 the complete form may be previewed, but its submission action remains disabled and explains that applications are not yet being accepted through the website.
+
+The Phase 1 homepage player preview may show at most four centralised fixture players. Phase 2 replaces the preview with live presence data.
 
 ### Featured Settlement
 
@@ -244,6 +252,10 @@ Include:
 
 Creating and editing content uses dedicated authenticated forms. The homepage must not become an inline content editor.
 
+### Screenshots
+
+Include a curated screenshot preview with dates, contributor names, useful alt text, and a link to `/screenshots`. Phase 1 uses replaceable static assets and metadata. Member uploads, ownership, moderation, and persistent gallery records remain Phase 7 work.
+
 ## Public Page Requirements
 
 ### Map
@@ -271,6 +283,12 @@ Creating and editing content uses dedicated authenticated forms. The homepage mu
 - Provide public listing and individual slug-based pages.
 - Separate upcoming and past events where useful.
 - Include title, date and time, author or organiser, description, and imagery when available.
+
+### Screenshots
+
+- Provide a responsive gallery with useful alt text, dates, and contributor names.
+- Use centralised static entries in Phase 1.
+- Replace static entries with authorised, storage-backed media records in Phase 7.
 
 ## Authentication Requirements
 
@@ -313,6 +331,8 @@ The request-access modal or dialog is exclusively for applying to join the Minec
 - Other clearly labelled join calls to action
 
 Do not make every Discord or login-related action open this dialog.
+
+Before Phase 6, the dialog may present the planned fields and explanatory content as a visual preview, but submission and Discord continuation remain disabled. It must not store a draft or show a successful-submission state.
 
 The dialog should explain:
 
@@ -473,13 +493,13 @@ The detailed roadmap and exit criteria live in `.opencode/skills/goon-squad-weba
 | Phase | Product allocation |
 |---|---|
 | Phase 0 | Requirements, architecture, routes, conceptual data model, roles, design system, integration planning, and the existing foundation tooling |
-| Phase 1 | Public layout, editorial visual system, themes, responsive navigation, homepage structure, replaceable static content, and Copy Server IP |
+| Phase 1 | Public layout, editorial visual system, themes, section-scrolling navigation, homepage structure, replaceable static previews and expanded public preview pages, screenshots, a disabled join-form preview, and Copy Server IP |
 | Phase 2 | Fabric-compatible BlueMap embedding, `/map`, live server status, active-player data, and player heads |
 | Phase 3 | PostgreSQL-backed public player directory, stories, and events with homepage feeds |
 | Phase 4 | Production deployment and hardening of the public read-only product |
 | Phase 5 | Discord OAuth, sessions, roles, `/account`, posting permissions, and protected story/event forms |
 | Phase 6 | Request-access dialog, applicant account state, application tracking, `/admin`, and manual whitelist workflow |
-| Phase 7 | Cloudflare R2 image uploads and gallery/media management |
+| Phase 7 | Cloudflare R2 image uploads and persistent gallery/media management replacing Phase 1 screenshot fixtures |
 | Phase 8 | Rich BlueMap links, locations, markers, and optional synchronisation |
 | Phase 9 | Persistent statistics and optional automatic whitelist integration through backend RCON or a Fabric-side mod |
 | Phase 10 | Optional community features based on demonstrated use |
@@ -490,17 +510,15 @@ Authentication and backend-enforced roles must exist before protected account ma
 
 The following decisions need owner input before their implementation phase:
 
-1. Final server address, Minecraft/Fabric version, required client mods, rules, and post-approval instructions.
+1. Minecraft/Fabric version, required client mods, rules, and post-approval instructions.
 2. Real logo, featured-settlement name, coordinates, description, screenshots, and initial BlueMap camera target.
 3. How existing accounts are recognised for normal login before someone applies, such as pre-provisioned Discord identities or confirmed Discord server membership.
 4. Whether whitelisted applicants automatically become `Member`, require a separate promotion, or receive member status through another process.
 5. Which members may create stories and events, whether publication requires review, and whether organiser/co-author roles are needed.
 6. Whether `/join` should exist in addition to the dialog.
-7. Default theme and whether preference follows the system, persists locally, or is tied to an account.
-8. Final display and body fonts after readability and performance testing.
-9. Player-head provider, caching and fallback policy, and whether all member profiles and activity are public.
-10. BlueMap production URL, HTTPS/reverse-proxy arrangement, iframe policy, and deep-link capabilities.
-11. Whether later whitelist automation should prefer backend RCON or a custom Fabric-side integration after WiseHosting capabilities are verified.
-12. Reapplication and duplicate-request policy after rejection or Minecraft username changes.
+7. Player-head provider, caching and fallback policy, and whether all member profiles and activity are public.
+8. BlueMap production HTTPS/reverse-proxy arrangement, iframe policy, and deep-link capabilities. The current server-hosted URL is `http://51.161.199.235:25674/` and is not production-ready for secure embedding.
+9. Whether later whitelist automation should prefer backend RCON or a custom Fabric-side integration after WiseHosting capabilities are verified.
+10. Reapplication and duplicate-request policy after rejection or Minecraft username changes.
 
 These are intentionally unresolved. They do not justify choosing additional infrastructure or silently inventing product policy during scaffolding.

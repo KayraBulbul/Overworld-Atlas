@@ -63,7 +63,7 @@ Avoid:
 
 ### Typography and Themes
 
-Explore a distinctive old-style editorial serif for major headings, such as Cormorant Garamond, EB Garamond, Libre Baskerville, or a comparable face. Test the exact font during implementation rather than treating a candidate as final. Use a clean sans-serif for body copy and interface controls.
+Use Libre Caslon Display for major headings and DM Sans for body copy and interface controls, following the approved homepage mock. Revisit the choice only if implementation testing finds a material readability, glyph, or performance problem.
 
 Start theme exploration with these provisional tokens:
 
@@ -327,6 +327,7 @@ Required routes:
 /stories/:slug
 /events
 /events/:slug
+/screenshots
 /account
 /admin
 ```
@@ -342,7 +343,7 @@ Add these protected routes in the authentication and member-content phase:
 
 `/join` is optional and may provide a full-page/shareable alternative to the join dialog. It does not replace the modal requirement.
 
-Primary navigation should directly label Home, Map, Players, Stories, Events, and Join, alongside the Goon Squad logo/name, theme toggle, and contextual login/account control. Mobile navigation may collapse spatially but may not obscure the information architecture behind vague labels.
+Primary navigation should directly label Home, Map, Players, Stories, Events, Screenshots, and Join, alongside the Goon Squad logo/name, theme toggle, and contextual login/account control. The public content labels target homepage sections; from expanded pages they return home and scroll to the section. Clearly labelled actions within each section open `/map`, `/players`, `/stories`, `/events`, or `/screenshots`. Mobile navigation may collapse spatially but may not obscure the information architecture behind vague labels.
 
 Rules and server information may live in the Join flow. `/rules` and `/server` may remain supplemental routes if useful, but are not substitutes for required destinations.
 
@@ -372,7 +373,7 @@ Include a nearly full-width BlueMap embed centred initially near the main settle
 
 ## Community Content
 
-Show the latest two or three stories with image, author, date, title, and excerpt; show upcoming events; and link to all stories and events. Creation and editing belong on protected dedicated forms, never inline on the homepage.
+Show the latest two or three stories with image, author, date, title, and excerpt; show upcoming events; and link to all stories and events. Also show a curated screenshot preview with date, contributor, alt text, and a link to `/screenshots`. Creation and editing belong on protected dedicated forms, never inline on the homepage.
 
 # Backend Conventions
 
@@ -612,39 +613,44 @@ Documentation work belongs to Phase 0. The documented product features do not.
 
 ### Goal
 
-Create the public editorial shell and homepage structure without pretending later integrations are live.
+Create the public editorial shell and homepage structure using centralised static previews for later integrations.
 
 ### Deliver
 
 - Goon Squad branding with replaceable real-content placeholders
 - Editorial atlas typography exploration and design tokens
 - Coherent light and dark themes
-- Responsive main layout and directly labelled navigation for all required public destinations
+- Light-by-default guest theme state that resets on refresh; signed-in persistence belongs to Phase 5
+- Responsive main layout and directly labelled section navigation for all required public destinations
 - Homepage opening/server-overview composition
 - `Copy Server IP` with immediate copy and accessible temporary `Copied` state
-- Visually distinct `Request Access` and `Log In` affordances; before their owning phases, use an honest unavailable/information state rather than fake OAuth or submission behaviour
+- Visually distinct `Request Access` and `Log In` affordances
+- Accessible join-application preview with disabled Discord continuation and submission until Phase 6
 - Featured-settlement section
-- Reserved nearly full-width map section with an honest placeholder or configured external link until Phase 2
-- Static/replaceable story and event preview composition until Phase 3
+- Reserved nearly full-width map section with a replaceable static preview until Phase 2
+- Static/replaceable player, story, event, and screenshot previews
+- Styled preview pages for `/players`, `/map`, `/stories`, `/events`, and `/screenshots`
 - Responsive desktop and mobile behaviour
 - Accessible focus, navigation, theme control, and content hierarchy
 - Shared loading, error, and unavailable presentation primitives
 
 ### Routes
 
-Establish route shells needed for the public information architecture without adding fake protected behaviour. Major navigation destinations should become directly discoverable as their usable pages ship.
+Establish usable static preview pages for the public information architecture without adding protected behaviour. Homepage section actions link to the expanded pages, while primary content navigation returns to the matching homepage section.
 
 ### Database Usage
 
-Do not use application tables. Keep server address, server description, version text, BlueMap URL, and placeholder content in replaceable configuration or static content. Do not create tables for one server address or map URL.
+Do not use application tables. Keep server address, server description, version text, BlueMap URL, and all preview content in replaceable configuration or static content. Do not create tables for one server address or map URL.
 
 ### Exit Criteria
 
 - The shell and homepage work on desktop and mobile.
 - Light and dark themes form one accessible visual system.
+- Guest theme changes reset to light after refresh.
 - The layout is recognisably a community atlas/archive rather than a generic landing page.
 - Copy Server IP works without a server round trip.
-- Incomplete map, status, content, login, and request-access behaviour is not presented as operational.
+- Static preview data is centralised and ready to replace with later APIs.
+- Join submission and Discord continuation remain visibly disabled and cannot imply that data was saved.
 
 ## Phase 2: Live Minecraft Status and BlueMap
 
@@ -934,6 +940,8 @@ Leave the admin area extendable for story/event moderation, member posting permi
 
 Allow authorised members to upload screenshots and attach them to stories, events, profiles, and later featured content.
 
+Replace the Phase 1 static screenshot fixtures with persistent media records while preserving the public `/screenshots` route and visual system.
+
 ### Storage
 
 Introduce Cloudflare R2. Store bytes in R2 and file metadata in PostgreSQL.
@@ -1116,15 +1124,13 @@ Do not introduce before a demonstrated need and assigned phase:
 
 Do not silently resolve the owner decisions listed in `PRODUCT_REQUIREMENTS.md`. In particular, confirm before the owning phase:
 
-- Real server address, Fabric/version/mod/rules content, and server imagery
+- Fabric/version/mod/rules content and server imagery
 - Existing-account recognition policy for normal login
 - Whitelisted-applicant to member-role policy
 - Member posting and publication permissions
 - Optional `/join` route
-- Theme default and persistence
-- Final fonts
 - Player-head source and privacy policy
-- BlueMap URL, HTTPS, iframe, and deep-link capabilities
+- BlueMap HTTPS, iframe, and deep-link capabilities; the current HTTP URL is not production-ready for embedding
 - Reapplication and duplicate-request policy
 - RCON versus Fabric-side whitelist automation
 
