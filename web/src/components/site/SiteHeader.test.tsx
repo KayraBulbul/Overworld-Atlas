@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { describe, expect, it } from 'vitest'
@@ -18,14 +18,22 @@ describe('SiteHeader', () => {
       </MemoryRouter>,
     )
 
-    for (const destination of [
+    const destinations = [
       'Home',
-      'Map',
       'Players',
+      'Map',
       'Stories',
       'Events',
       'Screenshots',
-    ]) {
+    ]
+
+    expect(
+      within(screen.getByRole('navigation', { name: 'Primary navigation' }))
+        .getAllByRole('link')
+        .map((link) => link.textContent),
+    ).toEqual(destinations)
+
+    for (const destination of destinations) {
       expect(screen.getByRole('link', { name: destination })).toHaveAttribute(
         'href',
         `/#${destination.toLowerCase()}`,

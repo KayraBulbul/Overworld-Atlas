@@ -19,6 +19,11 @@ describe('HomePage', () => {
         name: 'A world shaped by the people who play it.',
       }),
     ).toBeInTheDocument()
+    expect(
+      screen
+        .getByRole('heading', { name: 'Settlement name pending' })
+        .closest('.home-hero'),
+    ).toBeInTheDocument()
     expect(screen.getAllByTestId('player-preview')).toHaveLength(4)
     expect(screen.getByText('Online preview')).toBeInTheDocument()
     expect(
@@ -28,5 +33,18 @@ describe('HomePage', () => {
       screen.getByRole('link', { name: /open the gallery/i }),
     ).toHaveAttribute('href', '/screenshots')
     expect(screen.getByRole('button', { name: 'Request Access' })).toBeEnabled()
+
+    const storiesSection = screen
+      .getByRole('heading', { name: 'Recent stories' })
+      .closest('section')
+    const eventsSection = screen
+      .getByRole('heading', { name: 'End City Expedition' })
+      .closest('section')
+
+    expect(storiesSection?.parentElement).toBe(eventsSection?.parentElement)
+    expect(document.querySelector('#map')).toHaveClass('section-heading')
+    expect(document.querySelector('#stories')).toHaveClass(
+      'story-ledger-heading',
+    )
   })
 })

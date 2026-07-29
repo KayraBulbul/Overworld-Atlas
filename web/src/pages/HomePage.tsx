@@ -13,10 +13,15 @@ export function HomePage() {
   const { openJoinPreview } = useAccessPreview()
   const onlinePlayers = players.slice(0, 4)
   const upcomingEvents = events.filter((event) => event.period === 'upcoming')
+  const featuredEvent = upcomingEvents[0]
 
   return (
-    <div id="home">
-      <section className="home-hero page-shell" aria-labelledby="home-title">
+    <div>
+      <section
+        className="home-hero page-shell"
+        id="home"
+        aria-labelledby="home-title"
+      >
         <div className="hero-copy">
           <p className="eyebrow">
             <span className="status-pip" aria-hidden="true" />
@@ -42,38 +47,52 @@ export function HomePage() {
         </div>
 
         <div
-          className="hero-atlas"
-          aria-label="Illustrated world archive cover"
+          className="hero-settlement"
+          aria-labelledby="featured-settlement-title"
         >
-          <div className="hero-atlas-grid" aria-hidden="true">
-            <span className="atlas-route route-one" />
-            <span className="atlas-route route-two" />
-            <span className="atlas-marker marker-one" />
-            <span className="atlas-marker marker-two" />
-            <span className="atlas-compass">N</span>
+          <div
+            className="settlement-visual"
+            role="img"
+            aria-label={siteContent.settlement.imageAlt}
+          >
+            <span
+              className="settlement-corner corner-left"
+              aria-hidden="true"
+            />
+            <span
+              className="settlement-corner corner-right"
+              aria-hidden="true"
+            />
+            <span className="settlement-sun" aria-hidden="true" />
+            <span className="settlement-ridge ridge-back" aria-hidden="true" />
+            <span className="settlement-ridge ridge-front" aria-hidden="true" />
+            <span className="settlement-keep" aria-hidden="true" />
           </div>
-          <div className="atlas-caption">
-            <span>Private Fabric survival</span>
-            <strong>World archive</strong>
-            <small>Est. many bad ideas ago</small>
+          <div className="settlement-copy">
+            <p className="eyebrow">Featured settlement</p>
+            <div>
+              <h2 id="featured-settlement-title">
+                {siteContent.settlement.name}
+              </h2>
+              <span>{siteContent.settlement.coordinates}</span>
+            </div>
+          </div>
+          <div className="settlement-frame-note">
+            <span>{siteContent.settlement.description}</span>
+            <strong>{siteContent.settlement.dimension}</strong>
           </div>
         </div>
       </section>
 
       <section
         className="home-section players-section"
-        id="players"
         aria-labelledby="players-title"
       >
         <div className="page-shell">
-          <SectionHeading
-            eyebrow="Around the fire"
-            title="Currently online"
-            description={`${players.length} preview players are exploring the world.`}
-            linkTo="/players"
-            linkLabel="View all players"
-            titleId="players-title"
-          />
+          <div className="players-strip-heading" id="players">
+            <p>Live from the server</p>
+            <h2 id="players-title">{onlinePlayers.length} players online</h2>
+          </div>
           <div className="player-preview-grid">
             {onlinePlayers.map((player) => (
               <article
@@ -96,140 +115,134 @@ export function HomePage() {
               </article>
             ))}
           </div>
+          <Link className="players-strip-link" to="/players">
+            View all players <span aria-hidden="true">-&gt;</span>
+          </Link>
         </div>
       </section>
 
-      <section className="home-section settlement-section page-shell">
-        <div
-          className="settlement-visual"
-          role="img"
-          aria-label={siteContent.settlement.imageAlt}
-        >
-          <span className="settlement-sun" aria-hidden="true" />
-          <span className="settlement-ridge ridge-back" aria-hidden="true" />
-          <span className="settlement-ridge ridge-front" aria-hidden="true" />
-          <span className="settlement-keep" aria-hidden="true" />
-        </div>
-        <div className="settlement-copy">
-          <p className="eyebrow">Featured settlement</p>
-          <h2>{siteContent.settlement.name}</h2>
-          <dl className="settlement-facts">
-            <div>
-              <dt>Coordinates</dt>
-              <dd>{siteContent.settlement.coordinates}</dd>
-            </div>
-            <div>
-              <dt>Dimension</dt>
-              <dd>{siteContent.settlement.dimension}</dd>
-            </div>
-          </dl>
-          <p>{siteContent.settlement.description}</p>
-        </div>
-      </section>
-
-      <section
-        className="home-section map-section page-shell"
-        id="map"
-        aria-labelledby="map-title"
-      >
-        <SectionHeading
-          eyebrow="World survey"
-          title="Explore the known world"
-          description="A static atlas preview reserves this space for the live BlueMap integration arriving in Phase 2."
-          linkTo="/map"
-          linkLabel="Explore the full world"
-          titleId="map-title"
-        />
-        <div
-          className="map-preview"
-          role="img"
-          aria-label="Stylised placeholder map with rivers, routes, and settlement markers"
-        >
-          <div className="map-contours" aria-hidden="true" />
-          <span className="map-river" aria-hidden="true" />
-          <span className="map-road road-north" aria-hidden="true" />
-          <span className="map-road road-south" aria-hidden="true" />
-          <span className="map-place place-main">Main settlement</span>
-          <span className="map-place place-quarry">Old quarry</span>
-          <span className="map-place place-harbour">Western harbour</span>
-          <span className="map-scale">Preview map / Not live</span>
-        </div>
-      </section>
-
-      <section
-        className="home-section stories-section"
-        id="stories"
-        aria-labelledby="stories-title"
-      >
+      <section className="home-section map-section" aria-labelledby="map-title">
         <div className="page-shell">
           <SectionHeading
-            eyebrow="Field notes"
-            title="Latest stories"
-            description="Build journals, expedition logs, and the explanations behind questionable decisions."
-            linkTo="/stories"
-            linkLabel="Read all stories"
-            titleId="stories-title"
+            eyebrow="World survey"
+            title="Explore the known world"
+            description="A static atlas preview reserves this space for the live BlueMap integration arriving in Phase 2."
+            titleId="map-title"
+            anchorId="map"
           />
-          <div className="story-preview-list">
-            {stories.slice(0, 3).map((story, index) => (
-              <article className="story-preview" key={story.slug}>
-                <div
-                  className="story-artwork"
-                  data-tone={story.tone}
-                  role="img"
-                  aria-label={story.artworkLabel}
-                >
-                  <span>{String(index + 1).padStart(2, '0')}</span>
-                </div>
-                <div className="story-copy">
-                  <p className="story-meta">
-                    By {story.author} /{' '}
-                    <time dateTime={story.publishedAt}>{story.dateLabel}</time>
-                  </p>
-                  <h3>{story.title}</h3>
-                  <p>{story.excerpt}</p>
-                </div>
-              </article>
-            ))}
+          <div className="map-window">
+            <div className="map-window-toolbar">
+              <span className="map-window-title">
+                <span aria-hidden="true" />
+                Goon Squad world map
+              </span>
+              <div className="map-window-controls" aria-hidden="true">
+                <span>-</span>
+                <span>o</span>
+                <span>+</span>
+              </div>
+            </div>
+            <div
+              className="map-preview"
+              role="img"
+              aria-label="Stylised placeholder map with rivers, routes, and settlement markers"
+            >
+              <div className="map-contours" aria-hidden="true" />
+              <span className="map-river" aria-hidden="true" />
+              <span className="map-road road-north" aria-hidden="true" />
+              <span className="map-road road-south" aria-hidden="true" />
+              <span className="map-place place-main">Main settlement</span>
+              <span className="map-place place-quarry">Old quarry</span>
+              <span className="map-place place-harbour">Western harbour</span>
+              <span className="map-scale">Preview map / Not live</span>
+            </div>
+            <div className="map-window-footer">
+              <span>Static atlas preview / Not live</span>
+              <Link to="/map">
+                Explore the full world <span aria-hidden="true">-&gt;</span>
+              </Link>
+            </div>
           </div>
         </div>
       </section>
 
-      <section
-        className="home-section events-section page-shell"
-        id="events"
-        aria-labelledby="events-title"
-      >
-        <SectionHeading
-          eyebrow="On the calendar"
-          title="Upcoming events"
-          description="Meetups, shared projects, and expeditions worth showing up prepared for."
-          linkTo="/events"
-          linkLabel="View all events"
-          titleId="events-title"
-        />
-        <div className="event-preview-list">
-          {upcomingEvents.map((event) => (
-            <article className="event-preview" key={event.slug}>
-              <time className="event-date" dateTime={event.startsAt}>
-                {event.dateLabel}
-              </time>
+      <div className="community-section">
+        <div className="page-shell community-grid">
+          <section
+            className="home-section stories-section"
+            aria-labelledby="stories-title"
+          >
+            <div className="story-ledger-heading" id="stories">
               <div>
-                <h3>{event.title}</h3>
-                <p>{event.description}</p>
+                <p className="eyebrow">From the archive</p>
+                <h2 id="stories-title">Recent stories</h2>
               </div>
-              <p className="event-organiser">
-                {event.timeLabel}
-                <span>Organised by {event.organiser}</span>
-              </p>
-            </article>
-          ))}
+              <Link to="/stories">
+                Read the archive <span aria-hidden="true">-&gt;</span>
+              </Link>
+            </div>
+            <div className="story-ledger">
+              {stories.slice(0, 3).map((story, index) => (
+                <article className="story-ledger-entry" key={story.slug}>
+                  <span className="story-number">
+                    {String(index + 1).padStart(2, '0')}
+                  </span>
+                  <div>
+                    <p className="story-meta">
+                      Archive entry /{' '}
+                      <time dateTime={story.publishedAt}>
+                        {story.dateLabel}
+                      </time>
+                    </p>
+                    <h3>{story.title}</h3>
+                    <p>{story.excerpt}</p>
+                  </div>
+                  <p className="story-author">
+                    <span aria-hidden="true">{story.author.charAt(0)}</span>
+                    By {story.author}
+                  </p>
+                </article>
+              ))}
+            </div>
+          </section>
+
+          <section
+            className="home-section events-section"
+            aria-labelledby="events-title"
+          >
+            {featuredEvent ? (
+              <article className="featured-event" id="events">
+                <div className="featured-event-inner">
+                  <p className="eyebrow">Next on the calendar</p>
+                  <h2 id="events-title">{featuredEvent.title}</h2>
+                  <time
+                    className="featured-event-date"
+                    dateTime={featuredEvent.startsAt}
+                  >
+                    <strong>{featuredEvent.dateLabel}</strong>
+                    <span>{featuredEvent.timeLabel}</span>
+                  </time>
+                  <p className="featured-event-description">
+                    {featuredEvent.description}
+                  </p>
+                  <p className="featured-event-organiser">
+                    <span aria-hidden="true">
+                      {featuredEvent.organiser.charAt(0)}
+                    </span>
+                    Organised by {featuredEvent.organiser}
+                  </p>
+                  <Link className="featured-event-link" to="/events">
+                    View event details
+                  </Link>
+                </div>
+              </article>
+            ) : null}
+          </section>
         </div>
-      </section>
+      </div>
 
       <section
         className="home-section screenshots-section"
-        id="screenshots"
         aria-labelledby="screenshots-title"
       >
         <div className="page-shell">
@@ -240,6 +253,7 @@ export function HomePage() {
             linkTo="/screenshots"
             linkLabel="Open the gallery"
             titleId="screenshots-title"
+            anchorId="screenshots"
           />
           <div className="screenshot-preview-grid">
             {screenshots.slice(0, 4).map((screenshot) => (
@@ -272,9 +286,10 @@ type SectionHeadingProps = {
   eyebrow: string
   title: string
   description: string
-  linkTo: string
-  linkLabel: string
+  linkTo?: string
+  linkLabel?: string
   titleId: string
+  anchorId: string
 }
 
 function SectionHeading({
@@ -284,18 +299,21 @@ function SectionHeading({
   linkTo,
   linkLabel,
   titleId,
+  anchorId,
 }: SectionHeadingProps) {
   return (
-    <div className="section-heading">
+    <div className="section-heading" id={anchorId}>
       <div>
         <p className="eyebrow">{eyebrow}</p>
         <h2 id={titleId}>{title}</h2>
       </div>
       <p>{description}</p>
-      <Link className="section-link" to={linkTo}>
-        {linkLabel}
-        <span aria-hidden="true">-&gt;</span>
-      </Link>
+      {linkTo && linkLabel ? (
+        <Link className="section-link" to={linkTo}>
+          {linkLabel}
+          <span aria-hidden="true">-&gt;</span>
+        </Link>
+      ) : null}
     </div>
   )
 }

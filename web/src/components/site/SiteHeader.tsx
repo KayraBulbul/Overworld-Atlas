@@ -5,8 +5,8 @@ import { ThemeToggle } from '../../features/theme/ThemeToggle'
 
 const navigation = [
   { label: 'Home', hash: 'home' },
-  { label: 'Map', hash: 'map' },
   { label: 'Players', hash: 'players' },
+  { label: 'Map', hash: 'map' },
   { label: 'Stories', hash: 'stories' },
   { label: 'Events', hash: 'events' },
   { label: 'Screenshots', hash: 'screenshots' },
@@ -29,7 +29,6 @@ export function SiteHeader() {
           </span>
           <span className="brand-copy">
             <strong>Goon Squad</strong>
-            <small>World archive</small>
           </span>
         </Link>
 

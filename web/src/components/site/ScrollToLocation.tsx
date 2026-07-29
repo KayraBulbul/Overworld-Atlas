@@ -17,7 +17,10 @@ export function ScrollToLocation() {
         '(prefers-reduced-motion: reduce)',
       ).matches
 
-      section?.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth' })
+      section?.scrollIntoView({
+        behavior: reduceMotion ? 'auto' : 'smooth',
+        block: 'start',
+      })
     })
 
     return () => {
