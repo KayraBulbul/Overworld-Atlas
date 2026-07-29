@@ -1,0 +1,15 @@
+# Local environment files
+.env
+api/.env
+web/.env
+web/.env.local
+
+# Local build and tooling output
+web/node_modules/
+web/dist/
+*.log
+
+# Editor and operating system files
+.DS_Store
+.idea/
+.vscode/

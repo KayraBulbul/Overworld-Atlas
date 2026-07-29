@@ -4,6 +4,8 @@
 
 This repository contains the Goon Squad Minecraft community website.
 
+The canonical product requirements are in `PRODUCT_REQUIREMENTS.md`. The detailed architecture and phased implementation roadmap are in `.opencode/skills/goon-squad-webapp/SKILL.md`. Read both before planning or implementing a product feature.
+
 The project uses:
 
 - React, TypeScript, and Vite for the frontend
@@ -23,6 +25,41 @@ The project should remain a modular monolith.
 
 Do not introduce microservices, Kubernetes, Redis, WebSockets, event buses, or additional infrastructure unless a concrete feature requires them.
 
+## Product Rules
+
+- Build a handcrafted community archive for a long-running private Minecraft world, not a generic landing page or SaaS dashboard.
+- Keep normal Discord login separate from requesting Minecraft server access. `Log In` must never open or submit the join-request flow.
+- Use the product roles `Visitor`, `Applicant`, `Member`, and `Admin`; treat application status as a separate concept.
+- The site owner uses their normal Discord-authenticated account with the `Admin` role. Do not create a separate admin authentication system.
+- Enforce all account, ownership, posting, application, and admin permissions in Go.
+- The Minecraft server uses Fabric. Do not plan Bukkit, Spigot, or Paper plugins.
+- Begin whitelist management as a manual admin workflow. RCON or a Fabric-side integration belongs to a later phase.
+- Use real server content and imagery when available, and keep placeholders easy to replace.
+
+## Experience Rules
+
+- Use an editorial, vintage world-atlas visual language with strong typography, structured sections, deliberate borders, restrained shadows, and subtle archival or map texture.
+- Avoid glowing gradients, excessive rounded cards, ubiquitous floating panels, huge centred marketing slogans, meaningless decoration, excessive empty space, and uniform card layouts.
+- Explore an old-style editorial serif for major headings and use a clean sans-serif for body and interface text. Font selection remains subject to implementation testing.
+- Support coherent light and dark themes. Use the provisional colour tokens in `PRODUCT_REQUIREMENTS.md` as starting points, not immutable values.
+- Prioritise readability, accessibility, keyboard operation, contrast, and responsive desktop/mobile layouts over decoration.
+- Reuse components without forcing every type of content into the same visual treatment.
+
+## Required Product Areas
+
+The public information architecture includes:
+
+- Home
+- Map
+- Players
+- Stories
+- Events
+- Join or Request Access
+- Theme toggle
+- Separate login or contextual account controls
+
+Required routes include `/`, `/map`, `/players`, `/stories`, `/stories/:slug`, `/events`, `/events/:slug`, `/account`, and `/admin`. Add protected story and event create/edit routes in the authentication and content-management phase. `/join` is optional and may complement, but not replace, the join-request dialog.
+
 ## Repository Structure
 
 Use this structure:
@@ -38,6 +75,7 @@ goon-squad/
 │       └── goon-squad-webapp/
 │           └── SKILL.md
 ├── AGENTS.md
+├── PRODUCT_REQUIREMENTS.md
 ├── docker-compose.yml
 ├── Makefile
 └── README.md
@@ -52,7 +90,7 @@ goon-squad/
 - Use normal React state for local UI state.
 - Use Tailwind CSS for styling.
 - Use React Hook Form and Zod for forms where useful.
-- Organise larger features by domain, such as builds, members, announcements, gallery, and server status.
+- Organise larger features by domain, such as stories, events, players, applications, authentication, gallery, BlueMap, and server status.
 - Include loading, empty, error, and success states.
 - Do not place secrets or private API credentials in frontend code.
 - Do not treat client-side validation as a security boundary.
@@ -70,6 +108,7 @@ goon-squad/
 - Validate all untrusted input in the Go API.
 - Protect every write endpoint on the server.
 - Do not expose RCON or WiseHosting management credentials.
+- Treat normal login and application-specific Discord OAuth as distinct intents, even when they share underlying OAuth infrastructure.
 
 Use this general request flow:
 
@@ -122,15 +161,16 @@ Use the `goon-squad-webapp` skill for the full roadmap.
 The intended order is:
 
 1. Foundation
-2. Public homepage and BlueMap
-3. Live Minecraft server status
-4. PostgreSQL-backed community content
+2. Public website shell and design system
+3. Live Minecraft status and BlueMap
+4. PostgreSQL-backed players, stories, and events
 5. Production deployment
-6. Discord authentication and administration
-7. Image uploads
-8. Rich BlueMap integration
-9. Minecraft statistics
-10. Optional community features
+6. Discord authentication and member content management
+7. Join requests, application tracking, and manual whitelist administration
+8. Image uploads
+9. Rich BlueMap integration
+10. Minecraft statistics and optional whitelist automation
+11. Optional community features
 
 Do not introduce later-phase infrastructure early unless a current feature genuinely depends on it.
 
@@ -173,6 +213,7 @@ After database changes, also run sqlc generation and migration checks.
 - Do not allow arbitrary file uploads.
 - Validate file size, type, ownership, and permissions before uploads.
 - Do not expose direct database access to the browser.
+- Never expose RCON, server-console, WiseHosting, or whitelist-management credentials to the browser.
 
 ## OpenCode Skill
 
@@ -193,6 +234,8 @@ Use the `goon-squad-webapp` skill when:
 - Integrating BlueMap
 - Integrating Minecraft statistics
 - Reviewing whether an implementation matches the roadmap
+
+Use `PRODUCT_REQUIREMENTS.md` when deciding product behaviour, page content, visual direction, navigation, role semantics, login and application behaviour, or unresolved owner decisions.
 
 ## Definition of Done
 

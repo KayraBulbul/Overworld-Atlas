@@ -1,0 +1,3 @@
+version: "1"
+directory: internal/database/migrations
+table: goose_db_version
