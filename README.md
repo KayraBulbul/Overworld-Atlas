@@ -6,7 +6,7 @@ Product and implementation planning is documented in:
 
 - `PRODUCT_REQUIREMENTS.md` for canonical product and experience requirements
 - `AGENTS.md` for repository-wide engineering constraints
-- `.opencode/skills/goon-squad-webapp/SKILL.md` for architecture and the phased delivery roadmap
+- `.agents/skills/goon-squad-webapp/SKILL.md` for architecture and the phased delivery roadmap
 
 ## Current Project Status
 

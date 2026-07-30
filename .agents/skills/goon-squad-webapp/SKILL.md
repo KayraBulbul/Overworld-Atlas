@@ -1,12 +1,6 @@
 ---
 name: goon-squad-webapp
 description: Guide the architecture, phased implementation, and engineering conventions for the Goon Squad Minecraft server website. Use when planning, implementing, reviewing, or extending the React/Vite frontend, Go API, PostgreSQL database, BlueMap integration, Discord authentication, join workflow, media storage, or Minecraft server integrations.
-compatibility: opencode
-metadata:
-  project: goon-squad
-  architecture: modular-monolith
-  frontend: react-vite-typescript
-  backend: go-chi-sqlc
 ---
 
 # Goon Squad Web Application
@@ -302,7 +296,7 @@ goon-squad/
 │
 ├── .github/
 │   └── workflows/
-├── .opencode/
+├── .agents/
 │   └── skills/
 ├── AGENTS.md
 ├── PRODUCT_REQUIREMENTS.md

@@ -2,7 +2,7 @@
 
 ## Document Status
 
-This document is the canonical product and experience specification for the Goon Squad Minecraft community website. `AGENTS.md` defines repository-wide engineering rules, and `.opencode/skills/goon-squad-webapp/SKILL.md` defines the architecture and phased implementation roadmap.
+This document is the canonical product and experience specification for the Goon Squad Minecraft community website. `AGENTS.md` defines repository-wide engineering rules, and `.agents/skills/goon-squad-webapp/SKILL.md` defines the architecture and phased implementation roadmap.
 
 When the owner changes a requirement, update this document and every corresponding Markdown source of truth, roadmap, or operational document in the same change.
 
@@ -498,7 +498,7 @@ Keep account role, application status, posting permission, and transient online 
 
 ## Delivery Phases
 
-The detailed roadmap and exit criteria live in `.opencode/skills/goon-squad-webapp/SKILL.md`. The required allocation is:
+The detailed roadmap and exit criteria live in `.agents/skills/goon-squad-webapp/SKILL.md`. The required allocation is:
 
 | Phase | Product allocation |
 |---|---|

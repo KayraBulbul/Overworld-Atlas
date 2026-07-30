@@ -4,7 +4,7 @@
 
 This repository contains the Goon Squad Minecraft community website.
 
-The canonical product requirements are in `PRODUCT_REQUIREMENTS.md`. The detailed architecture and phased implementation roadmap are in `.opencode/skills/goon-squad-webapp/SKILL.md`. Read both before planning or implementing a product feature.
+The canonical product requirements are in `PRODUCT_REQUIREMENTS.md`. The detailed architecture and phased implementation roadmap are in `.agents/skills/goon-squad-webapp/SKILL.md`. Read both before planning or implementing a product feature.
 
 The project uses:
 
@@ -71,7 +71,7 @@ goon-squad/
 │   └── React frontend
 ├── api/
 │   └── Go backend
-├── .opencode/
+├── .agents/
 │   └── skills/
 │       └── goon-squad-webapp/
 │           └── SKILL.md
@@ -186,7 +186,7 @@ Before implementing a feature:
 5. Implement the smallest complete vertical slice.
 6. Avoid unrelated refactors.
 
-When the owner requests a product or implementation requirement change, update `PRODUCT_REQUIREMENTS.md` and every corresponding Markdown source of truth, roadmap, or operational document in the same change. Do not leave superseded requirements in `AGENTS.md`, `.opencode/skills/goon-squad-webapp/SKILL.md`, `README.md`, or other affected documentation.
+When the owner requests a product or implementation requirement change, update `PRODUCT_REQUIREMENTS.md` and every corresponding Markdown source of truth, roadmap, or operational document in the same change. Do not leave superseded requirements in `AGENTS.md`, `.agents/skills/goon-squad-webapp/SKILL.md`, `README.md`, or other affected documentation.
 
 After work changes the implemented scope or roadmap position, update `README.md` under `Current Project Status` in the same change. Keep its active phase, completion point, latest additions, and next planned phase accurate; do not leave stale status for a later session.
 
@@ -220,12 +220,12 @@ After database changes, also run sqlc generation and migration checks.
 - Do not expose direct database access to the browser.
 - Never expose RCON, server-console, WiseHosting, or whitelist-management credentials to the browser.
 
-## OpenCode Skill
+## Codex Skill
 
 The detailed project architecture and implementation roadmap is stored at:
 
 ```text
-.opencode/skills/goon-squad-webapp/SKILL.md
+.agents/skills/goon-squad-webapp/SKILL.md
 ```
 
 Use the `goon-squad-webapp` skill when:
