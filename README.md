@@ -1,12 +1,28 @@
 # Goon Squad SMP
 
-The Goon Squad Minecraft community website is a modular monolith with a React frontend, a Go API, and PostgreSQL. The repository contains the Phase 0 foundation; the public editorial shell and design system are the next implementation phase.
+The Goon Squad Minecraft community website is a modular monolith with a React frontend, a Go API, and PostgreSQL. Work is organised through the phased product roadmap, beginning with the foundation and public editorial interface.
 
 Product and implementation planning is documented in:
 
 - `PRODUCT_REQUIREMENTS.md` for canonical product and experience requirements
 - `AGENTS.md` for repository-wide engineering constraints
 - `.opencode/skills/goon-squad-webapp/SKILL.md` for architecture and the phased delivery roadmap
+
+## Current Project Status
+
+Last updated: 30 July 2026.
+
+The project is at the completion and acceptance point of Phase 1, the public website shell and design system. Phase 0 is complete, all currently scoped Phase 1 implementation and automated checks pass, and Phase 2 has not started.
+
+The latest Phase 1 additions are:
+
+- The implemented public interface is now the approved visual baseline, including its Home, Players, Map, Stories, Events, and Screenshots section and navigation order.
+- The official logo, server address, and Goon Squad Mountain featured-settlement content are recorded as canonical product facts.
+- The featured settlement uses the optimised `web/public/images/settlements/featured_settlement.webp` image with supplied coordinates, description, and accessible alternative text.
+- Shared loading, error, and unavailable presentation primitives are available for later API-backed phases without changing the current static interface.
+- The complete frontend and backend check suite passes, including 17 frontend tests and the production builds.
+
+The next planned implementation work is Phase 2: live Minecraft server status and secure BlueMap integration.
 
 ## Foundation
 
@@ -102,7 +118,7 @@ Run the complete local check suite:
 make check
 ```
 
-This checks frontend formatting, linting, types, and the production build. It also checks Go formatting without modifying files, then runs `go vet`, tests, and a build.
+This checks frontend formatting, linting, types, tests, and the production build. It also checks Go formatting without modifying files, then runs `go vet`, tests, and a build.
 
 To format frontend files intentionally:
 
@@ -111,6 +127,21 @@ npm --prefix web run format
 ```
 
 GitHub Actions runs the same categories of checks on pushes and pull requests.
+
+## Phase 1 Assets
+
+Keep manually managed, replaceable images under `web/public/images/`. The official primary logo is `web/public/images/branding/goon-squad-logo.png`, and the Phase 1 featured settlement image is `web/public/images/settlements/featured_settlement.webp`.
+
+Use the remaining directories by content type:
+
+```text
+web/public/images/maps/
+web/public/images/screenshots/
+web/public/images/settlements/
+web/public/images/stories/
+```
+
+Phase 1 public content is centralised static preview data. Later phases replace those fixtures with the live Minecraft status API, BlueMap, PostgreSQL-backed community content, and storage-backed media without changing the public information architecture.
 
 ## Database Tooling
 

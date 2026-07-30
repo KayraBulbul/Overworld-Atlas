@@ -35,6 +35,7 @@ Do not introduce microservices, Kubernetes, Redis, WebSockets, event buses, or a
 - The Minecraft server uses Fabric. Do not plan Bukkit, Spigot, or Paper plugins.
 - Begin whitelist management as a manual admin workflow. RCON or a Fabric-side integration belongs to a later phase.
 - Use real server content and imagery when available, and keep placeholders easy to replace.
+- Treat the implemented Phase 1 public interface as the approved visual baseline. Preserve its layout, section order, navigation order, typography, spacing, and styling unless the owner explicitly requests a redesign.
 
 ## Experience Rules
 
@@ -50,8 +51,8 @@ Do not introduce microservices, Kubernetes, Redis, WebSockets, event buses, or a
 The public information architecture includes:
 
 - Home
-- Map
 - Players
+- Map
 - Stories
 - Events
 - Join or Request Access
@@ -184,6 +185,10 @@ Before implementing a feature:
 4. Follow existing conventions.
 5. Implement the smallest complete vertical slice.
 6. Avoid unrelated refactors.
+
+When the owner requests a product or implementation requirement change, update `PRODUCT_REQUIREMENTS.md` and every corresponding Markdown source of truth, roadmap, or operational document in the same change. Do not leave superseded requirements in `AGENTS.md`, `.opencode/skills/goon-squad-webapp/SKILL.md`, `README.md`, or other affected documentation.
+
+After work changes the implemented scope or roadmap position, update `README.md` under `Current Project Status` in the same change. Keep its active phase, completion point, latest additions, and next planned phase accurate; do not leave stale status for a later session.
 
 Before completing frontend work, run:
 
