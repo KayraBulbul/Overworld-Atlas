@@ -128,6 +128,21 @@ npm --prefix web run format
 
 GitHub Actions runs the same categories of checks on pushes and pull requests.
 
+The public interface also has zero-tolerance Playwright snapshots for Chromium,
+Firefox, and WebKit. Run them in the pinned browser environment:
+
+```bash
+docker run --rm --network host --user "$(id -u):$(id -g)" \
+  -e HOME=/tmp \
+  -v "$PWD/web:/work" \
+  -w /work \
+  mcr.microsoft.com/playwright:v1.62.0-noble \
+  npm run test:visual
+```
+
+Only update an accepted visual baseline deliberately with
+`npm run test:visual:update` in that same container environment.
+
 ## Phase 1 Assets
 
 Keep manually managed, replaceable images under `web/public/images/`. The official primary logo is `web/public/images/branding/goon-squad-logo.png`, and the Phase 1 featured settlement image is `web/public/images/settlements/featured_settlement.webp`.

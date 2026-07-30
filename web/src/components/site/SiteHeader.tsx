@@ -1,3 +1,4 @@
+import { tw } from '../../styles/tailwindStyles'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAccessPreview } from '../../features/access/accessContext'
@@ -21,30 +22,30 @@ export function SiteHeader() {
   }
 
   return (
-    <header className="site-header">
-      <div className="header-inner">
-        <Link className="brand" to="/#home" onClick={closeMenu}>
+    <header className={tw('site-header')}>
+      <div className={tw('header-inner')}>
+        <Link className={tw('brand')} to="/#home" onClick={closeMenu}>
           <img
-            className="brand-logo"
+            className={tw('brand-logo')}
             src="/images/branding/goon-squad-logo.png"
             alt="Goon Squad"
           />
         </Link>
 
         <button
-          className="menu-button"
+          className={tw('menu-button')}
           type="button"
           aria-controls="primary-navigation"
           aria-expanded={isMenuOpen}
           onClick={() => setIsMenuOpen((isOpen) => !isOpen)}
         >
           <span aria-hidden="true">Menu</span>
-          <span className="menu-lines" aria-hidden="true" />
+          <span className={tw('menu-lines')} aria-hidden="true" />
         </button>
 
         <nav
           id="primary-navigation"
-          className="primary-navigation"
+          className={tw('primary-navigation')}
           aria-label="Primary navigation"
           data-open={isMenuOpen}
         >
@@ -54,7 +55,7 @@ export function SiteHeader() {
             </Link>
           ))}
           <button
-            className="nav-join"
+            className={tw('nav-join')}
             type="button"
             onClick={() => {
               closeMenu()
@@ -65,10 +66,10 @@ export function SiteHeader() {
           </button>
         </nav>
 
-        <div className="header-actions">
+        <div className={tw('header-actions')}>
           <ThemeToggle />
           <button
-            className="login-button"
+            className={tw('login-button')}
             type="button"
             onClick={openLoginPreview}
           >

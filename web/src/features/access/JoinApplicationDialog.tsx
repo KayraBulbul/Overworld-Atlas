@@ -1,3 +1,4 @@
+import { tw } from '../../styles/tailwindStyles'
 import * as Dialog from '@radix-ui/react-dialog'
 
 type JoinApplicationDialogProps = {
@@ -12,22 +13,25 @@ export function JoinApplicationDialog({
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
-        <Dialog.Overlay className="dialog-overlay" />
-        <Dialog.Content className="access-dialog join-dialog">
-          <Dialog.Close className="dialog-close" aria-label="Close application">
+        <Dialog.Overlay className={tw('dialog-overlay')} />
+        <Dialog.Content className={tw('access-dialog join-dialog')}>
+          <Dialog.Close
+            className={tw('dialog-close')}
+            aria-label="Close application"
+          >
             <CloseIcon />
           </Dialog.Close>
 
-          <div className="dialog-heading">
-            <p className="eyebrow">Whitelisted survival</p>
+          <div className={tw('dialog-heading')}>
+            <p className={tw('eyebrow')}>Whitelisted survival</p>
             <Dialog.Title>Request passage</Dialog.Title>
-            <Dialog.Description className="dialog-description">
+            <Dialog.Description className={tw('dialog-description')}>
               Preview the future application for this private server. Fields can
               be explored, but nothing is submitted or saved during Phase 1.
             </Dialog.Description>
           </div>
 
-          <div className="join-details" aria-label="Application details">
+          <div className={tw('join-details')} aria-label="Application details">
             <div>
               <span>Review</span>
               <strong>Manual</strong>
@@ -43,7 +47,7 @@ export function JoinApplicationDialog({
           </div>
 
           <form
-            className="application-preview-form"
+            className={tw('application-preview-form')}
             onSubmit={(event) => event.preventDefault()}
           >
             <label htmlFor="minecraft-username">
@@ -66,7 +70,7 @@ export function JoinApplicationDialog({
               />
             </label>
 
-            <label className="rules-agreement" htmlFor="rules-agreement">
+            <label className={tw('rules-agreement')} htmlFor="rules-agreement">
               <input
                 id="rules-agreement"
                 name="rulesAgreement"
@@ -78,16 +82,24 @@ export function JoinApplicationDialog({
               </span>
             </label>
 
-            <div className="application-actions">
-              <button className="discord-preview-button" type="button" disabled>
+            <div className={tw('application-actions')}>
+              <button
+                className={tw('discord-preview-button')}
+                type="button"
+                disabled
+              >
                 Continue with Discord
               </button>
-              <button className="submit-preview-button" type="submit" disabled>
+              <button
+                className={tw('submit-preview-button')}
+                type="submit"
+                disabled
+              >
                 Submit application
               </button>
             </div>
 
-            <p className="application-disabled-note" role="note">
+            <p className={tw('application-disabled-note')} role="note">
               Applications are not yet accepted through this site. Discord
               identification and submission arrive in Phase 6.
             </p>

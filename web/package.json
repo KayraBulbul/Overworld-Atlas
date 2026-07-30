@@ -8,8 +8,11 @@
     "build": "tsc -b && vite build",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "lint": "oxlint",
+    "check:styles": "node scripts/check-tailwind-boundary.mjs",
+    "lint": "oxlint && npm run check:styles",
     "test": "vitest run",
+    "test:visual": "playwright test",
+    "test:visual:update": "playwright test --update-snapshots",
     "typecheck": "tsc -b",
     "preview": "vite preview"
   },
@@ -21,6 +24,7 @@
     "react-router-dom": "7.18.2"
   },
   "devDependencies": {
+    "@playwright/test": "1.62.0",
     "@tailwindcss/vite": "^4.3.3",
     "@testing-library/jest-dom": "^7.0.0",
     "@testing-library/react": "^16.3.2",

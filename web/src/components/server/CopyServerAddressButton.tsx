@@ -1,3 +1,4 @@
+import { tw } from '../../styles/tailwindStyles'
 import { useEffect, useRef, useState } from 'react'
 
 type CopyState = 'idle' | 'copied' | 'failed'
@@ -39,7 +40,11 @@ export function CopyServerAddressButton({ address }: { address: string }) {
         : address
 
   return (
-    <button className="copy-address-button" type="button" onClick={copyAddress}>
+    <button
+      className={tw('copy-address-button')}
+      type="button"
+      onClick={copyAddress}
+    >
       <span>
         <small>Server address</small>
         <strong>{feedback}</strong>
@@ -54,7 +59,7 @@ export function CopyServerAddressButton({ address }: { address: string }) {
           </>
         )}
       </svg>
-      <span className="visually-hidden" aria-live="polite">
+      <span className={tw('visually-hidden')} aria-live="polite">
         {copyState === 'copied'
           ? `Copied ${address}`
           : copyState === 'failed'
