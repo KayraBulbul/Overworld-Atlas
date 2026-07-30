@@ -21,9 +21,16 @@ describe('HomePage', () => {
     ).toBeInTheDocument()
     expect(
       screen
-        .getByRole('heading', { name: 'Settlement name pending' })
+        .getByRole('heading', { name: 'Goon Squad Mountain' })
         .closest('.home-hero'),
     ).toBeInTheDocument()
+    expect(
+      screen.getByRole('img', {
+        name: /a path through goon squad mountain/i,
+      }),
+    ).toHaveAttribute('src', '/images/settlements/featured_settlement.webp')
+    expect(screen.getByText('-1129, 119, 1030')).toBeInTheDocument()
+    expect(screen.getByText('The promised land')).toBeInTheDocument()
     expect(screen.getAllByTestId('player-preview')).toHaveLength(4)
     expect(screen.getByText('Online preview')).toBeInTheDocument()
     expect(

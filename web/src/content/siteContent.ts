@@ -17,13 +17,13 @@ export const siteContent = {
     blueMapUrl: 'http://51.161.199.235:25674/',
   },
   settlement: {
-    name: 'Settlement name pending',
-    coordinates: 'Coordinates pending',
+    name: 'Goon Squad Mountain',
+    coordinates: '-1129, 119, 1030',
     dimension: 'Overworld',
-    description:
-      'This space is reserved for the main settlement, its story, and the view that best introduces the world.',
+    description: 'The promised land',
+    imageSrc: '/images/settlements/featured_settlement.webp',
     imageAlt:
-      'Placeholder landscape marking where the featured settlement image will appear',
+      "A path through Goon Squad Mountain, with Ethan's hole beside the route and the greenhouse and trading hall visible in the background.",
   },
 } as const
 

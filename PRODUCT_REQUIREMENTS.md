@@ -4,6 +4,8 @@
 
 This document is the canonical product and experience specification for the Goon Squad Minecraft community website. `AGENTS.md` defines repository-wide engineering rules, and `.opencode/skills/goon-squad-webapp/SKILL.md` defines the architecture and phased implementation roadmap.
 
+When the owner changes a requirement, update this document and every corresponding Markdown source of truth, roadmap, or operational document in the same change.
+
 Updating these documents is Phase 0 planning work. The features described here belong to the implementation phases assigned in the roadmap and must not all be treated as Phase 0 deliverables.
 
 The existing HTML mock is rough visual direction only. It is not a final layout or component specification, and its visual imperfections should not be copied without review.
@@ -63,6 +65,8 @@ The exact policy for promoting a whitelisted applicant to `Member` remains an op
 ## Visual Direction
 
 ### Character
+
+The implemented Phase 1 public interface is the approved visual baseline. Preserve its layout, homepage section order, navigation order, typography, spacing, and styling unless the owner explicitly requests a redesign. If an older requirement conflicts only with that accepted presentation, update the requirement rather than restyling the approved interface.
 
 Use an editorial, vintage world-atlas aesthetic with:
 
@@ -138,8 +142,8 @@ The primary navigation includes:
 
 - Goon Squad logo and name
 - Home
-- Map
 - Players
+- Map
 - Stories
 - Events
 - Screenshots
@@ -147,7 +151,7 @@ The primary navigation includes:
 - Theme toggle
 - Login or account controls
 
-Use direct labels. Home, Map, Players, Stories, Events, and Screenshots target their corresponding homepage sections. From another page, they return to the homepage and scroll to that section. Each homepage section provides a clearly labelled action to its expanded page. Do not hide these destinations inside vague dropdowns. On constrained mobile layouts, the navigation may collapse for space, but every destination must remain directly labelled and easy to reach.
+Use direct labels in homepage order: Home, Players, Map, Stories, Events, and Screenshots. These labels target their corresponding homepage sections. From another page, they return to the homepage and scroll to that section. Each homepage section provides a clearly labelled action to its expanded page. Do not hide these destinations inside vague dropdowns. On constrained mobile layouts, the navigation may collapse for space, but every destination must remain directly labelled and easy to reach.
 
 The `Join` item may open the request-access dialog rather than navigate to a dedicated route.
 
@@ -215,6 +219,8 @@ Copying the server IP should happen immediately. The button should briefly chang
 
 The server address is `51.161.199.235:25584`.
 
+The official Phase 1 logo is `web/public/images/branding/goon-squad-logo.png`.
+
 `Request Access` opens the join-request dialog. In Phase 1 the complete form may be previewed, but its submission action remains disabled and explains that applications are not yet being accepted through the website.
 
 The Phase 1 homepage player preview may show at most four centralised fixture players. Phase 2 replaces the preview with live presence data.
@@ -229,6 +235,8 @@ Include:
 - A short description
 
 Use real server imagery when available. Any placeholder asset and content must be centralised or otherwise easy to replace.
+
+The Phase 1 featured settlement is Goon Squad Mountain at X `-1129`, Y `119`, Z `1030` in the Overworld. Its short description is "The promised land", and its image is `web/public/images/settlements/featured_settlement.webp`.
 
 ### Embedded World Map
 
@@ -246,9 +254,11 @@ The dedicated Map page should provide a larger or full-screen exploration experi
 Include:
 
 - The latest two or three stories
-- Story image, author, date, title, and excerpt
+- Author, date, title, and excerpt
 - Upcoming events
-- Links to `All Stories` and `All Events`
+- Clearly labelled links from the story and event sections to `/stories` and `/events`
+
+The approved Phase 1 homepage uses a text-ledger treatment for stories and does not require images in that compact section. Story imagery remains appropriate on expanded story previews and individual stories when real media is available.
 
 Creating and editing content uses dedicated authenticated forms. The homepage must not become an inline content editor.
 
@@ -332,7 +342,7 @@ The request-access modal or dialog is exclusively for applying to join the Minec
 
 Do not make every Discord or login-related action open this dialog.
 
-Before Phase 6, the dialog may present the planned fields and explanatory content as a visual preview, but submission and Discord continuation remain disabled. It must not store a draft or show a successful-submission state.
+Before Phase 6, the dialog may present the planned fields and concise pending server information as a visual preview, but submission and Discord continuation remain disabled. It must not store a draft or show a successful-submission state. Finalised version, mod, rule, and post-submission guidance is required when Phase 6 enables the application flow, not as a condition of the approved Phase 1 preview.
 
 The dialog should explain:
 
@@ -511,7 +521,7 @@ Authentication and backend-enforced roles must exist before protected account ma
 The following decisions need owner input before their implementation phase:
 
 1. Minecraft/Fabric version, required client mods, rules, and post-approval instructions.
-2. Real logo, featured-settlement name, coordinates, description, screenshots, and initial BlueMap camera target.
+2. Real story and screenshot media, and the initial BlueMap camera target.
 3. How existing accounts are recognised for normal login before someone applies, such as pre-provisioned Discord identities or confirmed Discord server membership.
 4. Whether whitelisted applicants automatically become `Member`, require a separate promotion, or receive member status through another process.
 5. Which members may create stories and events, whether publication requires review, and whether organiser/co-author roles are needed.

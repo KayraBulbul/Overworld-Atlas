@@ -43,6 +43,8 @@ Follow the phased roadmap. Do not introduce infrastructure or protected features
 
 Build a handcrafted archive for a long-running shared world, not a generic landing page, gaming template, or SaaS dashboard.
 
+The implemented Phase 1 public interface is the owner-approved visual baseline. Preserve its layout, homepage section order, navigation order, typography, spacing, and styling unless the owner explicitly requests a redesign. When an older presentation requirement conflicts with that accepted interface, update the requirement instead of restyling the implementation.
+
 - Use an editorial, vintage world-atlas visual language.
 - Use strong typography, structured sections, deliberate borders, restrained shadows, and subtle archival or map texture.
 - Prefer mostly sharp or slightly rounded corners.
@@ -343,7 +345,7 @@ Add these protected routes in the authentication and member-content phase:
 
 `/join` is optional and may provide a full-page/shareable alternative to the join dialog. It does not replace the modal requirement.
 
-Primary navigation should directly label Home, Map, Players, Stories, Events, Screenshots, and Join, alongside the Goon Squad logo/name, theme toggle, and contextual login/account control. The public content labels target homepage sections; from expanded pages they return home and scroll to the section. Clearly labelled actions within each section open `/map`, `/players`, `/stories`, `/events`, or `/screenshots`. Mobile navigation may collapse spatially but may not obscure the information architecture behind vague labels.
+Primary navigation should directly label Home, Players, Map, Stories, Events, Screenshots, and Join in homepage order, alongside the Goon Squad logo/name, theme toggle, and contextual login/account control. The public content labels target homepage sections; from expanded pages they return home and scroll to the section. Clearly labelled actions within each section open `/players`, `/map`, `/stories`, `/events`, or `/screenshots`. Mobile navigation may collapse spatially but may not obscure the information architecture behind vague labels.
 
 Rules and server information may live in the Join flow. `/rules` and `/server` may remain supplemental routes if useful, but are not substitutes for required destinations.
 
@@ -373,7 +375,7 @@ Include a nearly full-width BlueMap embed centred initially near the main settle
 
 ## Community Content
 
-Show the latest two or three stories with image, author, date, title, and excerpt; show upcoming events; and link to all stories and events. Also show a curated screenshot preview with date, contributor, alt text, and a link to `/screenshots`. Creation and editing belong on protected dedicated forms, never inline on the homepage.
+Show the latest two or three stories with author, date, title, and excerpt; show upcoming events; and link to all stories and events. The approved Phase 1 homepage uses a compact text-ledger treatment without story images; expanded previews and individual stories may use imagery when available. Also show a curated screenshot preview with date, contributor, alt text, and a link to `/screenshots`. Creation and editing belong on protected dedicated forms, never inline on the homepage.
 
 # Backend Conventions
 
@@ -1152,6 +1154,7 @@ When implementing a feature:
 12. Do not silently add infrastructure or resolve an open product decision.
 13. Do not alter the architecture or hosting plan without a concrete reason.
 14. Keep normal login and application intent distinct in UI, routes, state, and backend handling.
+15. When the owner changes a requirement, update `PRODUCT_REQUIREMENTS.md` and every corresponding Markdown source of truth, roadmap, or operational document in the same change.
 
 # Definition of Done
 

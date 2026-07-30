@@ -50,11 +50,12 @@ export function HomePage() {
           className="hero-settlement"
           aria-labelledby="featured-settlement-title"
         >
-          <div
-            className="settlement-visual"
-            role="img"
-            aria-label={siteContent.settlement.imageAlt}
-          >
+          <div className="settlement-visual">
+            <img
+              className="settlement-image"
+              src={siteContent.settlement.imageSrc}
+              alt={siteContent.settlement.imageAlt}
+            />
             <span
               className="settlement-corner corner-left"
               aria-hidden="true"
@@ -63,10 +64,6 @@ export function HomePage() {
               className="settlement-corner corner-right"
               aria-hidden="true"
             />
-            <span className="settlement-sun" aria-hidden="true" />
-            <span className="settlement-ridge ridge-back" aria-hidden="true" />
-            <span className="settlement-ridge ridge-front" aria-hidden="true" />
-            <span className="settlement-keep" aria-hidden="true" />
           </div>
           <div className="settlement-copy">
             <p className="eyebrow">Featured settlement</p>
