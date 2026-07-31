@@ -43,3 +43,40 @@ func TestWriteString(t *testing.T) {
 		})
 	}
 }
+
+func TestWritePacket(t *testing.T) {
+	tests := []struct {
+		name     string
+		packetID int32
+		payload  []byte
+		expected []byte
+	}{
+		{
+			name:     "Empty payload",
+			packetID: int32(0),
+			payload:  []byte{},
+			expected: []byte{0x01, 0x00},
+		},
+		{
+			name:     "Regular payload",
+			packetID: int32(1),
+			payload:  []byte{0xAA, 0xBB},
+			expected: []byte{0x03, 0x01, 0xAA, 0xBB},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			var buffer bytes.Buffer
+
+			err := writePacket(&buffer, test.packetID, test.payload)
+			if err != nil {
+				t.Fatalf("writePacket returned an error: %v", err)
+			}
+
+			if !bytes.Equal(buffer.Bytes(), test.expected) {
+				t.Errorf("expected % X, got % X", test.expected, buffer.Bytes())
+			}
+		})
+	}
+}
