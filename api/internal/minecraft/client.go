@@ -6,6 +6,9 @@ import (
 	"bytes"
 	"context"
 	"encoding/binary"
+	"encoding/json"
+	"errors"
+	"fmt"
 	"net"
 	"strconv"
 	"time"
@@ -34,6 +37,27 @@ type Status struct {
 	ProtocolVersion       int
 	CheckedAt             time.Time
 	Stale                 bool
+}
+
+type statusResponse struct {
+	Version statusVersion `json:"version"`
+	Players statusPlayers `json:"players"`
+}
+
+type statusVersion struct {
+	Name     string `json:"name"`
+	Protocol int    `json:"protocol"`
+}
+
+type statusPlayers struct {
+	Max    int             `json:"max"`
+	Online int             `json:"online"`
+	Sample []sampledPlayer `json:"sample"`
+}
+
+type sampledPlayer struct {
+	Name string `json:"name"`
+	ID   string `json:"id"`
 }
 
 func GetStatus(ctx context.Context, address string) (Status, error) {
@@ -74,8 +98,48 @@ func GetStatus(ctx context.Context, address string) (Status, error) {
 
 	reader := bufio.NewReader(conn)
 	packetID, payload, err := readPacket(reader, maxPacketSize)
+	if err != nil {
+		return Status{}, err
+	}
 
-	return Status{}, nil
+	if packetID != 0 {
+		return Status{}, errors.New("unexpected status response packed ID")
+	}
+
+	payloadReader := bytes.NewReader(payload)
+	statusJSON, err := readString(payloadReader, maxPacketSize)
+	if err != nil {
+		return Status{}, err
+	}
+
+	var response statusResponse
+
+	if err := json.Unmarshal([]byte(statusJSON), &response); err != nil {
+		return Status{}, fmt.Errorf("decode Minecraft status response: %w", err)
+	}
+
+	players := make([]Player, 0, len(response.Players.Sample))
+
+	for _, sampled := range response.Players.Sample {
+		players = append(players, Player{
+			Username: sampled.Name,
+			UUID:     sampled.ID,
+		})
+	}
+
+	sampleAvailable := response.Players.Sample != nil
+
+	return Status{
+		State:                 StateOnline,
+		OnlinePlayers:         response.Players.Online,
+		MaxPlayers:            response.Players.Max,
+		PlayerSampleAvailable: sampleAvailable,
+		Players:               players,
+		Version:               response.Version.Name,
+		ProtocolVersion:       response.Version.Protocol,
+		CheckedAt:             time.Now().UTC(),
+		Stale:                 false,
+	}, nil
 }
 
 func buildHandshakePayload(
