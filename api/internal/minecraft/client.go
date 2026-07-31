@@ -65,9 +65,10 @@ var (
 	ErrProtocol  = errors.New("minecraft protocol error")
 )
 
+const maxPacketSize int32 = 1 << 20
+
 func GetStatus(ctx context.Context, address string) (Status, error) {
 	dialer := net.Dialer{}
-	const maxPacketSize int32 = 1 << 20
 
 	conn, err := dialer.DialContext(ctx, "tcp", address)
 	if err != nil {

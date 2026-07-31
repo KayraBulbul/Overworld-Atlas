@@ -1,7 +1,11 @@
 package minecraft
 
 import (
+	"bufio"
 	"bytes"
+	"context"
+	"errors"
+	"net"
 	"testing"
 )
 
@@ -38,5 +42,47 @@ func TestBuildHandshakePayload(t *testing.T) {
 				t.Errorf("expected % X, got % X", test.expected, payload)
 			}
 		})
+	}
+}
+
+func TestGetStatusTransportError(t *testing.T) {
+	ctx := context.Background()
+
+	_, err := GetStatus(ctx, "127.0.0.1:1")
+	if err == nil {
+		t.Fatal("expected an error")
+	}
+
+	if !errors.Is(err, ErrTransport) {
+		t.Fatalf("expected ErrTransport, got %v", err)
+	}
+}
+
+func TestGetStatusProtocolError(t *testing.T) {
+	listener, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		t.Fatalf("error creating listener: %v", err)
+	}
+
+	defer listener.Close()
+
+	go func() {
+		conn, err := listener.Accept()
+		if err != nil {
+			return
+		}
+		defer conn.Close()
+
+		reader := bufio.NewReader(conn)
+
+		_, _, _ = readPacket(reader, maxPacketSize) // handshake
+		_, _, _ = readPacket(reader, maxPacketSize) // status request
+
+		_ = writePacket(conn, 1, nil) // wrong response packet ID
+	}()
+
+	_, err = GetStatus(context.Background(), listener.Addr().String())
+	if !errors.Is(err, ErrProtocol) {
+		t.Fatalf("expected ErrProtocol, got %v", err)
 	}
 }
