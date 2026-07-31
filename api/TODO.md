@@ -41,7 +41,7 @@ Use the repository's consistent JSON error envelope for request-level failures. 
 
 ## Implementation Tasks
 
-- [ ] Add environment-backed Minecraft status configuration to `api/.env.example`.
+- [x] Add environment-backed Minecraft status configuration to `api/.env.example`.
   - Host and port should be independently configurable.
   - Keep the committed local/default value public-safe.
   - Add a bounded query timeout.
