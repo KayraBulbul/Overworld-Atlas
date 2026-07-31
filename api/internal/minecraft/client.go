@@ -60,24 +60,29 @@ type sampledPlayer struct {
 	ID   string `json:"id"`
 }
 
+var (
+	ErrTransport = errors.New("minecraft transport error")
+	ErrProtocol  = errors.New("minecraft protocol error")
+)
+
 func GetStatus(ctx context.Context, address string) (Status, error) {
 	dialer := net.Dialer{}
 	const maxPacketSize int32 = 1 << 20
 
 	conn, err := dialer.DialContext(ctx, "tcp", address)
 	if err != nil {
-		return Status{}, err
+		return Status{}, fmt.Errorf("%w: connect: %v", ErrTransport, err)
 	}
 	defer conn.Close()
 
 	host, portText, err := net.SplitHostPort(address)
 	if err != nil {
-		return Status{}, err
+		return Status{}, fmt.Errorf("invalid Minecraft address %q: %w", address, err)
 	}
 
 	portNumber, err := strconv.ParseUint(portText, 10, 16)
 	if err != nil {
-		return Status{}, err
+		return Status{}, fmt.Errorf("invalid Minecraft port %q: %w", portText, err)
 	}
 
 	payload, err := buildHandshakePayload(
@@ -86,36 +91,36 @@ func GetStatus(ctx context.Context, address string) (Status, error) {
 		uint16(portNumber),
 	)
 	if err != nil {
-		return Status{}, err
+		return Status{}, fmt.Errorf("%w: build handshake: %v", ErrProtocol, err)
 	}
 
 	if err = writePacket(conn, 0, payload); err != nil {
-		return Status{}, err
+		return Status{}, fmt.Errorf("%w: send handshake: %v", ErrTransport, err)
 	}
 	if err = writePacket(conn, 0, nil); err != nil {
-		return Status{}, err
+		return Status{}, fmt.Errorf("%w: send status request: %v", ErrTransport, err)
 	}
 
 	reader := bufio.NewReader(conn)
 	packetID, payload, err := readPacket(reader, maxPacketSize)
 	if err != nil {
-		return Status{}, err
+		return Status{}, fmt.Errorf("%w: read status response: %v", ErrTransport, err)
 	}
 
 	if packetID != 0 {
-		return Status{}, errors.New("unexpected status response packed ID")
+		return Status{}, fmt.Errorf("%w: unexpected status response packed ID %d", ErrProtocol, packetID)
 	}
 
 	payloadReader := bytes.NewReader(payload)
 	statusJSON, err := readString(payloadReader, maxPacketSize)
 	if err != nil {
-		return Status{}, err
+		return Status{}, fmt.Errorf("%w: decode status response string: %v", ErrProtocol, err)
 	}
 
 	var response statusResponse
 
 	if err := json.Unmarshal([]byte(statusJSON), &response); err != nil {
-		return Status{}, fmt.Errorf("decode Minecraft status response: %w", err)
+		return Status{}, fmt.Errorf("%w: decode status response JSON: %v", ErrProtocol, err)
 	}
 
 	players := make([]Player, 0, len(response.Players.Sample))
