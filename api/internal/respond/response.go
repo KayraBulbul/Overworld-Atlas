@@ -1,4 +1,5 @@
-package main
+// Package respond contains response utility functions
+package respond
 
 import (
 	"encoding/json"
@@ -10,7 +11,7 @@ type errorResponse struct {
 	Error string `json:"error"`
 }
 
-func respondWithJSON(w http.ResponseWriter, code int, payload any) {
+func RespondWithJSON(w http.ResponseWriter, code int, payload any) {
 	data, err := json.Marshal(payload)
 	if err != nil {
 		log.Printf("Error marshalling JSON: %s", err)
@@ -26,8 +27,8 @@ func respondWithJSON(w http.ResponseWriter, code int, payload any) {
 	}
 }
 
-func respondWithError(w http.ResponseWriter, code int, msg string) {
-	respondWithJSON(w, code, errorResponse{
+func RespondWithError(w http.ResponseWriter, code int, msg string) {
+	RespondWithJSON(w, code, errorResponse{
 		Error: msg,
 	})
 }

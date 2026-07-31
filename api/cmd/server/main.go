@@ -6,23 +6,23 @@ import (
 	"os"
 	"time"
 
+	"github.com/KayraBulbul/Goon-Squad-SMP/api/internal/config"
+	"github.com/KayraBulbul/Goon-Squad-SMP/api/internal/handlers"
+	"github.com/KayraBulbul/Goon-Squad-SMP/api/internal/middleware"
+
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/cors"
-	"github.com/go-chi/httplog/v3"
-	"github.com/joho/godotenv"
 )
 
 func newRouter(logger *slog.Logger, options cors.Options) http.Handler {
 	r := chi.NewRouter()
 
-	r.Use(httplog.RequestLogger(logger, &httplog.Options{
-		Level: slog.LevelInfo,
-	}))
+	r.Use(middleware.RequestLogger(logger))
 
 	r.Use(cors.Handler(options))
 
 	r.Route("/api/v1", func(r chi.Router) {
-		r.Get("/health", healthHandler)
+		r.Get("/health", handlers.HealthHandler)
 	})
 
 	return r
@@ -31,21 +31,10 @@ func newRouter(logger *slog.Logger, options cors.Options) http.Handler {
 func main() {
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 
-	err := godotenv.Load()
-	if err != nil {
-		logger.Error("couldn't load environment", "error", err)
-	}
-	apiAddress := os.Getenv("API_ADDR")
-	if apiAddress == "" {
-		apiAddress = ":8080"
-	}
-	corsAllowedOrigin := os.Getenv("CORS_ALLOWED_ORIGIN")
-	if corsAllowedOrigin == "" {
-		corsAllowedOrigin = "http://localhost:5173"
-	}
+	cfg := config.GetConfig()
 
 	router := newRouter(logger, cors.Options{
-		AllowedOrigins: []string{corsAllowedOrigin},
+		AllowedOrigins: []string{cfg.CORSAllowedOrigin},
 		AllowedMethods: []string{
 			http.MethodGet,
 			http.MethodOptions,
@@ -60,7 +49,7 @@ func main() {
 	})
 
 	server := &http.Server{
-		Addr:              apiAddress,
+		Addr:              cfg.APIAddress,
 		Handler:           router,
 		ReadHeaderTimeout: 5 * time.Second,
 		ReadTimeout:       10 * time.Second,
@@ -68,9 +57,9 @@ func main() {
 		IdleTimeout:       60 * time.Second,
 	}
 
-	logger.Info("starting server", "address", apiAddress)
+	logger.Info("starting server", "address", cfg.APIAddress)
 
-	if err = server.ListenAndServe(); err != nil {
+	if err := server.ListenAndServe(); err != nil {
 		logger.Error("server stopped", "error", err)
 		os.Exit(1)
 	}
