@@ -1,6 +1,7 @@
 package minecraft
 
 import (
+	"bufio"
 	"bytes"
 	"testing"
 )
@@ -76,6 +77,85 @@ func TestWritePacket(t *testing.T) {
 
 			if !bytes.Equal(buffer.Bytes(), test.expected) {
 				t.Errorf("expected % X, got % X", test.expected, buffer.Bytes())
+			}
+		})
+	}
+}
+
+func TestReadPacket(t *testing.T) {
+	tests := []struct {
+		name            string
+		input           []byte
+		maxSize         int32
+		expectedID      int32
+		expectedPayload []byte
+		wantErr         bool
+	}{
+		{
+			name:            "status request packet",
+			input:           []byte{0x01, 0x00},
+			maxSize:         1024,
+			expectedID:      0,
+			expectedPayload: []byte{},
+		},
+		{
+			name:            "packet with payload",
+			input:           []byte{0x03, 0x01, 0xAA, 0xBB},
+			maxSize:         1024,
+			expectedID:      1,
+			expectedPayload: []byte{0xAA, 0xBB},
+		},
+		{
+			name:    "zero packet length",
+			input:   []byte{0x00},
+			maxSize: 1024,
+			wantErr: true,
+		},
+		{
+			name:    "packet exceeds maximum size",
+			input:   []byte{0x05, 0x00, 0x01, 0x02, 0x03, 0x04},
+			maxSize: 4,
+			wantErr: true,
+		},
+		{
+			name:    "truncated packet",
+			input:   []byte{0x03, 0x00},
+			maxSize: 1024,
+			wantErr: true,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			reader := bufio.NewReader(bytes.NewReader(test.input))
+
+			packetID, payload, err := readPacket(reader, test.maxSize)
+
+			if test.wantErr {
+				if err == nil {
+					t.Fatal("expected an error, got nil")
+				}
+				return
+			}
+
+			if err != nil {
+				t.Fatalf("readPacket returned an unexpected error: %v", err)
+			}
+
+			if packetID != test.expectedID {
+				t.Errorf(
+					"expected packet ID %d, got %d",
+					test.expectedID,
+					packetID,
+				)
+			}
+
+			if !bytes.Equal(payload, test.expectedPayload) {
+				t.Errorf(
+					"expected payload % X, got % X",
+					test.expectedPayload,
+					payload,
+				)
 			}
 		})
 	}

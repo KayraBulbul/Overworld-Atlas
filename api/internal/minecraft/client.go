@@ -2,6 +2,7 @@
 package minecraft
 
 import (
+	"bufio"
 	"bytes"
 	"context"
 	"encoding/binary"
@@ -37,6 +38,7 @@ type Status struct {
 
 func GetStatus(ctx context.Context, address string) (Status, error) {
 	dialer := net.Dialer{}
+	const maxPacketSize int32 = 1 << 20
 
 	conn, err := dialer.DialContext(ctx, "tcp", address)
 	if err != nil {
@@ -69,6 +71,9 @@ func GetStatus(ctx context.Context, address string) (Status, error) {
 	if err = writePacket(conn, 0, nil); err != nil {
 		return Status{}, err
 	}
+
+	reader := bufio.NewReader(conn)
+	packetID, payload, err := readPacket(reader, maxPacketSize)
 
 	return Status{}, nil
 }

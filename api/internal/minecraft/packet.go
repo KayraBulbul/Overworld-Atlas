@@ -1,7 +1,9 @@
 package minecraft
 
 import (
+	"bufio"
 	"bytes"
+	"errors"
 	"io"
 )
 
@@ -53,4 +55,32 @@ func writePacket(w io.Writer, packetID int32, payload []byte) error {
 	}
 
 	return nil
+}
+
+func readPacket(reader *bufio.Reader, maxSize int32) (int32, []byte, error) {
+	length, err := readVarInt(reader)
+	if err != nil {
+		return 0, nil, err
+	}
+	if length <= 0 || length > maxSize {
+		return 0, nil, errors.New("invalid packet length")
+	}
+
+	packetData := make([]byte, length)
+	_, err = io.ReadFull(reader, packetData)
+	if err != nil {
+		return 0, nil, err
+	}
+
+	packetReader := bytes.NewReader(packetData)
+	packetID, err := readVarInt(packetReader)
+	if err != nil {
+		return 0, nil, err
+	}
+	payload, err := io.ReadAll(packetReader)
+	if err != nil {
+		return 0, nil, err
+	}
+
+	return packetID, payload, nil
 }
