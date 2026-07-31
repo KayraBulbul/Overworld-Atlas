@@ -7,6 +7,11 @@ import (
 	"io"
 )
 
+type byteReader interface {
+	io.Reader
+	io.ByteReader
+}
+
 func writeString(w io.Writer, value string) error {
 	if err := writeVarInt(w, int32(len(value))); err != nil {
 		return err
@@ -83,4 +88,21 @@ func readPacket(reader *bufio.Reader, maxSize int32) (int32, []byte, error) {
 	}
 
 	return packetID, payload, nil
+}
+
+func readString(r byteReader, maxLength int32) (string, error) {
+	length, err := readVarInt(r)
+	if err != nil {
+		return "", err
+	}
+	if length < 0 || length > maxLength {
+		return "", errors.New("invalid string length")
+	}
+
+	data := make([]byte, length)
+	if _, err := io.ReadFull(r, data); err != nil {
+		return "", err
+	}
+
+	return string(data), nil
 }

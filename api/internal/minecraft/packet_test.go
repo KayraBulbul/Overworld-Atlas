@@ -160,3 +160,70 @@ func TestReadPacket(t *testing.T) {
 		})
 	}
 }
+
+func TestReadString(t *testing.T) {
+	tests := []struct {
+		name      string
+		input     []byte
+		maxLength int32
+		expected  string
+		wantErr   bool
+	}{
+		{
+			name:      "abc",
+			input:     []byte{0x03, 'a', 'b', 'c'},
+			maxLength: 100,
+			expected:  "abc",
+		},
+		{
+			name:      "empty",
+			input:     []byte{0x00},
+			maxLength: 100,
+			expected:  "",
+		},
+		{
+			name:      "UTF-8",
+			input:     []byte{0x02, 0xC3, 0xA9},
+			maxLength: 100,
+			expected:  "é",
+		},
+		{
+			name:      "exceeds maximum",
+			input:     []byte{0x03, 'a', 'b', 'c'},
+			maxLength: 2,
+			wantErr:   true,
+		},
+		{
+			name:      "truncated",
+			input:     []byte{0x03, 'a'},
+			maxLength: 100,
+			wantErr:   true,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			reader := bufio.NewReader(bytes.NewReader(test.input))
+
+			actual, err := readString(reader, test.maxLength)
+			if test.wantErr {
+				if err == nil {
+					t.Fatal("expected an error, got nil")
+				}
+				return
+			}
+
+			if err != nil {
+				t.Fatalf("readString returned an unexpected error: %v", err)
+			}
+
+			if actual != test.expected {
+				t.Errorf(
+					"expected % X, got % X",
+					test.expected,
+					actual,
+				)
+			}
+		})
+	}
+}
