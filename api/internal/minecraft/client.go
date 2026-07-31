@@ -2,8 +2,11 @@
 package minecraft
 
 import (
+	"bytes"
 	"context"
+	"encoding/binary"
 	"net"
+	"strconv"
 	"time"
 )
 
@@ -41,5 +44,61 @@ func GetStatus(ctx context.Context, address string) (Status, error) {
 	}
 	defer conn.Close()
 
+	host, portText, err := net.SplitHostPort(address)
+	if err != nil {
+		return Status{}, err
+	}
+
+	portNumber, err := strconv.ParseUint(portText, 10, 16)
+	if err != nil {
+		return Status{}, err
+	}
+
+	payload, err := buildHandshakePayload(
+		-1,
+		host,
+		uint16(portNumber),
+	)
+	if err != nil {
+		return Status{}, err
+	}
+
+	if err = writePacket(conn, 0, payload); err != nil {
+		return Status{}, err
+	}
+	if err = writePacket(conn, 0, nil); err != nil {
+		return Status{}, err
+	}
+
 	return Status{}, nil
+}
+
+func buildHandshakePayload(
+	ProtocolVersion int32,
+	host string,
+	port uint16,
+) ([]byte, error) {
+	var buffer bytes.Buffer
+
+	err := writeVarInt(&buffer, ProtocolVersion)
+	if err != nil {
+		return []byte{}, err
+	}
+
+	err = writeString(&buffer, host)
+	if err != nil {
+		return []byte{}, err
+	}
+
+	err = binary.Write(&buffer, binary.BigEndian, port)
+	if err != nil {
+		return []byte{}, err
+	}
+
+	err = writeVarInt(&buffer, int32(1))
+	if err != nil {
+		return []byte{}, err
+	}
+
+	return buffer.Bytes(), nil
 }
