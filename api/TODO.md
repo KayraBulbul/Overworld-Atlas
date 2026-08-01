@@ -45,12 +45,12 @@ Use the repository's consistent JSON error envelope for request-level failures. 
   - Host and port should be independently configurable.
   - Keep the committed local/default value public-safe.
   - Add a bounded query timeout.
-- [ ] Create a focused Minecraft status client under `api/internal/minecraft/`.
+- [x] Create a focused Minecraft status client under `api/internal/minecraft/`.
   - Perform the standard server-list status handshake and decode the response safely.
   - Bound packet sizes and reject malformed or unexpectedly large responses.
   - Close connections and honour timeouts on every path.
   - Keep transport/protocol errors distinct from a valid status response.
-- [ ] Define the public API response separately from the raw Minecraft protocol payload.
+- [x] Define the public API response separately from the raw Minecraft protocol payload.
   - Return only fields required by Phase 2.
   - Represent unavailable optional data explicitly.
   - Use UTC RFC 3339 timestamps.
