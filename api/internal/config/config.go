@@ -16,6 +16,7 @@ type Config struct {
 	MinecraftServerHost   string
 	MinecraftServerPort   string
 	MinecraftQueryTimeout time.Duration
+	MinecraftQueryTTL     time.Duration
 }
 
 func GetConfig() Config {
@@ -40,9 +41,15 @@ func GetConfig() Config {
 	minecraftServerPort := os.Getenv("MINECRAFT_SERVER_PORT")
 
 	MinecraftQueryTimeout := os.Getenv("MINECRAFT_QUERY_TIMEOUT")
-	duration, err := time.ParseDuration(MinecraftQueryTimeout)
+	TimeoutDuration, err := time.ParseDuration(MinecraftQueryTimeout)
 	if err != nil {
-		log.Printf("error parsing duration: %v", err)
+		log.Printf("error parsing timeout duration: %v", err)
+	}
+
+	MinecraftQueryTTL := os.Getenv("MINECRAFT_QUERY_TTL")
+	TTLDuration, err := time.ParseDuration(MinecraftQueryTTL)
+	if err != nil {
+		log.Printf("error parsing TTL duration: %v", err)
 	}
 
 	cfg := Config{
@@ -51,7 +58,8 @@ func GetConfig() Config {
 		CORSAllowedOrigin:     corsAllowedOrigin,
 		MinecraftServerHost:   minecraftServerHost,
 		MinecraftServerPort:   minecraftServerPort,
-		MinecraftQueryTimeout: duration,
+		MinecraftQueryTimeout: TimeoutDuration,
+		MinecraftQueryTTL:     TTLDuration,
 	}
 
 	return cfg

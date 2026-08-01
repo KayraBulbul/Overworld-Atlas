@@ -1,7 +1,9 @@
 package main
 
 import (
+	"context"
 	"log/slog"
+	"net"
 	"net/http"
 	"os"
 	"time"
@@ -9,12 +11,13 @@ import (
 	"github.com/KayraBulbul/Goon-Squad-SMP/api/internal/config"
 	"github.com/KayraBulbul/Goon-Squad-SMP/api/internal/handlers"
 	"github.com/KayraBulbul/Goon-Squad-SMP/api/internal/middleware"
+	"github.com/KayraBulbul/Goon-Squad-SMP/api/internal/minecraft"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/cors"
 )
 
-func newRouter(logger *slog.Logger, options cors.Options) http.Handler {
+func newRouter(logger *slog.Logger, options cors.Options, cache *minecraft.Cache, address string) http.Handler {
 	r := chi.NewRouter()
 
 	r.Use(middleware.RequestLogger(logger))
@@ -23,6 +26,7 @@ func newRouter(logger *slog.Logger, options cors.Options) http.Handler {
 
 	r.Route("/api/v1", func(r chi.Router) {
 		r.Get("/health", handlers.HealthHandler)
+		r.Get("/server/status", handlers.ServerStatusHandler(cache, address))
 	})
 
 	return r
@@ -32,6 +36,13 @@ func main() {
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 
 	cfg := config.GetConfig()
+
+	query := func(ctx context.Context, address string) (minecraft.Status, error) {
+		return minecraft.GetStatus(ctx, address)
+	}
+
+	cache := minecraft.NewCache(cfg.MinecraftQueryTTL, query)
+	address := net.JoinHostPort(cfg.MinecraftServerHost, cfg.MinecraftServerPort)
 
 	router := newRouter(logger, cors.Options{
 		AllowedOrigins: []string{cfg.CORSAllowedOrigin},
@@ -46,7 +57,7 @@ func main() {
 		},
 		AllowCredentials: true,
 		MaxAge:           300,
-	})
+	}, cache, address)
 
 	server := &http.Server{
 		Addr:              cfg.APIAddress,

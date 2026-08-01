@@ -54,7 +54,7 @@ Use the repository's consistent JSON error envelope for request-level failures. 
   - Return only fields required by Phase 2.
   - Represent unavailable optional data explicitly.
   - Use UTC RFC 3339 timestamps.
-- [ ] Add a short, concurrency-safe in-memory cache.
+- [x] Add a short, concurrency-safe in-memory cache.
   - Use a TTL short enough for the approximately 30-second frontend polling interval.
   - Avoid duplicate simultaneous upstream queries when the cache expires.
   - Decide whether the last successful value may be returned as stale after a refresh failure.
