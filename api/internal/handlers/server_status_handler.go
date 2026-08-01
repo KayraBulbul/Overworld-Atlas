@@ -13,12 +13,12 @@ func ServerStatusHandler(cache *minecraft.Cache, address string, logger *slog.Lo
 	return func(w http.ResponseWriter, r *http.Request) {
 		type response struct {
 			State                 minecraft.State    `json:"state"`
-			OnlinePlayers         int                `json:"online_players"`
-			MaxPlayers            int                `json:"max_players"`
-			PlayerSampleAvailable bool               `json:"player_sample_available"`
+			OnlinePlayers         *int               `json:"online_players"`
+			MaxPlayers            *int               `json:"max_players"`
+			PlayerSampleAvailable *bool              `json:"player_sample_available"`
 			Players               []minecraft.Player `json:"players"`
-			Version               string             `json:"version"`
-			ProtocolVersion       int                `json:"protocol_version"`
+			Version               *string            `json:"version"`
+			ProtocolVersion       *int               `json:"protocol_version"`
 			CheckedAt             time.Time          `json:"checked_at"`
 			Stale                 bool               `json:"stale"`
 		}

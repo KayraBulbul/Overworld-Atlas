@@ -14,9 +14,11 @@ func TestCacheReturnsCachedStatus(t *testing.T) {
 
 	query := func(ctx context.Context, address string) (Status, error) {
 		calls++
+		onlinePlayers := 10
+
 		return Status{
 			State:         StateOnline,
-			OnlinePlayers: 10,
+			OnlinePlayers: &onlinePlayers,
 			Players: []Player{
 				{
 					Username: "MagicGN",
@@ -65,9 +67,11 @@ func TestCacheRefreshesAfterExpiry(t *testing.T) {
 	query := func(ctx context.Context, address string) (Status, error) {
 		calls++
 
+		onlinePlayers := calls
+
 		return Status{
 			State:         StateOnline,
-			OnlinePlayers: calls,
+			OnlinePlayers: &onlinePlayers,
 		}, nil
 	}
 
@@ -89,8 +93,12 @@ func TestCacheRefreshesAfterExpiry(t *testing.T) {
 		t.Fatalf("query calls: %d, want 2", calls)
 	}
 
-	if first.OnlinePlayers == second.OnlinePlayers {
-		t.Fatalf("cache did not refresh after expiry")
+	if first.OnlinePlayers == nil || second.OnlinePlayers == nil {
+		t.Fatal("OnlinePlayers = nil, want values")
+	}
+
+	if *first.OnlinePlayers == *second.OnlinePlayers {
+		t.Fatal("cache did not refresh after expiry")
 	}
 }
 
@@ -102,9 +110,11 @@ func TestCacheReturnsStaleValueAfterRefreshFailure(t *testing.T) {
 			return Status{}, errors.New("query failed")
 		}
 
+		onlinePlayers := 10
+
 		return Status{
 			State:         StateOnline,
-			OnlinePlayers: 10,
+			OnlinePlayers: &onlinePlayers,
 		}, nil
 	}
 
@@ -127,7 +137,7 @@ func TestCacheReturnsStaleValueAfterRefreshFailure(t *testing.T) {
 		t.Fatal("status.Stale = false, want true")
 	}
 
-	if status.OnlinePlayers != 10 {
+	if *status.OnlinePlayers != 10 {
 		t.Fatalf("OnlinePlayers = %d, want 10", status.OnlinePlayers)
 	}
 }

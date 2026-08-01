@@ -29,12 +29,12 @@ type Player struct {
 
 type Status struct {
 	State                 State
-	OnlinePlayers         int
-	MaxPlayers            int
-	PlayerSampleAvailable bool
+	OnlinePlayers         *int
+	MaxPlayers            *int
+	PlayerSampleAvailable *bool
 	Players               []Player
-	Version               string
-	ProtocolVersion       int
+	Version               *string
+	ProtocolVersion       *int
 	CheckedAt             time.Time
 	Stale                 bool
 }
@@ -143,12 +143,12 @@ func GetStatus(ctx context.Context, address string) (Status, error) {
 
 	return Status{
 		State:                 StateOnline,
-		OnlinePlayers:         response.Players.Online,
-		MaxPlayers:            response.Players.Max,
-		PlayerSampleAvailable: sampleAvailable,
+		OnlinePlayers:         &response.Players.Online,
+		MaxPlayers:            &response.Players.Max,
+		PlayerSampleAvailable: &sampleAvailable,
 		Players:               players,
-		Version:               response.Version.Name,
-		ProtocolVersion:       response.Version.Protocol,
+		Version:               &response.Version.Name,
+		ProtocolVersion:       &response.Version.Protocol,
 		CheckedAt:             time.Now().UTC(),
 		Stale:                 false,
 	}, nil

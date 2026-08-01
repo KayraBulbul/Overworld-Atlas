@@ -41,7 +41,7 @@ func main() {
 		ctx, cancel := context.WithTimeout(ctx, cfg.MinecraftQueryTimeout)
 		defer cancel()
 
-		return minecraft.GetStatus(ctx, address)
+		return minecraft.QueryStatus(ctx, address)
 	}
 
 	cache := minecraft.NewCache(cfg.MinecraftQueryTTL, query)
