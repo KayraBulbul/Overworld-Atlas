@@ -219,3 +219,410 @@ func TestCacheDeduplicatesConcurrentQueries(t *testing.T) {
 		t.Fatalf("query calls: %d, want 1", calls)
 	}
 }
+
+func TestCachePreservesUsableStatusWhenRefreshIsUnavailable(t *testing.T) {
+	tests := []struct {
+		name           string
+		initialState   State
+		recoveredState State
+	}{
+		{
+			name:           "preserves online status",
+			initialState:   StateOnline,
+			recoveredState: StateOffline,
+		},
+		{
+			name:           "preserves offline status",
+			initialState:   StateOffline,
+			recoveredState: StateOnline,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			currentTime := time.Date(
+				2026,
+				time.August,
+				1,
+				12,
+				0,
+				0,
+				0,
+				time.UTC,
+			)
+
+			queryCalls := 0
+
+			cache := &Cache{
+				ttl: 15 * time.Second,
+				now: func() time.Time {
+					return currentTime
+				},
+				query: func(
+					ctx context.Context,
+					address string,
+				) (Status, error) {
+					queryCalls++
+
+					switch queryCalls {
+					case 1:
+						return Status{
+							State:     tt.initialState,
+							CheckedAt: currentTime,
+						}, nil
+
+					case 2:
+						return Status{
+							State:     StateUnavailable,
+							CheckedAt: currentTime,
+						}, nil
+
+					case 3:
+						return Status{
+							State:     tt.recoveredState,
+							CheckedAt: currentTime,
+						}, nil
+
+					default:
+						t.Fatalf(
+							"unexpected query call number: %d",
+							queryCalls,
+						)
+
+						return Status{}, nil
+					}
+				},
+			}
+
+			first, err := cache.Get(
+				context.Background(),
+				"localhost:25565",
+			)
+			if err != nil {
+				t.Fatalf("first Get returned an error: %v", err)
+			}
+
+			if first.State != tt.initialState {
+				t.Fatalf(
+					"expected initial state %q, got %q",
+					tt.initialState,
+					first.State,
+				)
+			}
+
+			if first.Cached {
+				t.Fatal("expected initial result not to be cached")
+			}
+
+			if first.Stale {
+				t.Fatal("expected initial result not to be stale")
+			}
+
+			if queryCalls != 1 {
+				t.Fatalf(
+					"expected 1 query call, got %d",
+					queryCalls,
+				)
+			}
+
+			initialCheckedAt := first.CheckedAt
+
+			// Expire the normal cache entry.
+			currentTime = currentTime.Add(
+				cache.ttl + time.Nanosecond,
+			)
+
+			stale, err := cache.Get(
+				context.Background(),
+				"localhost:25565",
+			)
+			if err != nil {
+				t.Fatalf(
+					"Get after unavailable refresh returned an error: %v",
+					err,
+				)
+			}
+
+			if stale.State != tt.initialState {
+				t.Fatalf(
+					"expected previous state %q, got %q",
+					tt.initialState,
+					stale.State,
+				)
+			}
+
+			if !stale.Cached {
+				t.Fatal("expected fallback result to be cached")
+			}
+
+			if !stale.Stale {
+				t.Fatal("expected fallback result to be stale")
+			}
+
+			if !stale.CheckedAt.Equal(initialCheckedAt) {
+				t.Fatalf(
+					"expected stale result to preserve CheckedAt %v, got %v",
+					initialCheckedAt,
+					stale.CheckedAt,
+				)
+			}
+
+			if queryCalls != 2 {
+				t.Fatalf(
+					"expected 2 query calls, got %d",
+					queryCalls,
+				)
+			}
+
+			// This request occurs inside the short stale retry window.
+			staleAgain, err := cache.Get(
+				context.Background(),
+				"localhost:25565",
+			)
+			if err != nil {
+				t.Fatalf(
+					"Get during retry window returned an error: %v",
+					err,
+				)
+			}
+
+			if staleAgain.State != tt.initialState {
+				t.Fatalf(
+					"expected stale state %q, got %q",
+					tt.initialState,
+					staleAgain.State,
+				)
+			}
+
+			if !staleAgain.Cached {
+				t.Fatal("expected retry-window result to be cached")
+			}
+
+			if !staleAgain.Stale {
+				t.Fatal("expected retry-window result to remain stale")
+			}
+
+			if queryCalls != 2 {
+				t.Fatalf(
+					"expected no additional query during retry window; got %d calls",
+					queryCalls,
+				)
+			}
+
+			// Move beyond the short retry window.
+			currentTime = currentTime.Add(
+				staleRetryInterval + time.Nanosecond,
+			)
+
+			recovered, err := cache.Get(
+				context.Background(),
+				"localhost:25565",
+			)
+			if err != nil {
+				t.Fatalf(
+					"Get after retry interval returned an error: %v",
+					err,
+				)
+			}
+
+			if recovered.State != tt.recoveredState {
+				t.Fatalf(
+					"expected recovered state %q, got %q",
+					tt.recoveredState,
+					recovered.State,
+				)
+			}
+
+			if recovered.Cached {
+				t.Fatal("expected recovered result not to be cached")
+			}
+
+			if recovered.Stale {
+				t.Fatal("expected recovered result not to be stale")
+			}
+
+			if queryCalls != 3 {
+				t.Fatalf(
+					"expected 3 query calls after recovery, got %d",
+					queryCalls,
+				)
+			}
+		})
+	}
+}
+
+func TestCacheReturnsUnavailableNormallyWithoutUsablePreviousValue(
+	t *testing.T,
+) {
+	currentTime := time.Date(
+		2026,
+		time.August,
+		1,
+		12,
+		0,
+		0,
+		0,
+		time.UTC,
+	)
+
+	queryCalls := 0
+
+	cache := &Cache{
+		ttl: 15 * time.Second,
+		now: func() time.Time {
+			return currentTime
+		},
+		query: func(
+			ctx context.Context,
+			address string,
+		) (Status, error) {
+			queryCalls++
+
+			return Status{
+				State:     StateUnavailable,
+				CheckedAt: currentTime,
+			}, nil
+		},
+	}
+
+	first, err := cache.Get(
+		context.Background(),
+		"localhost:25565",
+	)
+	if err != nil {
+		t.Fatalf("first Get returned an error: %v", err)
+	}
+
+	if first.State != StateUnavailable {
+		t.Fatalf(
+			"expected state %q, got %q",
+			StateUnavailable,
+			first.State,
+		)
+	}
+
+	if first.Cached {
+		t.Fatal("expected first unavailable result not to be cached")
+	}
+
+	if first.Stale {
+		t.Fatal("expected first unavailable result not to be stale")
+	}
+
+	if queryCalls != 1 {
+		t.Fatalf(
+			"expected 1 query call, got %d",
+			queryCalls,
+		)
+	}
+
+	second, err := cache.Get(
+		context.Background(),
+		"localhost:25565",
+	)
+	if err != nil {
+		t.Fatalf("second Get returned an error: %v", err)
+	}
+
+	if second.State != StateUnavailable {
+		t.Fatalf(
+			"expected cached state %q, got %q",
+			StateUnavailable,
+			second.State,
+		)
+	}
+
+	if !second.Cached {
+		t.Fatal("expected second unavailable result to be cached")
+	}
+
+	if second.Stale {
+		t.Fatal("expected cached unavailable result not to be stale")
+	}
+
+	if queryCalls != 1 {
+		t.Fatalf(
+			"expected unavailable result to be cached; got %d query calls",
+			queryCalls,
+		)
+	}
+}
+
+func TestCacheDoesNotUseUnavailableStatusAsErrorFallback(
+	t *testing.T,
+) {
+	currentTime := time.Date(
+		2026,
+		time.August,
+		1,
+		12,
+		0,
+		0,
+		0,
+		time.UTC,
+	)
+
+	queryErr := errors.New("minecraft query failed")
+	queryCalls := 0
+
+	cache := &Cache{
+		ttl: 15 * time.Second,
+		now: func() time.Time {
+			return currentTime
+		},
+		query: func(
+			ctx context.Context,
+			address string,
+		) (Status, error) {
+			queryCalls++
+
+			if queryCalls == 1 {
+				return Status{
+					State:     StateUnavailable,
+					CheckedAt: currentTime,
+				}, nil
+			}
+
+			return Status{}, queryErr
+		},
+	}
+
+	first, err := cache.Get(
+		context.Background(),
+		"localhost:25565",
+	)
+	if err != nil {
+		t.Fatalf("first Get returned an error: %v", err)
+	}
+
+	if first.State != StateUnavailable {
+		t.Fatalf(
+			"expected state %q, got %q",
+			StateUnavailable,
+			first.State,
+		)
+	}
+
+	currentTime = currentTime.Add(
+		cache.ttl + time.Nanosecond,
+	)
+
+	_, err = cache.Get(
+		context.Background(),
+		"localhost:25565",
+	)
+	if !errors.Is(err, queryErr) {
+		t.Fatalf(
+			"expected error %v, got %v",
+			queryErr,
+			err,
+		)
+	}
+
+	if queryCalls != 2 {
+		t.Fatalf(
+			"expected 2 query calls, got %d",
+			queryCalls,
+		)
+	}
+}

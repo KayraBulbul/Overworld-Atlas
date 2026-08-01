@@ -78,19 +78,21 @@ Use the repository's consistent JSON error envelope for request-level failures. 
 
 ## Accepted Response Contract
 
-Codex reviewed and accepted the initial backend status slice on 1 August 2026. Normal Minecraft reachability outcomes return HTTP `200`; unknown optional values are explicit JSON `null` values. `cached` identifies an unexpired cache hit, while `stale` is reserved for an older cached value returned after a refresh failure. The follow-up reliability finding below supersedes the original decision to cache a transient `unavailable` probe over a previously usable status.
+Codex reviewed and accepted the initial backend status slice on 1 August 2026. Normal Minecraft reachability outcomes return HTTP `200`; unknown optional values are explicit JSON `null` values. `cached` identifies an unexpired cache hit, while `stale` is reserved for an older cached value returned after a refresh failure. The completed follow-up reliability work below supersedes the original decision to cache a transient `unavailable` probe over a previously usable status.
 
 ## Follow-up Reliability Finding — 1 August 2026
 
-A refresh can appear to make server status and players unavailable when it lands after the 15-second cache TTL and the resulting Minecraft probe fails transiently. The browser refresh is not the cause: it merely triggers the expired cache path. `QueryStatus` currently converts transport and protocol failures into a successful `Status{State: unavailable}` result with no Go error, so the cache's error-based stale fallback does not run. The unavailable result then replaces the last usable status for a full cache TTL, and the former 30-second frontend polling policy made the failure remain visible even longer.
+Before this follow-up, a refresh could appear to make server status and players unavailable when it landed after the 15-second cache TTL and the resulting Minecraft probe failed transiently. The browser refresh was not the cause: it merely triggered the expired cache path. `QueryStatus` converts transport and protocol failures into a successful `Status{State: unavailable}` result with no Go error, so the cache's error-based stale fallback did not run. The unavailable result could therefore replace the last usable status for a full cache TTL, and the former 30-second frontend polling policy made the failure remain visible even longer.
 
-- [ ] When an expired cache has a prior usable `online` or `offline` result and the refresh produces `unavailable`, return the prior result with `cached: true` and `stale: true` instead of replacing it.
-- [ ] Advance or bound the next refresh attempt so requests during an upstream failure do not probe Minecraft continuously.
-- [ ] Preserve the existing first-check behaviour: when no usable cached result exists, return the public `unavailable` state normally.
-- [ ] Add a deterministic cache test proving an unavailable refresh cannot overwrite a previously usable result and that the stale metadata is correct.
-- [ ] Retain the existing HTTP `200` public contract for normal online, offline, and unavailable outcomes.
+- [x] When an expired cache has a prior usable `online` or `offline` result and the refresh produces `unavailable`, return the prior result with `cached: true` and `stale: true` instead of replacing it.
+- [x] Advance or bound the next refresh attempt so requests during an upstream failure do not probe Minecraft continuously.
+- [x] Preserve the existing first-check behaviour: when no usable cached result exists, return the public `unavailable` state normally.
+- [x] Add a deterministic cache test proving an unavailable refresh cannot overwrite a previously usable result and that the stale metadata is correct.
+- [x] Retain the existing HTTP `200` public contract for normal online, offline, and unavailable outcomes.
 
-The frontend now retries a returned `unavailable` state or failed API request after approximately 5 seconds as a recovery measure. That improves the visible recovery time but does not replace the backend cache correction above.
+Follow-up review completed on 1 August 2026 with no outstanding findings. An unavailable refresh after a usable online or offline result now serves the previous result as cached and stale, preserves its original check time, and schedules another upstream attempt after a bounded five-second window. Requests inside that window reuse the stale value, a subsequent usable result replaces it normally, and a first-ever unavailable result remains an ordinary non-stale response. The frontend's five-second unavailable/error retry complements this backend policy.
+
+Go formatting, vetting, all 75 test and subtest events, race-enabled tests, the server build, and 100 repeated executions of the unavailable-refresh regression test passed. A temporary local server built from the reviewed files returned the live public response with HTTP `200`, the configured CORS origin, correct fresh metadata on the first request, and `cached: true` on the next request.
 
 Online with a player sample:
 
