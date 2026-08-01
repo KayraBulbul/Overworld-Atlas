@@ -7,6 +7,7 @@ import (
 	"errors"
 	"net"
 	"testing"
+	"time"
 )
 
 func TestBuildHandshakePayload(t *testing.T) {
@@ -84,5 +85,26 @@ func TestGetStatusProtocolError(t *testing.T) {
 	_, err = GetStatus(context.Background(), listener.Addr().String())
 	if !errors.Is(err, ErrProtocol) {
 		t.Fatalf("expected ErrProtocol, got %v", err)
+	}
+}
+
+func TestGetStatusTimeout(t *testing.T) {
+	listener, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		t.Fatalf("error creating listener: %v", err)
+	}
+	defer listener.Close()
+
+	ctx, cancel := context.WithTimeout(context.Background(), 50*time.Millisecond)
+	defer cancel()
+
+	_, err = GetStatus(ctx, listener.Addr().String())
+	if err == nil {
+		t.Fatal("GetStatus() error: nil, want timeout error")
+	}
+
+	var netErr net.Error
+	if !errors.As(err, &netErr) || !netErr.Timeout() {
+		t.Fatalf("expected timeout error, got %v", err)
 	}
 }

@@ -30,7 +30,7 @@ A suitable shape would include:
 - A state such as `online`, `offline`, or `unavailable`
 - Current and maximum player counts when known
 - An explicit player-sample availability flag
-- Sampled player usernames and UUIDs only when the server exposes them
+  Sampled player usernames and UUIDs only when the server exposes them
 - Minecraft version name and protocol when known
 - The time the Minecraft server was checked
 - An explicit stale or cache indicator if old successful data can be served after a failed refresh
@@ -61,8 +61,8 @@ Use the repository's consistent JSON error envelope for request-level failures. 
   - Never persist routine status checks.
 - [x] Add the handler and register `GET /api/v1/server/status` beneath `/api/v1`.
 - [x] Keep handler responsibilities narrow: call the status service/client, translate the result, and encode JSON.
-- [ ] Add structured logs without leaking raw packets, credentials, or unnecessary player data.
-- [ ] Preserve the existing health route and CORS behaviour.
+- [x] Add structured logs without leaking raw packets, credentials, or unnecessary player data.
+- [x] Preserve the existing health route and CORS behaviour.
 
 ## Tests
 

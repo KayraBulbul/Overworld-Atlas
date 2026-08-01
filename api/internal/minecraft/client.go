@@ -72,9 +72,15 @@ func GetStatus(ctx context.Context, address string) (Status, error) {
 
 	conn, err := dialer.DialContext(ctx, "tcp", address)
 	if err != nil {
-		return Status{}, fmt.Errorf("%w: connect: %v", ErrTransport, err)
+		return Status{}, fmt.Errorf("%w: connect: %w", ErrTransport, err)
 	}
 	defer conn.Close()
+
+	if deadline, ok := ctx.Deadline(); ok {
+		if err := conn.SetDeadline(deadline); err != nil {
+			return Status{}, fmt.Errorf("set connection deadline: %w", err)
+		}
+	}
 
 	host, portText, err := net.SplitHostPort(address)
 	if err != nil {
@@ -96,16 +102,16 @@ func GetStatus(ctx context.Context, address string) (Status, error) {
 	}
 
 	if err = writePacket(conn, 0, payload); err != nil {
-		return Status{}, fmt.Errorf("%w: send handshake: %v", ErrTransport, err)
+		return Status{}, fmt.Errorf("%w: send handshake: %w", ErrTransport, err)
 	}
 	if err = writePacket(conn, 0, nil); err != nil {
-		return Status{}, fmt.Errorf("%w: send status request: %v", ErrTransport, err)
+		return Status{}, fmt.Errorf("%w: send status request: %w", ErrTransport, err)
 	}
 
 	reader := bufio.NewReader(conn)
 	packetID, payload, err := readPacket(reader, maxPacketSize)
 	if err != nil {
-		return Status{}, fmt.Errorf("%w: read status response: %v", ErrTransport, err)
+		return Status{}, fmt.Errorf("%w: read status response: %w", ErrTransport, err)
 	}
 
 	if packetID != 0 {

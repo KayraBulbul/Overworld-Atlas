@@ -38,6 +38,9 @@ func main() {
 	cfg := config.GetConfig()
 
 	query := func(ctx context.Context, address string) (minecraft.Status, error) {
+		ctx, cancel := context.WithTimeout(ctx, cfg.MinecraftQueryTimeout)
+		defer cancel()
+
 		return minecraft.GetStatus(ctx, address)
 	}
 
