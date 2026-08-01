@@ -30,13 +30,18 @@ func (c *Cache) Get(ctx context.Context, address string) (Status, error) {
 	defer c.mu.Unlock()
 
 	if c.hasValue && time.Now().Before(c.expiresAt) {
-		return c.status, nil
+		cached := c.status
+		cached.Cached = true
+		cached.Stale = false
+
+		return cached, nil
 	}
 
 	status, err := c.query(ctx, address)
 	if err != nil {
 		if c.hasValue {
 			stale := c.status
+			stale.Cached = true
 			stale.Stale = true
 			return stale, nil
 		}
@@ -45,6 +50,7 @@ func (c *Cache) Get(ctx context.Context, address string) (Status, error) {
 	}
 
 	status.Stale = false
+	status.Cached = false
 	c.status = status
 	c.hasValue = true
 	c.expiresAt = time.Now().Add(c.ttl)

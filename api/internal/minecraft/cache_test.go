@@ -59,6 +59,14 @@ func TestCacheReturnsCachedStatus(t *testing.T) {
 	if !slices.Equal(first.Players, second.Players) {
 		t.Fatalf("cached players differ from original")
 	}
+
+	if first.Cached {
+		t.Fatal("first.Cached = true, want false")
+	}
+
+	if !second.Cached {
+		t.Fatal("second.Cached = false, want true")
+	}
 }
 
 func TestCacheRefreshesAfterExpiry(t *testing.T) {
@@ -100,6 +108,10 @@ func TestCacheRefreshesAfterExpiry(t *testing.T) {
 	if *first.OnlinePlayers == *second.OnlinePlayers {
 		t.Fatal("cache did not refresh after expiry")
 	}
+
+	if second.Cached {
+		t.Fatal("second.Cached = true, want false after refresh")
+	}
 }
 
 func TestCacheReturnsStaleValueAfterRefreshFailure(t *testing.T) {
@@ -139,6 +151,14 @@ func TestCacheReturnsStaleValueAfterRefreshFailure(t *testing.T) {
 
 	if *status.OnlinePlayers != 10 {
 		t.Fatalf("OnlinePlayers = %d, want 10", status.OnlinePlayers)
+	}
+
+	if !status.Cached {
+		t.Fatal("status.Cached = false, want true")
+	}
+
+	if !status.Stale {
+		t.Fatal("status.Stale = false, want true")
 	}
 }
 

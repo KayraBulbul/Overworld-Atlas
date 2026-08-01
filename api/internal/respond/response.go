@@ -8,7 +8,10 @@ import (
 )
 
 type errorResponse struct {
-	Error string `json:"error"`
+	Error struct {
+		Code    string `json:"code"`
+		Message string `json:"message"`
+	} `json:"error"`
 }
 
 func WithJSON(w http.ResponseWriter, code int, payload any) {
@@ -27,8 +30,10 @@ func WithJSON(w http.ResponseWriter, code int, payload any) {
 	}
 }
 
-func WithError(w http.ResponseWriter, code int, msg string) {
-	WithJSON(w, code, errorResponse{
-		Error: msg,
-	})
+func WithError(w http.ResponseWriter, status int, code string, msg string) {
+	payload := errorResponse{}
+	payload.Error.Code = code
+	payload.Error.Message = msg
+
+	WithJSON(w, status, payload)
 }

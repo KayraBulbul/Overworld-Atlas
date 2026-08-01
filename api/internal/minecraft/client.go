@@ -23,8 +23,8 @@ const (
 )
 
 type Player struct {
-	Username string
-	UUID     string
+	Username string `json:"username"`
+	UUID     string `json:"uuid"`
 }
 
 type Status struct {
@@ -37,22 +37,20 @@ type Status struct {
 	ProtocolVersion       *int
 	CheckedAt             time.Time
 	Stale                 bool
+	Cached                bool
 }
 
 type statusResponse struct {
-	Version statusVersion `json:"version"`
-	Players statusPlayers `json:"players"`
-}
+	Version *struct {
+		Name     string `json:"name"`
+		Protocol int    `json:"protocol"`
+	} `json:"version"`
 
-type statusVersion struct {
-	Name     string `json:"name"`
-	Protocol int    `json:"protocol"`
-}
-
-type statusPlayers struct {
-	Max    int             `json:"max"`
-	Online int             `json:"online"`
-	Sample []sampledPlayer `json:"sample"`
+	Players *struct {
+		Max    int             `json:"max"`
+		Online int             `json:"online"`
+		Sample []sampledPlayer `json:"sample"`
+	} `json:"players"`
 }
 
 type sampledPlayer struct {
@@ -128,6 +126,26 @@ func GetStatus(ctx context.Context, address string) (Status, error) {
 
 	if err := json.Unmarshal([]byte(statusJSON), &response); err != nil {
 		return Status{}, fmt.Errorf("%w: decode status response JSON: %v", ErrProtocol, err)
+	}
+
+	if response.Version == nil {
+		return Status{}, fmt.Errorf("%w: missing version", ErrProtocol)
+	}
+	if response.Players == nil {
+		return Status{}, fmt.Errorf("%w missing players", ErrProtocol)
+	}
+
+	if response.Players.Max < 0 {
+		return Status{}, fmt.Errorf("%w: negative maximum player count", ErrProtocol)
+	}
+	if response.Players.Online < 0 {
+		return Status{}, fmt.Errorf("%w: negative online player count", ErrProtocol)
+	}
+	if response.Players.Online > response.Players.Max {
+		return Status{}, fmt.Errorf(
+			"%w: online players exceeds maximum players",
+			ErrProtocol,
+		)
 	}
 
 	players := make([]Player, 0, len(response.Players.Sample))

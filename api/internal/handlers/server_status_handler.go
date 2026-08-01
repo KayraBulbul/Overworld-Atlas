@@ -21,11 +21,12 @@ func ServerStatusHandler(cache *minecraft.Cache, address string, logger *slog.Lo
 			ProtocolVersion       *int               `json:"protocol_version"`
 			CheckedAt             time.Time          `json:"checked_at"`
 			Stale                 bool               `json:"stale"`
+			Cached                bool               `json:"cached"`
 		}
 
 		status, err := cache.Get(r.Context(), address)
 		if err != nil {
-			respond.WithError(w, http.StatusServiceUnavailable, "error retrieving server status")
+			respond.WithError(w, http.StatusServiceUnavailable, "server_status_unavailable", "error retrieving server status")
 			logger.Error("failed to retrieve Minecraft server status", "error", err)
 			return
 		}
@@ -40,6 +41,7 @@ func ServerStatusHandler(cache *minecraft.Cache, address string, logger *slog.Lo
 			ProtocolVersion:       status.ProtocolVersion,
 			CheckedAt:             status.CheckedAt,
 			Stale:                 status.Stale,
+			Cached:                status.Cached,
 		})
 
 		logger.Info("Successfully retrieved Minecraft server status")

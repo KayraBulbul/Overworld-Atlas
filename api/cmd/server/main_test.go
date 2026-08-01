@@ -249,3 +249,70 @@ func TestHealthRouteCORS(t *testing.T) {
 		}
 	})
 }
+
+func TestServerStatusRoute(t *testing.T) {
+	logger := slog.New(
+		slog.NewTextHandler(io.Discard, nil),
+	)
+
+	online := 0
+	maxPlayers := 20
+	sampleAvailable := false
+	version := "1.21"
+	protocol := 767
+
+	query := func(
+		ctx context.Context,
+		address string,
+	) (minecraft.Status, error) {
+		return minecraft.Status{
+			State:                 minecraft.StateOnline,
+			OnlinePlayers:         &online,
+			MaxPlayers:            &maxPlayers,
+			PlayerSampleAvailable: &sampleAvailable,
+			Players:               []minecraft.Player{},
+			Version:               &version,
+			ProtocolVersion:       &protocol,
+			CheckedAt:             time.Now().UTC(),
+		}, nil
+	}
+
+	cache := minecraft.NewCache(time.Minute, query)
+
+	router := newRouter(
+		logger,
+		cors.Options{
+			AllowedOrigins: []string{"http://localhost:5173"},
+			AllowedMethods: []string{
+				http.MethodGet,
+				http.MethodOptions,
+			},
+			AllowedHeaders: []string{
+				"Accept",
+				"Authorization",
+				"Content-Type",
+			},
+			AllowCredentials: true,
+			MaxAge:           300,
+		},
+		cache,
+		"localhost:25565",
+	)
+
+	request := httptest.NewRequest(
+		http.MethodGet,
+		"/api/v1/server/status",
+		nil,
+	)
+	recorder := httptest.NewRecorder()
+
+	router.ServeHTTP(recorder, request)
+
+	if recorder.Code != http.StatusOK {
+		t.Fatalf(
+			"status code = %d, want %d",
+			recorder.Code,
+			http.StatusOK,
+		)
+	}
+}
