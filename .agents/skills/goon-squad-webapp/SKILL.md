@@ -623,7 +623,7 @@ Create the public editorial shell and homepage structure using centralised stati
 - Visually distinct `Request Access` and `Log In` affordances
 - Accessible join-application preview with disabled Discord continuation and submission until Phase 6
 - Featured-settlement section
-- Reserved nearly full-width map section with a replaceable static preview until Phase 2
+- Reserved nearly full-width map section with a replaceable static preview until the initial secure BlueMap integration in Phase 4
 - Static/replaceable player, story, event, and screenshot previews
 - Styled preview pages for `/players`, `/map`, `/stories`, `/events`, and `/screenshots`
 - Responsive desktop and mobile behaviour
@@ -648,11 +648,11 @@ Do not use application tables. Keep server address, server description, version 
 - Static preview data is centralised and ready to replace with later APIs.
 - Join submission and Discord continuation remain visibly disabled and cannot imply that data was saved.
 
-## Phase 2: Live Minecraft Status and BlueMap
+## Phase 2: Live Minecraft Status and Player Presence
 
 ### Goal
 
-Connect the public shell to the real Fabric server and BlueMap.
+Connect the public shell to the real Fabric server's public status and active-player sample.
 
 ### Backend
 
@@ -665,6 +665,7 @@ GET /api/v1/server/status
 Return a stable public-safe shape containing online state, player count, maximum players when available, version, active player names/UUIDs when exposed, and check time.
 
 - Use a short in-memory cache.
+- Preserve a prior usable online or offline result as explicitly stale across a transient unavailable refresh, with a bounded retry window. Return unavailable normally when no usable result exists.
 - Do not persist routine checks.
 - Distinguish an unavailable player sample from zero active players.
 - Never expose server-management credentials.
@@ -678,18 +679,9 @@ Return a stable public-safe shape containing online state, player count, maximum
 - Use direct Mineatar face PNG requests keyed by sampled UUID with the skin overlay enabled, provider/browser caching, and a replaceable local Steve-head fallback. Do not add a new backend proxy for this Phase 2 concern.
 - Provide loading, stale, offline, partial-data, and unavailable states.
 - Refetch healthy online or offline status at a moderate interval such as approximately 30 seconds. Retry a temporary unavailable result or failed API request sooner, such as approximately 5 seconds, so a transient failure does not leave the public interface waiting for the normal poll.
-- Implement `/map` as the larger or full-screen BlueMap experience.
-- Embed a nearly full-width BlueMap view on the homepage.
-- Target the main settlement initially when BlueMap supports stable deep links or camera configuration.
-- Preserve BlueMap zoom, rotation, and exploration.
-- Link `Explore the Full World` to `/map`.
-- Provide an HTTPS external-link fallback if embedding is blocked.
 
 ### Integration Checks
 
-- Confirm the Fabric-compatible BlueMap deployment and version.
-- Confirm HTTPS or reverse-proxy configuration.
-- Confirm iframe and CSP behaviour.
 - Confirm player-list exposure.
 - Keep the documented Mineatar direct-request privacy policy and local fallback behaviour accurate.
 
@@ -697,7 +689,6 @@ Return a stable public-safe shape containing online state, player count, maximum
 
 - Homepage status fails gracefully when the server is unavailable.
 - Active-player information is accurate about data availability.
-- The homepage and `/map` provide usable BlueMap exploration or a clear secure fallback.
 - No Bukkit, Spigot, or Paper dependency was introduced.
 
 ## Phase 3: Persistent Public Community Content
@@ -753,18 +744,23 @@ Do not build authentication and the first public data model in the same vertical
 - Loading, empty, unavailable, and not-found states are clear.
 - Static image references remain easy to replace with Phase 7 media records.
 
-## Phase 4: Production Deployment and Hardening
+## Phase 4: Production Deployment, Hardening, and Initial BlueMap Integration
 
 ### Goal
 
-Deploy the complete public read-only product consistently.
+Deploy the complete public read-only product consistently and introduce BlueMap once a production-safe HTTPS route exists.
 
 ### Deliver
 
 - Frontend on Cloudflare Pages
 - Go API on Fly.io Sydney
 - PostgreSQL on Neon Sydney
-- BlueMap remaining with WiseHosting behind HTTPS
+- BlueMap remaining with WiseHosting behind a stable HTTPS route
+- Nearly full-width BlueMap embed on the homepage and a larger exploration experience on `/map`
+- Standard BlueMap zoom, rotation, and exploration controls
+- Initial camera target near Goon Squad Mountain when stable deep links or camera configuration support it
+- Clear loading, embedding-blocked, unavailable, and secure external-link fallbacks
+- Verified iframe headers, site CSP, URL stability, and parent/child browser policy
 - Production and API domains
 - Strict production CORS allowlist
 - Secure environment variables
@@ -801,6 +797,7 @@ go build ./cmd/server
 
 - A tested revision deploys without manually copying source files.
 - Public pages, status, and map use HTTPS and production-safe cross-origin policy.
+- The homepage and `/map` provide usable BlueMap exploration or a clear secure fallback.
 - Production secrets and management credentials are absent from frontend assets and Git.
 
 ## Phase 5: Discord Authentication and Member Content Management

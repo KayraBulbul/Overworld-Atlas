@@ -1,6 +1,8 @@
 # Phase 2 Frontend TODO: Live Server Status and Player Heads
 
-Implementation brief for the approved live-status slice. Preserve the accepted Phase 1 layout and styling. BlueMap HTTPS work is tracked separately and must not block this slice.
+Status: complete and accepted on 1 August 2026.
+
+Completed implementation brief for the approved Phase 2 live-status and player-presence slice. Preserve the accepted Phase 1 layout and styling. The initial secure BlueMap experience is allocated to Phase 4 and does not block Phase 2 completion.
 
 ## Implemented Scope
 
@@ -82,6 +84,6 @@ Unknown maximum counts should not produce text such as `0/null`. Use a count-onl
 - [x] `/players` shows confirmed-online players only until Phase 3.
 - [x] The status sample is never used to label absent people offline.
 
-## Deferred BlueMap Work
+## Deferred Phase 4 BlueMap Work
 
-Keep the existing static map preview and secure-integration-pending `/map` state until BlueMap has a stable HTTPS URL. Caddy or Nginx remains the preferred reverse-proxy route if WiseHosting provides a viable process and HTTPS port; Cloudflare Tunnel or a separately hosted proxy remains a fallback. Recheck iframe headers, site CSP, stable map URL, and the Goon Squad Mountain camera target before embedding.
+Keep the existing static map preview and secure-integration-pending `/map` state until Phase 4 gives BlueMap a stable HTTPS URL. Caddy or Nginx remains the preferred reverse-proxy route if WiseHosting provides a viable process and HTTPS port; Cloudflare Tunnel or a separately hosted proxy remains a fallback. Recheck iframe headers, site CSP, stable map URL, and the Goon Squad Mountain camera target before embedding.

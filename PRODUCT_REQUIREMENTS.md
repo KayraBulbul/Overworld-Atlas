@@ -471,6 +471,7 @@ The Minecraft server uses Fabric. Do not plan around Bukkit, Spigot, or Paper pl
 
 - Treat server status, active-player names, and player heads as separate concerns from BlueMap and whitelist management.
 - Query public-safe status through the Go API and use a short in-memory cache.
+- When a transient unavailable refresh follows a usable online or offline result, keep serving the prior result as explicitly stale for a bounded retry window rather than replacing it with unavailable immediately. Preserve a normal unavailable response when no usable result has been observed.
 - Do not persist routine status checks unless a later analytics requirement needs history.
 - Player-list availability depends on server configuration; provide an honest unavailable state.
 - Use Mineatar directly from the browser for Phase 2 player-head portraits, preferring the sampled Minecraft UUID as the image identifier and enabling the skin overlay layer so layered faces render correctly.
@@ -513,9 +514,9 @@ The detailed roadmap and exit criteria live in `.agents/skills/goon-squad-webapp
 |---|---|
 | Phase 0 | Requirements, architecture, routes, conceptual data model, roles, design system, integration planning, and the existing foundation tooling |
 | Phase 1 | Public layout, editorial visual system, themes, route-based public navigation, homepage structure, replaceable static previews and expanded public preview pages, screenshots, a disabled join-form preview, and Copy Server IP |
-| Phase 2 | Fabric-compatible BlueMap embedding, `/map`, live server status, active-player data, and player heads |
+| Phase 2 | Live server status, active-player data, player heads, and the temporary confirmed-online `/players` view |
 | Phase 3 | PostgreSQL-backed public player directory, stories, and events with homepage feeds |
-| Phase 4 | Production deployment and hardening of the public read-only product |
+| Phase 4 | Production deployment and hardening of the public read-only product, including the initial secure BlueMap HTTPS route, homepage embed, `/map` experience, and external fallback |
 | Phase 5 | Discord OAuth, sessions, roles, `/account`, posting permissions, and protected story/event forms |
 | Phase 6 | Request-access dialog, applicant account state, application tracking, `/admin`, and manual whitelist workflow |
 | Phase 7 | Cloudflare R2 image uploads and persistent gallery/media management replacing Phase 1 screenshot fixtures |
@@ -536,7 +537,7 @@ The following decisions need owner input before their implementation phase:
 5. Which members may create stories and events, whether publication requires review, and whether organiser/co-author roles are needed.
 6. Whether `/join` should exist in addition to the dialog.
 7. The initial real community roster for the Phase 3 `/players` directory and whether all member profiles and activity are public.
-8. BlueMap production HTTPS/reverse-proxy arrangement, iframe policy, and deep-link capabilities. Caddy or Nginx is suitable if WiseHosting provides a viable process and HTTPS port; the current server-hosted URL is `http://51.161.199.235:25674/` and is not production-ready for secure embedding.
+8. Phase 4 BlueMap production HTTPS/reverse-proxy arrangement, iframe policy, and deep-link capabilities. Caddy or Nginx is suitable if WiseHosting provides a viable process and HTTPS port; the current server-hosted URL is `http://51.161.199.235:25674/` and is not production-ready for secure embedding.
 9. Whether later whitelist automation should prefer backend RCON or a custom Fabric-side integration after WiseHosting capabilities are verified.
 10. Reapplication and duplicate-request policy after rejection or Minecraft username changes.
 

@@ -163,9 +163,9 @@ The intended order is:
 
 1. Foundation
 2. Public website shell and design system
-3. Live Minecraft status and BlueMap
+3. Live Minecraft status, active-player data, and player heads
 4. PostgreSQL-backed players, stories, and events
-5. Production deployment
+5. Production deployment, hardening, and initial secure BlueMap integration
 6. Discord authentication and member content management
 7. Join requests, application tracking, and manual whitelist administration
 8. Image uploads

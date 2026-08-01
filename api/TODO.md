@@ -1,6 +1,8 @@
 # Phase 2 Backend TODO: Live Minecraft Status
 
-Owner implementation brief. Codex may review this work, but must not implement or edit the backend code unless the owner explicitly requests a one-off exception.
+Status: complete and accepted on 1 August 2026.
+
+Completed owner implementation brief. Codex may review this work, but must not implement or edit the backend code unless the owner explicitly requests a one-off exception.
 
 ## Outcome
 
@@ -212,9 +214,9 @@ Observed on 30 July 2026:
 
 These observations are diagnostic only. Do not make tests depend on the live server or treat them as permanent product configuration.
 
-## Separate Phase 2 Integration Work
+## Deferred Phase 4 BlueMap Integration Work
 
-BlueMap is reachable at `http://51.161.199.235:25674/` and reported BlueMap `5.22` on 30 July 2026, but HTTPS negotiation failed. Before the frontend embed can be approved:
+BlueMap is reachable at `http://51.161.199.235:25674/` and reported BlueMap `5.22` on 30 July 2026, but HTTPS negotiation failed. The initial secure embed has been moved from Phase 2 to Phase 4 so it can be completed with production domains and browser policy. Before the frontend embed can be approved:
 
 - [ ] Put BlueMap behind a stable HTTPS URL, preferably the planned map subdomain or another owner-approved endpoint.
 - [ ] Verify iframe embedding headers and the final site's Content Security Policy.
@@ -222,7 +224,7 @@ BlueMap is reachable at `http://51.161.199.235:25674/` and reported BlueMap `5.2
 - [ ] Decide the secure external-link fallback.
 - [ ] Discuss and approve the frontend map experience before Codex implements it.
 
-Player heads are also a separate decision:
+## Completed Phase 2 Player Decisions
 
 - [x] Use direct overlay-aware Mineatar face PNG requests keyed by sampled UUID; do not add a Phase 2 backend proxy.
 - [x] Document provider/browser caching, direct-request privacy, redundant-alt-text handling, and a local Steve-head fallback.

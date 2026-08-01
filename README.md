@@ -12,15 +12,15 @@ Product and implementation planning is documented in:
 
 Last updated: 1 August 2026.
 
-The project is part-way through Phase 2, live Minecraft status and BlueMap. Phase 0 and Phase 1 are complete, and the Phase 2 live-status slice is implemented across the Go API and public frontend. Secure BlueMap integration is intentionally deferred until its HTTPS hosting route is resolved.
+Phase 0, Phase 1, and Phase 2 are complete. The project is now beginning Phase 3: PostgreSQL-backed public players, stories, events, and homepage feeds. Phase 2 delivered live Minecraft status and player presence across the Go API and public frontend. The initial secure BlueMap embed is intentionally deferred to Phase 4, where its HTTPS route and browser security policy can be completed with production deployment.
 
 The latest Phase 2 additions are:
 
 - `GET /api/v1/server/status` queries the standard Minecraft server-list status protocol without adding database persistence or server-management access.
 - A bounded query timeout prevents an unresponsive Minecraft connection from hanging the API.
 - The public contract distinguishes `online`, `offline`, and `unavailable`, represents unknown optional values explicitly, and separates a missing player sample from zero online players.
-- A concurrency-safe 15-second in-memory cache prevents duplicate upstream queries and reports fresh, cached, and fallback metadata without persisting routine checks.
-- Deterministic protocol, cache, handler, route, CORS, timeout, and error-envelope coverage is included. All 70 backend tests pass normally and with the race detector.
+- A concurrency-safe 15-second in-memory cache prevents duplicate upstream queries and reports fresh, cached, and fallback metadata without persisting routine checks. A transient unavailable refresh cannot overwrite a prior usable online or offline result; the API serves it as stale and retries upstream after a bounded five-second window.
+- Deterministic protocol, cache, handler, route, CORS, timeout, and error-envelope coverage is included. All 75 backend test and subtest events pass normally and with the race detector.
 - The live server was rechecked on 1 August 2026 and reported Minecraft `26.2`, protocol `776`, zero of 20 players online, and no exposed player sample at that time.
 - The homepage now preserves the Phase 1 layout while polling healthy status approximately every 30 seconds, retrying a temporary unavailable result or failed API request after 5 seconds, showing at most four positively identified online players, and rendering explicit loading, zero-player, missing-sample, offline, unavailable, and stale states.
 - `/players` temporarily presents only players positively identified by the current public status sample. The persistent online/offline community directory remains Phase 3 work.
@@ -28,7 +28,7 @@ The latest Phase 2 additions are:
 - Primary navigation now opens the full public pages and derives its active underline from the current route; Home is no longer selected away from `/`.
 - The frontend status parser, presentation states, polling behaviour, four-player cap, player-head fallback, route-aware compact-navigation behaviour, homepage integration, and confirmed-online player page have automated coverage. All 39 frontend tests pass.
 
-The accepted backend response contract and verification record are documented in `api/TODO.md`; the completed frontend slice and its verification record are in `web/TODO.md`. BlueMap stays on the secure static-preview fallback until an HTTPS reverse proxy or tunnel is available. The next Phase 2 step is resolving that HTTPS route and then embedding the map without weakening browser security.
+The accepted backend response contract and verification record are documented in `api/TODO.md`; the completed frontend slice and its verification record are in `web/TODO.md`. BlueMap stays on the secure static-preview fallback until Phase 4 establishes an HTTPS reverse proxy or tunnel and verifies embedding policy. Phase 3 now begins with the public data model and read-only PostgreSQL APIs; no Phase 3 application tables or endpoints exist yet.
 
 ## Collaboration Workflow
 
@@ -44,7 +44,7 @@ The current foundation includes:
 - Go, Chi, structured request logging, and HTTP server timeouts
 - An internal `GET /api/v1/health` endpoint with CORS coverage
 - Local PostgreSQL through Docker Compose
-- Goose and sqlc configuration, with application migrations deferred until Phase 3
+- Goose and sqlc configuration ready for the initial Phase 3 application migrations
 - Frontend formatting, linting, type checking, and production builds
 - Go formatting checks, vetting, tests, and builds
 - GitHub Actions CI for both applications
@@ -165,11 +165,11 @@ web/public/images/settlements/
 web/public/images/stories/
 ```
 
-The Phase 1 editorial content remains centralised static preview data, while the server-status and confirmed-online player areas now use the live Minecraft status API. Later phases replace the remaining fixtures with BlueMap, PostgreSQL-backed community content, and storage-backed media without changing the public information architecture.
+The Phase 1 editorial content remains centralised static preview data, while the server-status and confirmed-online player areas now use the live Minecraft status API. Phase 3 replaces player, story, and event fixtures with PostgreSQL-backed public content; Phase 4 replaces the static map with the initial secure BlueMap experience; and Phase 7 replaces screenshot fixtures with storage-backed media without changing the public information architecture.
 
 ## Database Tooling
 
-No application tables or migrations exist during Phase 0. When persistent public content begins in Phase 3:
+No application tables or migrations exist yet. As Phase 3 begins, persistent public content must follow this workflow:
 
 1. Add Goose migrations under `api/internal/database/migrations`.
 2. Add handwritten queries under `api/internal/database/queries`.
