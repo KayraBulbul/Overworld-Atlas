@@ -7,10 +7,11 @@ Product and implementation planning is documented in:
 - `PRODUCT_REQUIREMENTS.md` for canonical product and experience requirements
 - `AGENTS.md` for repository-wide engineering constraints
 - `.agents/skills/goon-squad-webapp/SKILL.md` for architecture and the phased delivery roadmap
+- `docs/README.md` for phase learning and delivery reports
 
 ## Current Project Status
 
-Last updated: 1 August 2026.
+Last updated: 2 August 2026.
 
 Phase 0, Phase 1, and Phase 2 are complete. The project is now beginning Phase 3: PostgreSQL-backed public players, stories, events, and homepage feeds. Phase 2 delivered live Minecraft status and player presence across the Go API and public frontend. The initial secure BlueMap embed is intentionally deferred to Phase 4, where its HTTPS route and browser security policy can be completed with production deployment.
 
@@ -30,11 +31,17 @@ The latest Phase 2 additions are:
 
 The accepted backend response contract and verification record are documented in `api/TODO.md`; the completed frontend slice and its verification record are in `web/TODO.md`. BlueMap stays on the secure static-preview fallback until Phase 4 establishes an HTTPS reverse proxy or tunnel and verifies embedding policy. Phase 3 now begins with the public data model and read-only PostgreSQL APIs; no Phase 3 application tables or endpoints exist yet.
 
+The completed delivery and learning records are captured in `docs/phase-00-foundation-and-product-planning.md`, `docs/phase-01-public-website-shell-and-design-system.md`, and `docs/phase-02-live-minecraft-status-and-player-presence.md`. Every future phase must have a corresponding report under `docs/` before the project status advances.
+
 ## Collaboration Workflow
 
 The owner writes all backend implementation code, including the Go API, database work, and server-side integrations. Codex supports backend work by preparing focused Markdown TODO briefs and reviewing the owner's code; it does not edit backend implementation files unless the owner explicitly requests an exception for a specific task.
 
+Backend TODOs are written as senior-to-junior assignments. They explain the outcome, reasoning, responsibilities, concepts, constraints, acceptance criteria, and review handoff without supplying implementation code or pseudocode by default. Backend help remains concept-first so the owner can reason through and implement the solution.
+
 Frontend behaviour, layout, states, and integration contracts are discussed extensively with the owner before implementation. Once the owner approves the direction, Codex implements the frontend while preserving the accepted Phase 1 visual baseline.
+
+At the end of each accepted roadmap phase, Codex writes a report under `docs/` covering its frontend work, the owner's backend work, concepts practised, verification, deferred work, and an evidence-based senior-engineer report on the owner's development.
 
 ## Foundation
 

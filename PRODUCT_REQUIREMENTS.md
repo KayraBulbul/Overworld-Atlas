@@ -526,6 +526,12 @@ The detailed roadmap and exit criteria live in `.agents/skills/goon-squad-webapp
 
 Authentication and backend-enforced roles must exist before protected account management, content writes, join administration, or admin actions. Public read-only stories and events may precede authentication; authenticated content management may not.
 
+### Delivery and Learning Records
+
+Backend implementation remains owner-led. Codex prepares backend assignments and explains backend concepts as a senior engineer mentoring a junior engineer, without providing implementation code or pseudocode unless the owner explicitly requests a rare, narrowly scoped example. Codex continues to implement approved frontend work.
+
+Every accepted roadmap phase requires a Markdown report under `docs/`. The report records the frontend work completed by Codex, the backend work completed by the owner, shared integration decisions, concepts covered, verification evidence, deferred work, and specific evidence-based feedback on the owner's backend engineering. The repository workflow and report format are defined in `AGENTS.md` and `docs/README.md`.
+
 ## Open Product Decisions
 
 The following decisions need owner input before their implementation phase:

@@ -4,6 +4,8 @@ Status: complete and accepted on 1 August 2026.
 
 Completed owner implementation brief. Codex may review this work, but must not implement or edit the backend code unless the owner explicitly requests a one-off exception.
 
+This completed record predates the senior-to-junior TODO format and retains its accepted response examples for integration history. The active Phase 3 backend assignment is `api/internal/database/TODO.md`; new backend briefs omit implementation code and pseudocode by default.
+
 ## Outcome
 
 Add a public, read-only Minecraft status endpoint:

@@ -71,6 +71,8 @@ goon-squad/
 │   └── React frontend
 ├── api/
 │   └── Go backend
+├── docs/
+│   └── Completed phase reports and learning records
 ├── .agents/
 │   └── skills/
 │       └── goon-squad-webapp/
@@ -186,6 +188,25 @@ Do not introduce later-phase infrastructure early unless a current feature genui
 - Codex may implement frontend code only after the owner and Codex have extensively discussed the feature's behaviour, states, layout, and integration contract and the owner has approved the direction.
 - Frontend implementation must preserve the accepted Phase 1 visual baseline unless the owner explicitly approves a redesign.
 
+### Backend Mentoring and TODO Briefs
+
+- Write active backend `TODO.md` briefs in the voice of a senior engineer assigning a bounded piece of work to a junior engineer.
+- Explain the outcome, why the work matters, prerequisites, ordered responsibilities, relevant concepts, constraints, acceptance criteria, verification, and what the owner should bring back for review.
+- Give the owner room to make implementation decisions. Describe responsibilities and invariants without turning the brief into a line-by-line recipe.
+- Do not include backend implementation code, SQL, JSON examples, code-shaped pseudocode, or starter snippets in new task briefs or backend guidance unless the owner explicitly asks for a rare, narrowly scoped example.
+- When the owner asks for help, teach the underlying concept first, connect it to the current task, and let the owner attempt the implementation. Ask for their reasoning or observed behaviour when that will make the review more useful.
+- Backend reviews may point to files, lines, identifiers, behaviour, and test evidence, but should not paste replacement implementations. Findings remain concrete and ordered by severity.
+- Completed historical TODOs may retain old contract examples as records. All new or materially rewritten backend assignments follow this mentoring format.
+
+### Phase Completion Reports
+
+- When an entire roadmap phase is accepted, Codex creates a Markdown report under `docs/` before marking the phase complete.
+- Use the naming convention `phase-XX-short-name.md` and follow `docs/README.md`.
+- Record what Codex implemented on the frontend, what the owner implemented on the backend, the important integration decisions, concepts covered, verification evidence, deferred work, and the final scope boundary.
+- Include a specific, evidence-based senior-engineer report on the owner's backend work: strengths demonstrated, areas to improve, and a practical focus for the next phase. Do not invent observations or use school-style grading unless the owner requests it.
+- If a phase has no frontend or backend work, say so explicitly instead of manufacturing activity.
+- Update the phase report if completion findings cause follow-up work before acceptance. Link the accepted report from `README.md` when advancing the current project status.
+
 Before implementing a feature:
 
 1. Inspect the existing repository.
@@ -198,6 +219,8 @@ Before implementing a feature:
 When the owner requests a product or implementation requirement change, update `PRODUCT_REQUIREMENTS.md` and every corresponding Markdown source of truth, roadmap, or operational document in the same change. Do not leave superseded requirements in `AGENTS.md`, `.agents/skills/goon-squad-webapp/SKILL.md`, `README.md`, or other affected documentation.
 
 After work changes the implemented scope or roadmap position, update `README.md` under `Current Project Status` in the same change. Keep its active phase, completion point, latest additions, and next planned phase accurate; do not leave stale status for a later session.
+
+A roadmap phase is not complete until its `docs/` phase report and `README.md` status are current.
 
 Before completing frontend work, run:
 
@@ -266,3 +289,4 @@ A feature is complete only when:
 - Secrets are not committed.
 - New environment variables are documented.
 - No unnecessary infrastructure was introduced.
+- A completed roadmap phase has its required `docs/` phase report and owner feedback record.

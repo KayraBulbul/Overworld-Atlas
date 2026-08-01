@@ -298,6 +298,8 @@ goon-squad/
 │   └── workflows/
 ├── .agents/
 │   └── skills/
+├── docs/
+│   └── Completed phase reports and learning records
 ├── AGENTS.md
 ├── PRODUCT_REQUIREMENTS.md
 ├── README.md
@@ -1145,6 +1147,16 @@ For backend work, Codex is limited to:
 
 Codex must not create or edit backend implementation code unless the owner explicitly overrides this boundary for a specific task. A request to review backend code does not authorise Codex to fix it.
 
+Treat backend planning and review as a senior-to-junior mentoring workflow:
+
+- Write each active backend `TODO.md` as a bounded assignment addressed directly to the owner.
+- Explain the intended outcome, purpose, prerequisites, ordered responsibilities, architectural constraints, concepts to practise, acceptance criteria, verification, and review handoff.
+- State the invariants and questions the owner must resolve without prescribing a line-by-line implementation.
+- Do not put backend implementation code, SQL, JSON examples, code-shaped pseudocode, or starter snippets in new task briefs or explanations unless the owner explicitly requests a rare, narrowly scoped example.
+- Answer backend questions concept-first. Connect the explanation to the current assignment, then leave the implementation with the owner.
+- Review existing backend code through file-and-line findings, behaviour, risks, and test evidence. Do not paste a replacement implementation into the review.
+- Historical completed TODOs may retain earlier contract examples; new and materially rewritten assignments use the mentoring format.
+
 Codex may implement frontend work only after an extensive discussion with the owner covers the intended behaviour, visual treatment, responsive layout, accessibility states, API contract, and testing approach, and the owner approves that direction. Preserve the accepted Phase 1 visual baseline unless the owner explicitly approves a redesign.
 
 When implementing a feature:
@@ -1164,6 +1176,23 @@ When implementing a feature:
 13. Do not alter the architecture or hosting plan without a concrete reason.
 14. Keep normal login and application intent distinct in UI, routes, state, and backend handling.
 15. When the owner changes a requirement, update `PRODUCT_REQUIREMENTS.md` and every corresponding Markdown source of truth, roadmap, or operational document in the same change.
+16. When a roadmap phase is accepted, create its learning and delivery report under `docs/` before advancing the project status.
+
+## Phase Completion and Learning Record
+
+At the completion of every full roadmap phase, Codex owns a Markdown report named `docs/phase-XX-short-name.md`. Follow the structure and evidence rules in `docs/README.md`.
+
+The report must identify:
+
+- The accepted outcome and final scope boundary
+- Frontend work implemented by Codex
+- Backend work implemented by the owner
+- Shared contracts and integration decisions
+- Backend, frontend, and cross-cutting concepts covered
+- Verification evidence and unresolved or deferred work
+- Evidence-based senior-engineer feedback on the owner's backend work, including demonstrated strengths, a development area, and a concrete next-phase focus
+
+Do not invent contributions when one side had no work. Do not use grades by default. Update the report if acceptance uncovers follow-up work, and link the final report from the `README.md` project status.
 
 # Definition of Done
 
@@ -1182,3 +1211,4 @@ A feature is not complete until:
 - Secrets are not committed.
 - New environment variables and operational steps are documented.
 - The implementation introduces no unjustified later-phase infrastructure.
+- A completed roadmap phase has an accepted `docs/` phase report covering delivery, concepts, verification, and owner feedback.
