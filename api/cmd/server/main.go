@@ -26,7 +26,7 @@ func newRouter(logger *slog.Logger, options cors.Options, cache *minecraft.Cache
 
 	r.Route("/api/v1", func(r chi.Router) {
 		r.Get("/health", handlers.HealthHandler)
-		r.Get("/server/status", handlers.ServerStatusHandler(cache, address))
+		r.Get("/server/status", handlers.ServerStatusHandler(cache, address, logger))
 	})
 
 	return r

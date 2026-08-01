@@ -12,5 +12,5 @@ func HealthHandler(w http.ResponseWriter, r *http.Request) {
 		Status string `json:"status"`
 	}
 
-	respond.RespondWithJSON(w, http.StatusOK, response{Status: "ok"})
+	respond.WithJSON(w, http.StatusOK, response{Status: "ok"})
 }

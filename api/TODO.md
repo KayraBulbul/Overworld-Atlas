@@ -59,8 +59,8 @@ Use the repository's consistent JSON error envelope for request-level failures. 
   - Avoid duplicate simultaneous upstream queries when the cache expires.
   - Decide whether the last successful value may be returned as stale after a refresh failure.
   - Never persist routine status checks.
-- [ ] Add the handler and register `GET /api/v1/server/status` beneath `/api/v1`.
-- [ ] Keep handler responsibilities narrow: call the status service/client, translate the result, and encode JSON.
+- [x] Add the handler and register `GET /api/v1/server/status` beneath `/api/v1`.
+- [x] Keep handler responsibilities narrow: call the status service/client, translate the result, and encode JSON.
 - [ ] Add structured logs without leaking raw packets, credentials, or unnecessary player data.
 - [ ] Preserve the existing health route and CORS behaviour.
 

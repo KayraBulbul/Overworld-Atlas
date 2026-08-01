@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"log/slog"
 	"net/http"
 	"time"
 
@@ -8,7 +9,7 @@ import (
 	"github.com/KayraBulbul/Goon-Squad-SMP/api/internal/respond"
 )
 
-func ServerStatusHandler(cache *minecraft.Cache, address string) http.HandlerFunc {
+func ServerStatusHandler(cache *minecraft.Cache, address string, logger *slog.Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		type response struct {
 			State                 minecraft.State    `json:"state"`
@@ -25,6 +26,7 @@ func ServerStatusHandler(cache *minecraft.Cache, address string) http.HandlerFun
 		status, err := cache.Get(r.Context(), address)
 		if err != nil {
 			respond.WithError(w, http.StatusServiceUnavailable, "error retrieving server status")
+			logger.Error("failed to retrieve Minecraft server status", "error", err)
 			return
 		}
 
@@ -39,5 +41,6 @@ func ServerStatusHandler(cache *minecraft.Cache, address string) http.HandlerFun
 			CheckedAt:             status.CheckedAt,
 			Stale:                 status.Stale,
 		})
+		logger.Info("Successfully sent retrieved Minecraft server status", "Success")
 	}
 }
