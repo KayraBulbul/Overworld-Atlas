@@ -2,7 +2,7 @@
 
 ## Document Status
 
-This document is the canonical product and experience specification for the Goon Squad Minecraft community website. `AGENTS.md` defines repository-wide engineering rules, and `.opencode/skills/goon-squad-webapp/SKILL.md` defines the architecture and phased implementation roadmap.
+This document is the canonical product and experience specification for the Goon Squad Minecraft community website. `AGENTS.md` defines repository-wide engineering rules, and `.agents/skills/goon-squad-webapp/SKILL.md` defines the architecture and phased implementation roadmap.
 
 When the owner changes a requirement, update this document and every corresponding Markdown source of truth, roadmap, or operational document in the same change.
 
@@ -151,7 +151,7 @@ The primary navigation includes:
 - Theme toggle
 - Login or account controls
 
-Use direct labels in homepage order: Home, Players, Map, Stories, Events, and Screenshots. These labels target their corresponding homepage sections. From another page, they return to the homepage and scroll to that section. Each homepage section provides a clearly labelled action to its expanded page. Do not hide these destinations inside vague dropdowns. On constrained mobile layouts, the navigation may collapse for space, but every destination must remain directly labelled and easy to reach.
+Use direct labels in homepage order: Home, Players, Map, Stories, Events, and Screenshots. Each label opens its full public route: `/`, `/players`, `/map`, `/stories`, `/events`, or `/screenshots`. Highlight only the route that contains the current page; Home is active only at `/`, while story and event detail routes retain their parent section's active state. Homepage sections may still provide contextual links to their expanded pages. Do not hide these destinations inside vague dropdowns. On constrained mobile layouts, the navigation may collapse for space, but every destination must remain directly labelled and easy to reach.
 
 The `Join` item may open the request-access dialog rather than navigate to a dedicated route.
 
@@ -223,7 +223,9 @@ The official Phase 1 logo is `web/public/images/branding/goon-squad-logo.png`.
 
 `Request Access` opens the join-request dialog. In Phase 1 the complete form may be previewed, but its submission action remains disabled and explains that applications are not yet being accepted through the website.
 
-The Phase 1 homepage player preview may show at most four centralised fixture players. Phase 2 replaces the preview with live presence data.
+The Phase 1 homepage player preview may show at most four centralised fixture players. Phase 2 replaces the preview with at most four positively identified online players from the live status response. When the server reports zero online players, show a clear empty message instead of player placeholders. When the online count is known but the player sample is unavailable or incomplete, preserve the known count and explain that player names are unavailable rather than implying that nobody is online.
+
+Poll healthy live status at a moderate interval such as approximately 30 seconds. Retry a temporary unavailable result or failed API request sooner, such as approximately 5 seconds, so a transient failure does not remain visible for a complete healthy polling interval.
 
 ### Featured Settlement
 
@@ -277,10 +279,13 @@ Include a curated screenshot preview with dates, contributor names, useful alt t
 
 ### Players
 
-- Provide a discoverable player directory.
+- Until the Phase 3 database-backed directory exists, `/players` shows only players positively identified by the current live status sample.
+- Phase 3 replaces that confirmed-online-only view with the discoverable persistent player directory.
 - Distinguish persistent member/profile data from transient online activity.
 - Show player heads and Minecraft usernames where data and privacy settings permit.
 - Handle unavailable active-player lists without implying that no one is online.
+- Treat only players positively identified by the live status sample as currently online. Absence from that sample is not evidence that a player is offline.
+- Do not label a persistent community roster as an offline-player list unless a later authoritative presence integration supports that claim.
 
 ### Stories
 
@@ -468,7 +473,11 @@ The Minecraft server uses Fabric. Do not plan around Bukkit, Spigot, or Paper pl
 - Query public-safe status through the Go API and use a short in-memory cache.
 - Do not persist routine status checks unless a later analytics requirement needs history.
 - Player-list availability depends on server configuration; provide an honest unavailable state.
-- Decide and document the player-head source, caching, fallback, and privacy behaviour before implementation.
+- Use Mineatar directly from the browser for Phase 2 player-head portraits, preferring the sampled Minecraft UUID as the image identifier and enabling the skin overlay layer so layered faces render correctly.
+- Rely on ordinary browser and provider caching; do not add another backend or proxy only for player heads in Phase 2.
+- Fall back to a locally stored Steve head if the provider image fails. Keep that asset replaceable under `web/public/images/players/`.
+- Direct provider requests disclose ordinary request metadata, including the visitor's network address and the requested player identifier, to Mineatar. This is the accepted Phase 2 privacy tradeoff and should be revisited if player heads are later proxied or self-hosted.
+- When a head is immediately paired with the same visible username, use an empty image alternative so assistive technology does not announce the identity twice. The adjacent username remains the accessible identification.
 
 ### Whitelisting
 
@@ -498,12 +507,12 @@ Keep account role, application status, posting permission, and transient online 
 
 ## Delivery Phases
 
-The detailed roadmap and exit criteria live in `.opencode/skills/goon-squad-webapp/SKILL.md`. The required allocation is:
+The detailed roadmap and exit criteria live in `.agents/skills/goon-squad-webapp/SKILL.md`. The required allocation is:
 
 | Phase | Product allocation |
 |---|---|
 | Phase 0 | Requirements, architecture, routes, conceptual data model, roles, design system, integration planning, and the existing foundation tooling |
-| Phase 1 | Public layout, editorial visual system, themes, section-scrolling navigation, homepage structure, replaceable static previews and expanded public preview pages, screenshots, a disabled join-form preview, and Copy Server IP |
+| Phase 1 | Public layout, editorial visual system, themes, route-based public navigation, homepage structure, replaceable static previews and expanded public preview pages, screenshots, a disabled join-form preview, and Copy Server IP |
 | Phase 2 | Fabric-compatible BlueMap embedding, `/map`, live server status, active-player data, and player heads |
 | Phase 3 | PostgreSQL-backed public player directory, stories, and events with homepage feeds |
 | Phase 4 | Production deployment and hardening of the public read-only product |
@@ -526,8 +535,8 @@ The following decisions need owner input before their implementation phase:
 4. Whether whitelisted applicants automatically become `Member`, require a separate promotion, or receive member status through another process.
 5. Which members may create stories and events, whether publication requires review, and whether organiser/co-author roles are needed.
 6. Whether `/join` should exist in addition to the dialog.
-7. Player-head provider, caching and fallback policy, and whether all member profiles and activity are public.
-8. BlueMap production HTTPS/reverse-proxy arrangement, iframe policy, and deep-link capabilities. The current server-hosted URL is `http://51.161.199.235:25674/` and is not production-ready for secure embedding.
+7. The initial real community roster for the Phase 3 `/players` directory and whether all member profiles and activity are public.
+8. BlueMap production HTTPS/reverse-proxy arrangement, iframe policy, and deep-link capabilities. Caddy or Nginx is suitable if WiseHosting provides a viable process and HTTPS port; the current server-hosted URL is `http://51.161.199.235:25674/` and is not production-ready for secure embedding.
 9. Whether later whitelist automation should prefer backend RCON or a custom Fabric-side integration after WiseHosting capabilities are verified.
 10. Reapplication and duplicate-request policy after rejection or Minecraft username changes.
 

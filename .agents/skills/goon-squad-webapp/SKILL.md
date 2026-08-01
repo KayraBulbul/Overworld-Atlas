@@ -1,12 +1,6 @@
 ---
 name: goon-squad-webapp
 description: Guide the architecture, phased implementation, and engineering conventions for the Goon Squad Minecraft server website. Use when planning, implementing, reviewing, or extending the React/Vite frontend, Go API, PostgreSQL database, BlueMap integration, Discord authentication, join workflow, media storage, or Minecraft server integrations.
-compatibility: opencode
-metadata:
-  project: goon-squad
-  architecture: modular-monolith
-  frontend: react-vite-typescript
-  backend: go-chi-sqlc
 ---
 
 # Goon Squad Web Application
@@ -302,7 +296,7 @@ goon-squad/
 │
 ├── .github/
 │   └── workflows/
-├── .opencode/
+├── .agents/
 │   └── skills/
 ├── AGENTS.md
 ├── PRODUCT_REQUIREMENTS.md
@@ -345,7 +339,7 @@ Add these protected routes in the authentication and member-content phase:
 
 `/join` is optional and may provide a full-page/shareable alternative to the join dialog. It does not replace the modal requirement.
 
-Primary navigation should directly label Home, Players, Map, Stories, Events, Screenshots, and Join in homepage order, alongside the Goon Squad logo/name, theme toggle, and contextual login/account control. The public content labels target homepage sections; from expanded pages they return home and scroll to the section. Clearly labelled actions within each section open `/players`, `/map`, `/stories`, `/events`, or `/screenshots`. Mobile navigation may collapse spatially but may not obscure the information architecture behind vague labels.
+Primary navigation should directly label Home, Players, Map, Stories, Events, Screenshots, and Join in homepage order, alongside the Goon Squad logo/name, theme toggle, and contextual login/account control. The public content labels open `/`, `/players`, `/map`, `/stories`, `/events`, or `/screenshots`. Only the current route is marked active: Home matches `/` exactly, while story and event detail routes keep their parent section active. Clearly labelled actions within each homepage section may also open the corresponding full page. Mobile navigation may collapse spatially but may not obscure the information architecture behind vague labels.
 
 Rules and server information may live in the Join flow. `/rules` and `/server` may remain supplemental routes if useful, but are not substitutes for required destinations.
 
@@ -623,7 +617,7 @@ Create the public editorial shell and homepage structure using centralised stati
 - Editorial atlas typography exploration and design tokens
 - Coherent light and dark themes
 - Light-by-default guest theme state that resets on refresh; signed-in persistence belongs to Phase 5
-- Responsive main layout and directly labelled section navigation for all required public destinations
+- Responsive main layout and directly labelled route navigation for all required public destinations
 - Homepage opening/server-overview composition
 - `Copy Server IP` with immediate copy and accessible temporary `Copied` state
 - Visually distinct `Request Access` and `Log In` affordances
@@ -638,7 +632,7 @@ Create the public editorial shell and homepage structure using centralised stati
 
 ### Routes
 
-Establish usable static preview pages for the public information architecture without adding protected behaviour. Homepage section actions link to the expanded pages, while primary content navigation returns to the matching homepage section.
+Establish usable static preview pages for the public information architecture without adding protected behaviour. Homepage section actions and primary content navigation link to the expanded public pages.
 
 ### Database Usage
 
@@ -678,9 +672,12 @@ Return a stable public-safe shape containing online state, player count, maximum
 ### Frontend
 
 - Show live online/offline state and online count on the homepage.
-- Show currently active Minecraft usernames and player heads when available.
+- Show at most four positively identified active Minecraft usernames and player heads on the homepage when the status sample exposes them.
+- Until Phase 3 provides the persistent directory, make `/players` a confirmed-online-only view driven by the same live status sample.
+- Preserve a known online count when the sample is missing or incomplete, and never infer that an absent player is offline.
+- Use direct Mineatar face PNG requests keyed by sampled UUID with the skin overlay enabled, provider/browser caching, and a replaceable local Steve-head fallback. Do not add a new backend proxy for this Phase 2 concern.
 - Provide loading, stale, offline, partial-data, and unavailable states.
-- Refetch status at a moderate interval such as approximately 30 seconds.
+- Refetch healthy online or offline status at a moderate interval such as approximately 30 seconds. Retry a temporary unavailable result or failed API request sooner, such as approximately 5 seconds, so a transient failure does not leave the public interface waiting for the normal poll.
 - Implement `/map` as the larger or full-screen BlueMap experience.
 - Embed a nearly full-width BlueMap view on the homepage.
 - Target the main settlement initially when BlueMap supports stable deep links or camera configuration.
@@ -694,7 +691,7 @@ Return a stable public-safe shape containing online state, player count, maximum
 - Confirm HTTPS or reverse-proxy configuration.
 - Confirm iframe and CSP behaviour.
 - Confirm player-list exposure.
-- Select and document a player-head provider, caching, fallback, and privacy policy.
+- Keep the documented Mineatar direct-request privacy policy and local fallback behaviour accurate.
 
 ### Exit Criteria
 
@@ -1131,12 +1128,27 @@ Do not silently resolve the owner decisions listed in `PRODUCT_REQUIREMENTS.md`.
 - Whitelisted-applicant to member-role policy
 - Member posting and publication permissions
 - Optional `/join` route
-- Player-head source and privacy policy
+- Initial real Phase 3 `/players` community roster and public-profile policy; live status samples alone cannot establish an offline list
 - BlueMap HTTPS, iframe, and deep-link capabilities; the current HTTP URL is not production-ready for embedding
 - Reapplication and duplicate-request policy
 - RCON versus Fabric-side whitelist automation
 
 # Coding and Change Rules
+
+## Owner and Codex Collaboration Boundary
+
+The owner writes all backend implementation code. This includes Go API code, database schemas and queries, migrations, generated database access code, and server-side integrations.
+
+For backend work, Codex is limited to:
+
+- Discussing architecture, behaviour, contracts, risks, and acceptance criteria
+- Creating or updating focused Markdown `TODO.md` task briefs for the owner
+- Reviewing the owner's implementation with concrete file and line findings
+- Running relevant read-only checks and reporting their results
+
+Codex must not create or edit backend implementation code unless the owner explicitly overrides this boundary for a specific task. A request to review backend code does not authorise Codex to fix it.
+
+Codex may implement frontend work only after an extensive discussion with the owner covers the intended behaviour, visual treatment, responsive layout, accessibility states, API contract, and testing approach, and the owner approves that direction. Preserve the accepted Phase 1 visual baseline unless the owner explicitly approves a redesign.
 
 When implementing a feature:
 

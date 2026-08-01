@@ -1,72 +1,88 @@
+import { tw } from '../styles/tailwindStyles'
 import { Link } from 'react-router-dom'
 import { CopyServerAddressButton } from '../components/server/CopyServerAddressButton'
 import {
   events,
-  players,
   screenshots,
   siteContent,
   stories,
 } from '../content/siteContent'
 import { useAccessPreview } from '../features/access/accessContext'
+import { PlayerHead } from '../features/server-status/PlayerHead'
+import { getServerStatusPresentation } from '../features/server-status/serverStatusPresentation'
+import { useServerStatus } from '../features/server-status/useServerStatus'
 
 export function HomePage() {
   const { openJoinPreview } = useAccessPreview()
-  const onlinePlayers = players.slice(0, 4)
+  const statusQuery = useServerStatus()
+  const status = getServerStatusPresentation(
+    statusQuery.data,
+    statusQuery.isPending
+      ? 'loading'
+      : statusQuery.isError
+        ? 'error'
+        : 'success',
+  )
+  const onlinePlayers = status.confirmedPlayers.slice(0, 4)
   const upcomingEvents = events.filter((event) => event.period === 'upcoming')
   const featuredEvent = upcomingEvents[0]
 
   return (
     <div>
       <section
-        className="home-hero page-shell"
+        className={tw('home-hero page-shell')}
         id="home"
         aria-labelledby="home-title"
       >
-        <div className="hero-copy">
-          <p className="eyebrow">
-            <span className="status-pip" aria-hidden="true" />
-            {siteContent.server.statusLabel}
+        <div className={tw('hero-copy')}>
+          <p className={tw('eyebrow')}>
+            <span
+              className={tw('status-pip')}
+              data-state={status.tone}
+              aria-hidden="true"
+            />
+            {status.statusLabel}
           </p>
           <h1 id="home-title">
             A world shaped by <em>the people who play it.</em>
           </h1>
-          <p className="hero-intro">{siteContent.server.description}</p>
-          <div className="hero-actions">
+          <p className={tw('hero-intro')}>{siteContent.server.description}</p>
+          <div className={tw('hero-actions')}>
             <CopyServerAddressButton address={siteContent.server.address} />
             <button
-              className="button-secondary"
+              className={tw('button-secondary')}
               type="button"
               onClick={openJoinPreview}
             >
               Request Access
             </button>
           </div>
-          <p className="preview-disclaimer">
-            Status and player activity use Phase 1 preview data.
-          </p>
+          {status.statusDetail ? (
+            <p className={tw('server-status-detail')}>{status.statusDetail}</p>
+          ) : null}
         </div>
 
         <div
-          className="hero-settlement"
+          className={tw('hero-settlement')}
           aria-labelledby="featured-settlement-title"
         >
-          <div className="settlement-visual">
+          <div className={tw('settlement-visual')}>
             <img
-              className="settlement-image"
+              className={tw('settlement-image')}
               src={siteContent.settlement.imageSrc}
               alt={siteContent.settlement.imageAlt}
             />
             <span
-              className="settlement-corner corner-left"
+              className={tw('settlement-corner corner-left')}
               aria-hidden="true"
             />
             <span
-              className="settlement-corner corner-right"
+              className={tw('settlement-corner corner-right')}
               aria-hidden="true"
             />
           </div>
-          <div className="settlement-copy">
-            <p className="eyebrow">Featured settlement</p>
+          <div className={tw('settlement-copy')}>
+            <p className={tw('eyebrow')}>Featured settlement</p>
             <div>
               <h2 id="featured-settlement-title">
                 {siteContent.settlement.name}
@@ -74,7 +90,7 @@ export function HomePage() {
               <span>{siteContent.settlement.coordinates}</span>
             </div>
           </div>
-          <div className="settlement-frame-note">
+          <div className={tw('settlement-frame-note')}>
             <span>{siteContent.settlement.description}</span>
             <strong>{siteContent.settlement.dimension}</strong>
           </div>
@@ -82,44 +98,48 @@ export function HomePage() {
       </section>
 
       <section
-        className="home-section players-section"
+        className={tw('home-section players-section')}
         aria-labelledby="players-title"
       >
-        <div className="page-shell">
-          <div className="players-strip-heading" id="players">
+        <div className={tw('page-shell')}>
+          <div className={tw('players-strip-heading')} id="players">
             <p>Live from the server</p>
-            <h2 id="players-title">{onlinePlayers.length} players online</h2>
+            <h2 id="players-title">{status.playerHeading}</h2>
           </div>
-          <div className="player-preview-grid">
+          <div
+            className={tw('player-preview-grid')}
+            aria-busy={statusQuery.isPending ? true : undefined}
+          >
             {onlinePlayers.map((player) => (
               <article
-                className="player-preview"
+                className={tw('player-preview')}
                 data-testid="player-preview"
                 key={player.username}
               >
-                <div
-                  className="player-avatar"
-                  style={{ backgroundColor: player.color }}
-                  aria-hidden="true"
-                >
-                  {player.initials}
-                </div>
+                <PlayerHead uuid={player.uuid} />
                 <div>
                   <h3>{player.username}</h3>
-                  <p>{player.role}</p>
+                  <p>Online now</p>
                 </div>
-                <span className="player-location">{player.location}</span>
               </article>
             ))}
+            {onlinePlayers.length === 0 ? (
+              <p className={tw('player-status-message')}>
+                {status.playerMessage}
+              </p>
+            ) : null}
           </div>
-          <Link className="players-strip-link" to="/players">
-            View all players <span aria-hidden="true">-&gt;</span>
+          <Link className={tw('players-strip-link')} to="/players">
+            View confirmed players <span aria-hidden="true">-&gt;</span>
           </Link>
         </div>
       </section>
 
-      <section className="home-section map-section" aria-labelledby="map-title">
-        <div className="page-shell">
+      <section
+        className={tw('home-section map-section')}
+        aria-labelledby="map-title"
+      >
+        <div className={tw('page-shell')}>
           <SectionHeading
             eyebrow="World survey"
             title="Explore the known world"
@@ -127,33 +147,37 @@ export function HomePage() {
             titleId="map-title"
             anchorId="map"
           />
-          <div className="map-window">
-            <div className="map-window-toolbar">
-              <span className="map-window-title">
+          <div className={tw('map-window')}>
+            <div className={tw('map-window-toolbar')}>
+              <span className={tw('map-window-title')}>
                 <span aria-hidden="true" />
                 Goon Squad world map
               </span>
-              <div className="map-window-controls" aria-hidden="true">
+              <div className={tw('map-window-controls')} aria-hidden="true">
                 <span>-</span>
                 <span>o</span>
                 <span>+</span>
               </div>
             </div>
             <div
-              className="map-preview"
+              className={tw('map-preview')}
               role="img"
               aria-label="Stylised placeholder map with rivers, routes, and settlement markers"
             >
-              <div className="map-contours" aria-hidden="true" />
-              <span className="map-river" aria-hidden="true" />
-              <span className="map-road road-north" aria-hidden="true" />
-              <span className="map-road road-south" aria-hidden="true" />
-              <span className="map-place place-main">Main settlement</span>
-              <span className="map-place place-quarry">Old quarry</span>
-              <span className="map-place place-harbour">Western harbour</span>
-              <span className="map-scale">Preview map / Not live</span>
+              <div className={tw('map-contours')} aria-hidden="true" />
+              <span className={tw('map-river')} aria-hidden="true" />
+              <span className={tw('map-road road-north')} aria-hidden="true" />
+              <span className={tw('map-road road-south')} aria-hidden="true" />
+              <span className={tw('map-place place-main')}>
+                Main settlement
+              </span>
+              <span className={tw('map-place place-quarry')}>Old quarry</span>
+              <span className={tw('map-place place-harbour')}>
+                Western harbour
+              </span>
+              <span className={tw('map-scale')}>Preview map / Not live</span>
             </div>
-            <div className="map-window-footer">
+            <div className={tw('map-window-footer')}>
               <span>Static atlas preview / Not live</span>
               <Link to="/map">
                 Explore the full world <span aria-hidden="true">-&gt;</span>
@@ -163,29 +187,29 @@ export function HomePage() {
         </div>
       </section>
 
-      <div className="community-section">
-        <div className="page-shell community-grid">
+      <div className={tw('community-section')}>
+        <div className={tw('page-shell community-grid')}>
           <section
-            className="home-section stories-section"
+            className={tw('home-section stories-section')}
             aria-labelledby="stories-title"
           >
-            <div className="story-ledger-heading" id="stories">
+            <div className={tw('story-ledger-heading')} id="stories">
               <div>
-                <p className="eyebrow">From the archive</p>
+                <p className={tw('eyebrow')}>From the archive</p>
                 <h2 id="stories-title">Recent stories</h2>
               </div>
               <Link to="/stories">
                 Read the archive <span aria-hidden="true">-&gt;</span>
               </Link>
             </div>
-            <div className="story-ledger">
+            <div className={tw('story-ledger')}>
               {stories.slice(0, 3).map((story, index) => (
-                <article className="story-ledger-entry" key={story.slug}>
-                  <span className="story-number">
+                <article className={tw('story-ledger-entry')} key={story.slug}>
+                  <span className={tw('story-number')}>
                     {String(index + 1).padStart(2, '0')}
                   </span>
                   <div>
-                    <p className="story-meta">
+                    <p className={tw('story-meta')}>
                       Archive entry /{' '}
                       <time dateTime={story.publishedAt}>
                         {story.dateLabel}
@@ -194,7 +218,7 @@ export function HomePage() {
                     <h3>{story.title}</h3>
                     <p>{story.excerpt}</p>
                   </div>
-                  <p className="story-author">
+                  <p className={tw('story-author')}>
                     <span aria-hidden="true">{story.author.charAt(0)}</span>
                     By {story.author}
                   </p>
@@ -204,31 +228,31 @@ export function HomePage() {
           </section>
 
           <section
-            className="home-section events-section"
+            className={tw('home-section events-section')}
             aria-labelledby="events-title"
           >
             {featuredEvent ? (
-              <article className="featured-event" id="events">
-                <div className="featured-event-inner">
-                  <p className="eyebrow">Next on the calendar</p>
+              <article className={tw('featured-event')} id="events">
+                <div className={tw('featured-event-inner')}>
+                  <p className={tw('eyebrow')}>Next on the calendar</p>
                   <h2 id="events-title">{featuredEvent.title}</h2>
                   <time
-                    className="featured-event-date"
+                    className={tw('featured-event-date')}
                     dateTime={featuredEvent.startsAt}
                   >
                     <strong>{featuredEvent.dateLabel}</strong>
                     <span>{featuredEvent.timeLabel}</span>
                   </time>
-                  <p className="featured-event-description">
+                  <p className={tw('featured-event-description')}>
                     {featuredEvent.description}
                   </p>
-                  <p className="featured-event-organiser">
+                  <p className={tw('featured-event-organiser')}>
                     <span aria-hidden="true">
                       {featuredEvent.organiser.charAt(0)}
                     </span>
                     Organised by {featuredEvent.organiser}
                   </p>
-                  <Link className="featured-event-link" to="/events">
+                  <Link className={tw('featured-event-link')} to="/events">
                     View event details
                   </Link>
                 </div>
@@ -239,10 +263,10 @@ export function HomePage() {
       </div>
 
       <section
-        className="home-section screenshots-section"
+        className={tw('home-section screenshots-section')}
         aria-labelledby="screenshots-title"
       >
-        <div className="page-shell">
+        <div className={tw('page-shell')}>
           <SectionHeading
             eyebrow="From the archive"
             title="Recent screenshots"
@@ -252,11 +276,11 @@ export function HomePage() {
             titleId="screenshots-title"
             anchorId="screenshots"
           />
-          <div className="screenshot-preview-grid">
+          <div className={tw('screenshot-preview-grid')}>
             {screenshots.slice(0, 4).map((screenshot) => (
-              <article className="screenshot-preview" key={screenshot.id}>
+              <article className={tw('screenshot-preview')} key={screenshot.id}>
                 <div
-                  className="screenshot-artwork"
+                  className={tw('screenshot-artwork')}
                   data-tone={screenshot.tone}
                   role="img"
                   aria-label={screenshot.alt}
@@ -299,14 +323,14 @@ function SectionHeading({
   anchorId,
 }: SectionHeadingProps) {
   return (
-    <div className="section-heading" id={anchorId}>
+    <div className={tw('section-heading')} id={anchorId}>
       <div>
-        <p className="eyebrow">{eyebrow}</p>
+        <p className={tw('eyebrow')}>{eyebrow}</p>
         <h2 id={titleId}>{title}</h2>
       </div>
       <p>{description}</p>
       {linkTo && linkLabel ? (
-        <Link className="section-link" to={linkTo}>
+        <Link className={tw('section-link')} to={linkTo}>
           {linkLabel}
           <span aria-hidden="true">-&gt;</span>
         </Link>

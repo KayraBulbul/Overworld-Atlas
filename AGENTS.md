@@ -4,7 +4,7 @@
 
 This repository contains the Goon Squad Minecraft community website.
 
-The canonical product requirements are in `PRODUCT_REQUIREMENTS.md`. The detailed architecture and phased implementation roadmap are in `.opencode/skills/goon-squad-webapp/SKILL.md`. Read both before planning or implementing a product feature.
+The canonical product requirements are in `PRODUCT_REQUIREMENTS.md`. The detailed architecture and phased implementation roadmap are in `.agents/skills/goon-squad-webapp/SKILL.md`. Read both before planning or implementing a product feature.
 
 The project uses:
 
@@ -71,7 +71,7 @@ goon-squad/
 │   └── React frontend
 ├── api/
 │   └── Go backend
-├── .opencode/
+├── .agents/
 │   └── skills/
 │       └── goon-squad-webapp/
 │           └── SKILL.md
@@ -177,6 +177,15 @@ Do not introduce later-phase infrastructure early unless a current feature genui
 
 ## Development Workflow
 
+### Owner and Codex Responsibilities
+
+- The owner writes all backend implementation code, including Go API code, database schemas and queries, migrations, generated database access code, and server-side integrations.
+- Codex must not create or edit backend implementation code unless the owner explicitly overrides this rule for a specific task.
+- For backend work, Codex may inspect the repository, research and discuss the approach, create or update focused Markdown `TODO.md` task briefs, and review code written by the owner.
+- Backend reviews should report concrete findings with file and line references, verify the phase requirements and security boundaries, and run the relevant read-only checks. Codex must not silently turn a review into an implementation pass.
+- Codex may implement frontend code only after the owner and Codex have extensively discussed the feature's behaviour, states, layout, and integration contract and the owner has approved the direction.
+- Frontend implementation must preserve the accepted Phase 1 visual baseline unless the owner explicitly approves a redesign.
+
 Before implementing a feature:
 
 1. Inspect the existing repository.
@@ -186,7 +195,7 @@ Before implementing a feature:
 5. Implement the smallest complete vertical slice.
 6. Avoid unrelated refactors.
 
-When the owner requests a product or implementation requirement change, update `PRODUCT_REQUIREMENTS.md` and every corresponding Markdown source of truth, roadmap, or operational document in the same change. Do not leave superseded requirements in `AGENTS.md`, `.opencode/skills/goon-squad-webapp/SKILL.md`, `README.md`, or other affected documentation.
+When the owner requests a product or implementation requirement change, update `PRODUCT_REQUIREMENTS.md` and every corresponding Markdown source of truth, roadmap, or operational document in the same change. Do not leave superseded requirements in `AGENTS.md`, `.agents/skills/goon-squad-webapp/SKILL.md`, `README.md`, or other affected documentation.
 
 After work changes the implemented scope or roadmap position, update `README.md` under `Current Project Status` in the same change. Keep its active phase, completion point, latest additions, and next planned phase accurate; do not leave stale status for a later session.
 
@@ -220,12 +229,12 @@ After database changes, also run sqlc generation and migration checks.
 - Do not expose direct database access to the browser.
 - Never expose RCON, server-console, WiseHosting, or whitelist-management credentials to the browser.
 
-## OpenCode Skill
+## Codex Skill
 
 The detailed project architecture and implementation roadmap is stored at:
 
 ```text
-.opencode/skills/goon-squad-webapp/SKILL.md
+.agents/skills/goon-squad-webapp/SKILL.md
 ```
 
 Use the `goon-squad-webapp` skill when:

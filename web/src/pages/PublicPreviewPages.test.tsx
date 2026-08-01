@@ -1,6 +1,8 @@
 import { render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import { renderWithQueryClient } from '../test/renderWithQueryClient'
+import { mockServerStatusFetch } from '../test/serverStatusFixtures'
 import { EventsPage } from './EventsPage'
 import { MapPage } from './MapPage'
 import { PlayersPage } from './PlayersPage'
@@ -11,12 +13,22 @@ function renderPage(page: React.ReactNode) {
   return render(<MemoryRouter>{page}</MemoryRouter>)
 }
 
-describe('public preview pages', () => {
-  it('shows every fixture player and their statistics', () => {
-    renderPage(<PlayersPage />)
+afterEach(() => {
+  vi.unstubAllGlobals()
+})
 
-    expect(screen.getAllByTestId('player-record')).toHaveLength(6)
-    expect(screen.getAllByText('Playtime')).toHaveLength(6)
+describe('public preview pages', () => {
+  it('shows only players confirmed by the live sample', async () => {
+    mockServerStatusFetch()
+    renderWithQueryClient(
+      <MemoryRouter>
+        <PlayersPage />
+      </MemoryRouter>,
+    )
+
+    expect(await screen.findAllByTestId('player-record')).toHaveLength(5)
+    expect(screen.getByText('5/20 reported online')).toBeInTheDocument()
+    expect(screen.queryByText('Playtime')).not.toBeInTheDocument()
   })
 
   it('keeps the map as a secure static preview', () => {

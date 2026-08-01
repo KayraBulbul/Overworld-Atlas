@@ -1,3 +1,4 @@
+import { tw } from '../styles/tailwindStyles'
 import { PageMasthead } from '../components/content/PageMasthead'
 import { screenshots } from '../content/siteContent'
 
@@ -12,19 +13,19 @@ export function ScreenshotsPage() {
         note="Uploaded images, ownership, and moderation replace these fixtures in Phase 7."
       />
       <section
-        className="page-shell page-content"
+        className={tw('page-shell page-content')}
         aria-label="Screenshot gallery"
       >
-        <div className="screenshot-gallery">
+        <div className={tw('screenshot-gallery')}>
           {screenshots.map((screenshot, index) => (
             <article
-              className="screenshot-gallery-entry"
+              className={tw('screenshot-gallery-entry')}
               data-featured={index === 0 || index === 3}
               data-testid="screenshot-entry"
               key={screenshot.id}
             >
               <div
-                className="screenshot-artwork screenshot-artwork-large"
+                className={tw('screenshot-artwork screenshot-artwork-large')}
                 data-tone={screenshot.tone}
                 role="img"
                 aria-label={screenshot.alt}

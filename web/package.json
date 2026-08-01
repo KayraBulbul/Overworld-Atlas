@@ -8,7 +8,8 @@
     "build": "tsc -b && vite build",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "lint": "oxlint",
+    "check:styles": "node scripts/check-tailwind-boundary.mjs",
+    "lint": "oxlint && npm run check:styles",
     "test": "vitest run",
     "typecheck": "tsc -b",
     "preview": "vite preview"

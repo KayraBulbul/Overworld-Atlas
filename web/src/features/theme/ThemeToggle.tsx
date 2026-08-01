@@ -1,3 +1,4 @@
+import { tw } from '../../styles/tailwindStyles'
 import { useTheme } from './themeContext'
 
 export function ThemeToggle() {
@@ -6,7 +7,7 @@ export function ThemeToggle() {
 
   return (
     <button
-      className="icon-button"
+      className={tw('icon-button')}
       type="button"
       aria-label={`Switch to ${nextTheme} mode`}
       aria-pressed={theme === 'dark'}

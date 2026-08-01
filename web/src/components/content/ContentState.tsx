@@ -1,3 +1,4 @@
+import { tw } from '../../styles/tailwindStyles'
 type ContentStateProps = {
   kind: 'loading' | 'error' | 'unavailable'
   title: string
@@ -21,21 +22,21 @@ export function ContentState({
 }: ContentStateProps) {
   return (
     <section
-      className="content-state"
+      className={tw('content-state')}
       data-kind={kind}
       role={kind === 'error' ? 'alert' : 'status'}
       aria-live={kind === 'error' ? 'assertive' : 'polite'}
       aria-busy={kind === 'loading' ? true : undefined}
     >
-      <span className="content-state-marker" aria-hidden="true" />
+      <span className={tw('content-state-marker')} aria-hidden="true" />
       <div>
-        <p className="eyebrow">{labels[kind]}</p>
+        <p className={tw('eyebrow')}>{labels[kind]}</p>
         <strong>{title}</strong>
         <p>{message}</p>
       </div>
       {actionLabel && onAction ? (
         <button
-          className="content-state-action"
+          className={tw('content-state-action')}
           type="button"
           onClick={onAction}
         >

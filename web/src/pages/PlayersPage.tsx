@@ -1,64 +1,88 @@
+import { tw } from '../styles/tailwindStyles'
 import { PageMasthead } from '../components/content/PageMasthead'
-import { players } from '../content/siteContent'
+import { PlayerHead } from '../features/server-status/PlayerHead'
+import { getServerStatusPresentation } from '../features/server-status/serverStatusPresentation'
+import { useServerStatus } from '../features/server-status/useServerStatus'
 
 export function PlayersPage() {
+  const statusQuery = useServerStatus()
+  const status = getServerStatusPresentation(
+    statusQuery.data,
+    statusQuery.isPending
+      ? 'loading'
+      : statusQuery.isError
+        ? 'error'
+        : 'success',
+  )
+
   return (
     <>
       <PageMasthead
         index="01"
         eyebrow="Player ledger"
-        title="Everyone online"
-        description="A full preview roster of the players currently represented around the world."
-        note="Names, locations, and statistics are static Phase 1 fixtures."
+        title="Currently online"
+        description="Players positively identified by the Minecraft server's current public status sample."
+        note="The complete community directory arrives with the Phase 3 database."
       />
-      <section className="page-shell page-content" aria-label="Online players">
-        <div className="ledger-heading">
+      <section
+        className={tw('page-shell page-content')}
+        aria-label="Online players"
+      >
+        <div className={tw('ledger-heading')}>
           <p>
-            <span className="status-pip" aria-hidden="true" />
-            {players.length} players online
+            <span
+              className={tw('status-pip')}
+              data-state={status.tone}
+              aria-hidden="true"
+            />
+            {status.playerHeading}
           </p>
-          <span>Preview roster</span>
+          <span>{status.reportedPlayerCount}</span>
         </div>
-        <div className="player-ledger">
-          {players.map((player, index) => (
-            <article
-              className="player-record"
-              data-testid="player-record"
-              key={player.username}
-            >
-              <span className="record-number" aria-hidden="true">
-                {String(index + 1).padStart(2, '0')}
-              </span>
-              <div
-                className="player-avatar player-avatar-large"
-                style={{ backgroundColor: player.color }}
-                aria-hidden="true"
+        {status.statusDetail ? (
+          <p className={tw('player-ledger-detail')}>{status.statusDetail}</p>
+        ) : null}
+        {status.confirmedPlayers.length > 0 ? (
+          <div className={tw('player-ledger')}>
+            {status.confirmedPlayers.map((player, index) => (
+              <article
+                className={tw('player-record')}
+                data-testid="player-record"
+                key={player.uuid}
               >
-                {player.initials}
-              </div>
-              <div className="player-identity">
-                <h2>{player.username}</h2>
-                <p>
-                  {player.role} / {player.location}
-                </p>
-              </div>
-              <dl className="player-stats">
-                <div>
-                  <dt>Playtime</dt>
-                  <dd>{player.stats.playtime}</dd>
+                <span className={tw('record-number')} aria-hidden="true">
+                  {String(index + 1).padStart(2, '0')}
+                </span>
+                <PlayerHead uuid={player.uuid} size="large" />
+                <div className={tw('player-identity')}>
+                  <h2>{player.username}</h2>
+                  <p>Confirmed by the current server sample</p>
                 </div>
-                <div>
-                  <dt>Deaths</dt>
-                  <dd>{player.stats.deaths}</dd>
-                </div>
-                <div>
-                  <dt>Travelled</dt>
-                  <dd>{player.stats.distance}</dd>
-                </div>
-              </dl>
-            </article>
-          ))}
-        </div>
+                <p className={tw('player-presence')}>Online now</p>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <div
+            className={tw('player-ledger-message')}
+            data-state={status.tone}
+            role={statusQuery.isError ? 'alert' : 'status'}
+            aria-busy={statusQuery.isPending ? true : undefined}
+          >
+            <p className={tw('eyebrow')}>Live player status</p>
+            <strong>{status.playerHeading}</strong>
+            <p>{status.playerMessage}</p>
+            {status.canRetry ? (
+              <button
+                className={tw('content-state-action')}
+                type="button"
+                onClick={() => void statusQuery.refetch()}
+              >
+                Try again
+              </button>
+            ) : null}
+          </div>
+        )}
       </section>
     </>
   )
