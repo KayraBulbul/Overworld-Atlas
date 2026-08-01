@@ -7,7 +7,7 @@ import { ThemeProvider } from '../../features/theme/ThemeProvider'
 import { SiteHeader } from './SiteHeader'
 
 describe('SiteHeader', () => {
-  it('links every content destination to its homepage section', () => {
+  it('links every content destination to its full page', () => {
     render(
       <MemoryRouter>
         <ThemeProvider>
@@ -24,29 +24,55 @@ describe('SiteHeader', () => {
     )
 
     const destinations = [
-      'Home',
-      'Players',
-      'Map',
-      'Stories',
-      'Events',
-      'Screenshots',
+      { label: 'Home', href: '/' },
+      { label: 'Players', href: '/players' },
+      { label: 'Map', href: '/map' },
+      { label: 'Stories', href: '/stories' },
+      { label: 'Events', href: '/events' },
+      { label: 'Screenshots', href: '/screenshots' },
     ]
 
     expect(
       within(screen.getByRole('navigation', { name: 'Primary navigation' }))
         .getAllByRole('link')
         .map((link) => link.textContent),
-    ).toEqual(destinations)
+    ).toEqual(destinations.map(({ label }) => label))
 
     for (const destination of destinations) {
-      expect(screen.getByRole('link', { name: destination })).toHaveAttribute(
-        'href',
-        `/#${destination.toLowerCase()}`,
-      )
+      expect(
+        screen.getByRole('link', { name: destination.label }),
+      ).toHaveAttribute('href', destination.href)
     }
 
+    expect(screen.getByRole('link', { name: 'Home' })).toHaveAttribute(
+      'aria-current',
+      'page',
+    )
+    expect(screen.getByRole('link', { name: 'Players' })).not.toHaveAttribute(
+      'aria-current',
+    )
     expect(screen.getByRole('button', { name: 'Join' })).toBeEnabled()
     expect(screen.getByRole('button', { name: 'Log In' })).toBeEnabled()
+  })
+
+  it('marks a section route active without leaving Home selected', () => {
+    render(
+      <MemoryRouter initialEntries={['/stories/bridge-beneath-the-fog']}>
+        <ThemeProvider>
+          <AccessPreviewProvider>
+            <SiteHeader />
+          </AccessPreviewProvider>
+        </ThemeProvider>
+      </MemoryRouter>,
+    )
+
+    expect(screen.getByRole('link', { name: 'Stories' })).toHaveAttribute(
+      'aria-current',
+      'page',
+    )
+    expect(screen.getByRole('link', { name: 'Home' })).not.toHaveAttribute(
+      'aria-current',
+    )
   })
 
   it('keeps login and join as separate intents', async () => {
@@ -69,5 +95,34 @@ describe('SiteHeader', () => {
     expect(
       screen.queryByLabelText('Minecraft Java username'),
     ).not.toBeInTheDocument()
+  })
+
+  it('opens and dismisses the compact navigation accessibly', async () => {
+    const user = userEvent.setup()
+
+    render(
+      <MemoryRouter>
+        <ThemeProvider>
+          <AccessPreviewProvider>
+            <SiteHeader />
+          </AccessPreviewProvider>
+        </ThemeProvider>
+      </MemoryRouter>,
+    )
+
+    const menuButton = screen.getByRole('button', {
+      name: 'Open navigation menu',
+    })
+    const navigation = screen.getByRole('navigation', {
+      name: 'Primary navigation',
+    })
+
+    await user.click(menuButton)
+    expect(menuButton).toHaveAttribute('aria-expanded', 'true')
+    expect(navigation).toHaveAttribute('data-open', 'true')
+
+    await user.keyboard('{Escape}')
+    expect(menuButton).toHaveAttribute('aria-expanded', 'false')
+    expect(menuButton).toHaveFocus()
   })
 })

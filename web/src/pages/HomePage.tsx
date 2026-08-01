@@ -3,16 +3,27 @@ import { Link } from 'react-router-dom'
 import { CopyServerAddressButton } from '../components/server/CopyServerAddressButton'
 import {
   events,
-  players,
   screenshots,
   siteContent,
   stories,
 } from '../content/siteContent'
 import { useAccessPreview } from '../features/access/accessContext'
+import { PlayerHead } from '../features/server-status/PlayerHead'
+import { getServerStatusPresentation } from '../features/server-status/serverStatusPresentation'
+import { useServerStatus } from '../features/server-status/useServerStatus'
 
 export function HomePage() {
   const { openJoinPreview } = useAccessPreview()
-  const onlinePlayers = players.slice(0, 4)
+  const statusQuery = useServerStatus()
+  const status = getServerStatusPresentation(
+    statusQuery.data,
+    statusQuery.isPending
+      ? 'loading'
+      : statusQuery.isError
+        ? 'error'
+        : 'success',
+  )
+  const onlinePlayers = status.confirmedPlayers.slice(0, 4)
   const upcomingEvents = events.filter((event) => event.period === 'upcoming')
   const featuredEvent = upcomingEvents[0]
 
@@ -25,8 +36,12 @@ export function HomePage() {
       >
         <div className={tw('hero-copy')}>
           <p className={tw('eyebrow')}>
-            <span className={tw('status-pip')} aria-hidden="true" />
-            {siteContent.server.statusLabel}
+            <span
+              className={tw('status-pip')}
+              data-state={status.tone}
+              aria-hidden="true"
+            />
+            {status.statusLabel}
           </p>
           <h1 id="home-title">
             A world shaped by <em>the people who play it.</em>
@@ -42,9 +57,9 @@ export function HomePage() {
               Request Access
             </button>
           </div>
-          <p className={tw('preview-disclaimer')}>
-            Status and player activity use Phase 1 preview data.
-          </p>
+          {status.statusDetail ? (
+            <p className={tw('server-status-detail')}>{status.statusDetail}</p>
+          ) : null}
         </div>
 
         <div
@@ -89,32 +104,33 @@ export function HomePage() {
         <div className={tw('page-shell')}>
           <div className={tw('players-strip-heading')} id="players">
             <p>Live from the server</p>
-            <h2 id="players-title">{onlinePlayers.length} players online</h2>
+            <h2 id="players-title">{status.playerHeading}</h2>
           </div>
-          <div className={tw('player-preview-grid')}>
+          <div
+            className={tw('player-preview-grid')}
+            aria-busy={statusQuery.isPending ? true : undefined}
+          >
             {onlinePlayers.map((player) => (
               <article
                 className={tw('player-preview')}
                 data-testid="player-preview"
                 key={player.username}
               >
-                <div
-                  className={tw('player-avatar')}
-                  style={{ backgroundColor: player.color }}
-                  aria-hidden="true"
-                >
-                  {player.initials}
-                </div>
+                <PlayerHead uuid={player.uuid} />
                 <div>
                   <h3>{player.username}</h3>
-                  <p>{player.role}</p>
+                  <p>Online now</p>
                 </div>
-                <span className={tw('player-location')}>{player.location}</span>
               </article>
             ))}
+            {onlinePlayers.length === 0 ? (
+              <p className={tw('player-status-message')}>
+                {status.playerMessage}
+              </p>
+            ) : null}
           </div>
           <Link className={tw('players-strip-link')} to="/players">
-            View all players <span aria-hidden="true">-&gt;</span>
+            View confirmed players <span aria-hidden="true">-&gt;</span>
           </Link>
         </div>
       </section>

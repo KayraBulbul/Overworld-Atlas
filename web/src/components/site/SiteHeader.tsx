@@ -1,20 +1,21 @@
 import { tw } from '../../styles/tailwindStyles'
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useRef, useState } from 'react'
+import { Link, NavLink } from 'react-router-dom'
 import { useAccessPreview } from '../../features/access/accessContext'
 import { ThemeToggle } from '../../features/theme/ThemeToggle'
 
 const navigation = [
-  { label: 'Home', hash: 'home' },
-  { label: 'Players', hash: 'players' },
-  { label: 'Map', hash: 'map' },
-  { label: 'Stories', hash: 'stories' },
-  { label: 'Events', hash: 'events' },
-  { label: 'Screenshots', hash: 'screenshots' },
+  { label: 'Home', to: '/', end: true },
+  { label: 'Players', to: '/players', end: false },
+  { label: 'Map', to: '/map', end: false },
+  { label: 'Stories', to: '/stories', end: false },
+  { label: 'Events', to: '/events', end: false },
+  { label: 'Screenshots', to: '/screenshots', end: false },
 ]
 
 export function SiteHeader() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const menuButtonRef = useRef<HTMLButtonElement>(null)
   const { openJoinPreview, openLoginPreview } = useAccessPreview()
 
   function closeMenu() {
@@ -22,9 +23,17 @@ export function SiteHeader() {
   }
 
   return (
-    <header className={tw('site-header')}>
+    <header
+      className={tw('site-header')}
+      onKeyDown={(event) => {
+        if (event.key === 'Escape' && isMenuOpen) {
+          setIsMenuOpen(false)
+          menuButtonRef.current?.focus()
+        }
+      }}
+    >
       <div className={tw('header-inner')}>
-        <Link className={tw('brand')} to="/#home" onClick={closeMenu}>
+        <Link className={tw('brand')} to="/" onClick={closeMenu}>
           <img
             className={tw('brand-logo')}
             src="/images/branding/goon-squad-logo.png"
@@ -33,14 +42,22 @@ export function SiteHeader() {
         </Link>
 
         <button
+          ref={menuButtonRef}
           className={tw('menu-button')}
           type="button"
+          aria-label={
+            isMenuOpen ? 'Close navigation menu' : 'Open navigation menu'
+          }
           aria-controls="primary-navigation"
           aria-expanded={isMenuOpen}
           onClick={() => setIsMenuOpen((isOpen) => !isOpen)}
         >
-          <span aria-hidden="true">Menu</span>
-          <span className={tw('menu-lines')} aria-hidden="true" />
+          <span aria-hidden="true">{isMenuOpen ? 'Close' : 'Menu'}</span>
+          <span
+            className={tw('menu-lines')}
+            data-open={isMenuOpen}
+            aria-hidden="true"
+          />
         </button>
 
         <nav
@@ -50,9 +67,14 @@ export function SiteHeader() {
           data-open={isMenuOpen}
         >
           {navigation.map((item) => (
-            <Link key={item.hash} to={`/#${item.hash}`} onClick={closeMenu}>
+            <NavLink
+              key={item.to}
+              to={item.to}
+              end={item.end}
+              onClick={closeMenu}
+            >
               {item.label}
-            </Link>
+            </NavLink>
           ))}
           <button
             className={tw('nav-join')}

@@ -28,7 +28,7 @@ export function PageMasthead({
       <div className={tw('masthead-summary')}>
         <p>{description}</p>
         <p className={tw('preview-note')}>{note}</p>
-        <Link className={tw('text-link')} to="/#home">
+        <Link className={tw('text-link')} to="/">
           Return to the homepage
         </Link>
       </div>

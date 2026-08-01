@@ -1,16 +1,3 @@
-export type PlayerPreview = {
-  username: string
-  initials: string
-  role: string
-  location: string
-  color: string
-  stats: {
-    playtime: string
-    deaths: number
-    distance: string
-  }
-}
-
 export type StoryPreview = {
   slug: string
   title: string

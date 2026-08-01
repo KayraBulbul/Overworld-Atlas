@@ -7,7 +7,7 @@ export function NotFoundPage() {
       <p className={tw('eyebrow')}>Uncharted territory</p>
       <h1>Page not found</h1>
       <p>This location has not been entered into the archive.</p>
-      <Link className={tw('text-link')} to="/#home">
+      <Link className={tw('text-link')} to="/">
         Return home
       </Link>
     </section>

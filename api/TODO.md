@@ -66,15 +66,115 @@ Use the repository's consistent JSON error envelope for request-level failures. 
 
 ## Tests
 
-- [ ] Unit-test protocol decoding with deterministic byte fixtures; do not require the real Minecraft server.
-- [ ] Test online status with zero players.
-- [ ] Test online status with a player sample.
-- [ ] Test a non-zero player count with no sample.
-- [ ] Test malformed, truncated, and oversized responses.
-- [ ] Test connection timeout or upstream failure behaviour.
-- [ ] Test cache hits, expiry, concurrent callers, and the chosen stale-data policy.
-- [ ] Test the HTTP route, content type, public response shape, timestamps, and error envelope.
-- [ ] Confirm CORS still allows the configured frontend origin.
+- [x] Unit-test protocol decoding with deterministic byte fixtures; do not require the real Minecraft server.
+- [x] Test online status with zero players.
+- [x] Test online status with a player sample.
+- [x] Test a non-zero player count with no sample.
+- [x] Test malformed, truncated, and oversized responses.
+- [x] Test connection timeout or upstream failure behaviour.
+- [x] Test cache hits, expiry, concurrent callers, and the chosen stale-data policy.
+- [x] Test the HTTP route, content type, public response shape, timestamps, and error envelope.
+- [x] Confirm CORS still allows the configured frontend origin.
+
+## Accepted Response Contract
+
+Codex reviewed and accepted the initial backend status slice on 1 August 2026. Normal Minecraft reachability outcomes return HTTP `200`; unknown optional values are explicit JSON `null` values. `cached` identifies an unexpired cache hit, while `stale` is reserved for an older cached value returned after a refresh failure. The follow-up reliability finding below supersedes the original decision to cache a transient `unavailable` probe over a previously usable status.
+
+## Follow-up Reliability Finding — 1 August 2026
+
+A refresh can appear to make server status and players unavailable when it lands after the 15-second cache TTL and the resulting Minecraft probe fails transiently. The browser refresh is not the cause: it merely triggers the expired cache path. `QueryStatus` currently converts transport and protocol failures into a successful `Status{State: unavailable}` result with no Go error, so the cache's error-based stale fallback does not run. The unavailable result then replaces the last usable status for a full cache TTL, and the former 30-second frontend polling policy made the failure remain visible even longer.
+
+- [ ] When an expired cache has a prior usable `online` or `offline` result and the refresh produces `unavailable`, return the prior result with `cached: true` and `stale: true` instead of replacing it.
+- [ ] Advance or bound the next refresh attempt so requests during an upstream failure do not probe Minecraft continuously.
+- [ ] Preserve the existing first-check behaviour: when no usable cached result exists, return the public `unavailable` state normally.
+- [ ] Add a deterministic cache test proving an unavailable refresh cannot overwrite a previously usable result and that the stale metadata is correct.
+- [ ] Retain the existing HTTP `200` public contract for normal online, offline, and unavailable outcomes.
+
+The frontend now retries a returned `unavailable` state or failed API request after approximately 5 seconds as a recovery measure. That improves the visible recovery time but does not replace the backend cache correction above.
+
+Online with a player sample:
+
+```json
+{
+  "state": "online",
+  "online_players": 2,
+  "max_players": 20,
+  "player_sample_available": true,
+  "players": [
+    {
+      "username": "MagicGN",
+      "uuid": "00000000-0000-0000-0000-000000000001"
+    }
+  ],
+  "version": "26.2",
+  "protocol_version": 776,
+  "checked_at": "2026-08-01T04:07:17Z",
+  "stale": false,
+  "cached": false
+}
+```
+
+Online with a known count but no player sample:
+
+```json
+{
+  "state": "online",
+  "online_players": 5,
+  "max_players": 20,
+  "player_sample_available": false,
+  "players": [],
+  "version": "26.2",
+  "protocol_version": 776,
+  "checked_at": "2026-08-01T04:07:17Z",
+  "stale": false,
+  "cached": false
+}
+```
+
+Offline:
+
+```json
+{
+  "state": "offline",
+  "online_players": null,
+  "max_players": null,
+  "player_sample_available": null,
+  "players": null,
+  "version": null,
+  "protocol_version": null,
+  "checked_at": "2026-08-01T04:07:17Z",
+  "stale": false,
+  "cached": false
+}
+```
+
+Temporarily unavailable:
+
+```json
+{
+  "state": "unavailable",
+  "online_players": null,
+  "max_players": null,
+  "player_sample_available": null,
+  "players": null,
+  "version": null,
+  "protocol_version": null,
+  "checked_at": "2026-08-01T04:07:17Z",
+  "stale": false,
+  "cached": false
+}
+```
+
+Unexpected request-level failures use the shared error envelope:
+
+```json
+{
+  "error": {
+    "code": "server_status_unavailable",
+    "message": "error retrieving server status"
+  }
+}
+```
 
 ## Verification
 
@@ -98,6 +198,8 @@ curl --fail --show-error \
 
 Before handing the backend to frontend work, ask Codex for a review of the diff and the final JSON examples for online, offline, unavailable, and missing-player-sample cases.
 
+Review completed on 1 August 2026. Go formatting, vetting, normal tests, race-enabled tests, and the server build passed. A local black-box check also confirmed the live response, configured-origin CORS headers and preflight, cache metadata, offline mapping, and the bounded unavailable response from a deliberately non-responsive upstream.
+
 ## Current Integration Facts to Recheck
 
 Observed on 30 July 2026:
@@ -120,6 +222,8 @@ BlueMap is reachable at `http://51.161.199.235:25674/` and reported BlueMap `5.2
 
 Player heads are also a separate decision:
 
-- [ ] Choose the provider or self-hosted approach.
-- [ ] Decide caching, fallback artwork, alt text, and privacy behaviour.
-- [ ] Discuss and approve the live-player presentation before Codex implements it.
+- [x] Use direct overlay-aware Mineatar face PNG requests keyed by sampled UUID; do not add a Phase 2 backend proxy.
+- [x] Document provider/browser caching, direct-request privacy, redundant-alt-text handling, and a local Steve-head fallback.
+- [x] Add the owner-supplied Steve-head fallback asset under `web/public/images/players/`.
+- [x] Discuss and approve the homepage live-player presentation before Codex implements it.
+- [x] Use a confirmed-online-only `/players` view until the Phase 3 database-backed directory replaces it.

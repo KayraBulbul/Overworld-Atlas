@@ -177,6 +177,15 @@ Do not introduce later-phase infrastructure early unless a current feature genui
 
 ## Development Workflow
 
+### Owner and Codex Responsibilities
+
+- The owner writes all backend implementation code, including Go API code, database schemas and queries, migrations, generated database access code, and server-side integrations.
+- Codex must not create or edit backend implementation code unless the owner explicitly overrides this rule for a specific task.
+- For backend work, Codex may inspect the repository, research and discuss the approach, create or update focused Markdown `TODO.md` task briefs, and review code written by the owner.
+- Backend reviews should report concrete findings with file and line references, verify the phase requirements and security boundaries, and run the relevant read-only checks. Codex must not silently turn a review into an implementation pass.
+- Codex may implement frontend code only after the owner and Codex have extensively discussed the feature's behaviour, states, layout, and integration contract and the owner has approved the direction.
+- Frontend implementation must preserve the accepted Phase 1 visual baseline unless the owner explicitly approves a redesign.
+
 Before implementing a feature:
 
 1. Inspect the existing repository.

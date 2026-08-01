@@ -1,12 +1,22 @@
-import { render, screen } from '@testing-library/react'
+import { screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { AccessPreviewProvider } from '../features/access/AccessPreviewProvider'
+import { renderWithQueryClient } from '../test/renderWithQueryClient'
+import {
+  mockServerStatusFetch,
+  onlineStatusPayload,
+} from '../test/serverStatusFixtures'
 import { HomePage } from './HomePage'
 
+afterEach(() => {
+  vi.unstubAllGlobals()
+})
+
 describe('HomePage', () => {
-  it('renders the complete static homepage preview', () => {
-    render(
+  it('renders the live homepage while preserving the approved composition', async () => {
+    mockServerStatusFetch()
+    renderWithQueryClient(
       <MemoryRouter>
         <AccessPreviewProvider>
           <HomePage />
@@ -31,8 +41,9 @@ describe('HomePage', () => {
     ).toHaveAttribute('src', '/images/settlements/featured_settlement.webp')
     expect(screen.getByText('-1129, 119, 1030')).toBeInTheDocument()
     expect(screen.getByText('The promised land')).toBeInTheDocument()
-    expect(screen.getAllByTestId('player-preview')).toHaveLength(4)
-    expect(screen.getByText('Online preview')).toBeInTheDocument()
+    expect(await screen.findAllByTestId('player-preview')).toHaveLength(4)
+    expect(screen.getByText('Online · 5/20 players')).toBeInTheDocument()
+    expect(screen.queryByText(/Phase 1 preview data/)).not.toBeInTheDocument()
     expect(
       screen.getByRole('link', { name: /explore the full world/i }),
     ).toHaveAttribute('href', '/map')
@@ -53,5 +64,25 @@ describe('HomePage', () => {
     expect(document.querySelector('#stories')).toHaveClass(
       'story-ledger-heading',
     )
+  })
+
+  it('preserves a known count when player names are unavailable', async () => {
+    mockServerStatusFetch({
+      ...onlineStatusPayload,
+      player_sample_available: false,
+      players: [],
+    })
+    renderWithQueryClient(
+      <MemoryRouter>
+        <AccessPreviewProvider>
+          <HomePage />
+        </AccessPreviewProvider>
+      </MemoryRouter>,
+    )
+
+    expect(await screen.findByText('Online · 5/20 players')).toBeInTheDocument()
+    expect(screen.getByText('5 players online')).toBeInTheDocument()
+    expect(screen.getByText(/names are not available/)).toBeInTheDocument()
+    expect(screen.queryByTestId('player-preview')).not.toBeInTheDocument()
   })
 })

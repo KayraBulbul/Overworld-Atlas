@@ -10,19 +10,31 @@ Product and implementation planning is documented in:
 
 ## Current Project Status
 
-Last updated: 30 July 2026.
+Last updated: 1 August 2026.
 
-The project is at the completion and acceptance point of Phase 1, the public website shell and design system. Phase 0 is complete, all currently scoped Phase 1 implementation and automated checks pass, and Phase 2 has not started.
+The project is part-way through Phase 2, live Minecraft status and BlueMap. Phase 0 and Phase 1 are complete, and the Phase 2 live-status slice is implemented across the Go API and public frontend. Secure BlueMap integration is intentionally deferred until its HTTPS hosting route is resolved.
 
-The latest Phase 1 additions are:
+The latest Phase 2 additions are:
 
-- The implemented public interface is now the approved visual baseline, including its Home, Players, Map, Stories, Events, and Screenshots section and navigation order.
-- The official logo, server address, and Goon Squad Mountain featured-settlement content are recorded as canonical product facts.
-- The featured settlement uses the optimised `web/public/images/settlements/featured_settlement.webp` image with supplied coordinates, description, and accessible alternative text.
-- Shared loading, error, and unavailable presentation primitives are available for later API-backed phases without changing the current static interface.
-- The complete frontend and backend check suite passes, including 17 frontend tests and the production builds.
+- `GET /api/v1/server/status` queries the standard Minecraft server-list status protocol without adding database persistence or server-management access.
+- A bounded query timeout prevents an unresponsive Minecraft connection from hanging the API.
+- The public contract distinguishes `online`, `offline`, and `unavailable`, represents unknown optional values explicitly, and separates a missing player sample from zero online players.
+- A concurrency-safe 15-second in-memory cache prevents duplicate upstream queries and reports fresh, cached, and fallback metadata without persisting routine checks.
+- Deterministic protocol, cache, handler, route, CORS, timeout, and error-envelope coverage is included. All 70 backend tests pass normally and with the race detector.
+- The live server was rechecked on 1 August 2026 and reported Minecraft `26.2`, protocol `776`, zero of 20 players online, and no exposed player sample at that time.
+- The homepage now preserves the Phase 1 layout while polling healthy status approximately every 30 seconds, retrying a temporary unavailable result or failed API request after 5 seconds, showing at most four positively identified online players, and rendering explicit loading, zero-player, missing-sample, offline, unavailable, and stale states.
+- `/players` temporarily presents only players positively identified by the current public status sample. The persistent online/offline community directory remains Phase 3 work.
+- Player heads use direct overlay-aware Mineatar face PNG requests keyed by UUID and fall back once to the local Steve-head asset on image failure. No additional backend service is required.
+- Primary navigation now opens the full public pages and derives its active underline from the current route; Home is no longer selected away from `/`.
+- The frontend status parser, presentation states, polling behaviour, four-player cap, player-head fallback, route-aware compact-navigation behaviour, homepage integration, and confirmed-online player page have automated coverage. All 39 frontend tests pass.
 
-The next planned implementation work is Phase 2: live Minecraft server status and secure BlueMap integration.
+The accepted backend response contract and verification record are documented in `api/TODO.md`; the completed frontend slice and its verification record are in `web/TODO.md`. BlueMap stays on the secure static-preview fallback until an HTTPS reverse proxy or tunnel is available. The next Phase 2 step is resolving that HTTPS route and then embedding the map without weakening browser security.
+
+## Collaboration Workflow
+
+The owner writes all backend implementation code, including the Go API, database work, and server-side integrations. Codex supports backend work by preparing focused Markdown TODO briefs and reviewing the owner's code; it does not edit backend implementation files unless the owner explicitly requests an exception for a specific task.
+
+Frontend behaviour, layout, states, and integration contracts are discussed extensively with the owner before implementation. Once the owner approves the direction, Codex implements the frontend while preserving the accepted Phase 1 visual baseline.
 
 ## Foundation
 
@@ -110,6 +122,18 @@ The expected response is:
 
 The endpoint is independent of PostgreSQL and Minecraft server availability.
 
+## Live Server Status Check
+
+With the API running and Minecraft configuration set, verify the public status endpoint:
+
+```bash
+curl --fail --show-error \
+  -H 'Origin: http://localhost:5173' \
+  http://localhost:8080/api/v1/server/status
+```
+
+The endpoint returns HTTP `200` for normal `online`, `offline`, and temporarily `unavailable` outcomes so the frontend can render each state deliberately. Online responses include known counts and version information; optional fields are `null` when they are unavailable. The complete stable response examples are recorded in `api/TODO.md`.
+
 ## Checks
 
 Run the complete local check suite:
@@ -130,7 +154,7 @@ GitHub Actions runs the same categories of checks on pushes and pull requests.
 
 ## Phase 1 Assets
 
-Keep manually managed, replaceable images under `web/public/images/`. The official primary logo is `web/public/images/branding/goon-squad-logo.png`, and the Phase 1 featured settlement image is `web/public/images/settlements/featured_settlement.webp`.
+Keep manually managed, replaceable images under `web/public/images/`. The official primary logo is `web/public/images/branding/goon-squad-logo.png`, the Phase 1 featured settlement image is `web/public/images/settlements/featured_settlement.webp`, and the replaceable player-head fallback is `web/public/images/players/steve-head.png`.
 
 Use the remaining directories by content type:
 
@@ -141,7 +165,7 @@ web/public/images/settlements/
 web/public/images/stories/
 ```
 
-Phase 1 public content is centralised static preview data. Later phases replace those fixtures with the live Minecraft status API, BlueMap, PostgreSQL-backed community content, and storage-backed media without changing the public information architecture.
+The Phase 1 editorial content remains centralised static preview data, while the server-status and confirmed-online player areas now use the live Minecraft status API. Later phases replace the remaining fixtures with BlueMap, PostgreSQL-backed community content, and storage-backed media without changing the public information architecture.
 
 ## Database Tooling
 

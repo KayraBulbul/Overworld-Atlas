@@ -1,6 +1,5 @@
 import type {
   EventPreview,
-  PlayerPreview,
   ScreenshotPreview,
   StoryPreview,
 } from '../types/content'
@@ -11,9 +10,6 @@ export const siteContent = {
     address: '51.161.199.235:25584',
     description:
       'A long-running private Fabric survival world built around ambitious projects, shared history, and plans that rarely survive first contact.',
-    status: 'online' as const,
-    statusLabel: 'Online preview',
-    maxPlayers: 20,
     blueMapUrl: 'http://51.161.199.235:25674/',
   },
   settlement: {
@@ -26,57 +22,6 @@ export const siteContent = {
       "A path through Goon Squad Mountain, with Ethan's hole beside the route and the greenhouse and trading hall visible in the background.",
   },
 } as const
-
-export const players: PlayerPreview[] = [
-  {
-    username: 'StoneLark',
-    initials: 'SL',
-    role: 'Builder',
-    location: 'North ridge',
-    color: '#7c563b',
-    stats: { playtime: '412h', deaths: 38, distance: '2,840 km' },
-  },
-  {
-    username: 'MossByte',
-    initials: 'MB',
-    role: 'Explorer',
-    location: 'Old quarry',
-    color: '#4f6b4d',
-    stats: { playtime: '286h', deaths: 61, distance: '4,120 km' },
-  },
-  {
-    username: 'CopperWren',
-    initials: 'CW',
-    role: 'Redstoner',
-    location: 'Workshop',
-    color: '#9a5f3f',
-    stats: { playtime: '355h', deaths: 27, distance: '1,930 km' },
-  },
-  {
-    username: 'AshenFox',
-    initials: 'AF',
-    role: 'Terraformer',
-    location: 'River gate',
-    color: '#6d5550',
-    stats: { playtime: '198h', deaths: 45, distance: '2,210 km' },
-  },
-  {
-    username: 'LanternLad',
-    initials: 'LL',
-    role: 'Collector',
-    location: 'Trading hall',
-    color: '#8a713c',
-    stats: { playtime: '244h', deaths: 19, distance: '1,540 km' },
-  },
-  {
-    username: 'QuarryKid',
-    initials: 'QK',
-    role: 'Miner',
-    location: 'Deep slate line',
-    color: '#53646d',
-    stats: { playtime: '321h', deaths: 74, distance: '3,080 km' },
-  },
-]
 
 export const stories: StoryPreview[] = [
   {
