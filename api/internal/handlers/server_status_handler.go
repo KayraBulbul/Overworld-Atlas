@@ -41,6 +41,7 @@ func ServerStatusHandler(cache *minecraft.Cache, address string, logger *slog.Lo
 			CheckedAt:             status.CheckedAt,
 			Stale:                 status.Stale,
 		})
-		logger.Info("Successfully sent retrieved Minecraft server status", "Success")
+
+		logger.Info("Successfully retrieved Minecraft server status")
 	}
 }
