@@ -11,9 +11,17 @@ Product and implementation planning is documented in:
 
 ## Current Project Status
 
-Last updated: 2 August 2026.
+Last updated: 9 August 2026.
 
-Phase 0, Phase 1, and Phase 2 are complete. The project is now beginning Phase 3: PostgreSQL-backed public players, stories, events, and homepage feeds. Phase 2 delivered live Minecraft status and player presence across the Go API and public frontend. The initial secure BlueMap embed is intentionally deferred to Phase 4, where its HTTPS route and browser security policy can be completed with production deployment.
+Phase 0, Phase 1, and Phase 2 are complete. Phase 3 is active: PostgreSQL-backed public players, stories, events, and homepage feeds. Its domain-model and initial-migration checkpoints are complete; focused read queries, generated sqlc access, public handlers, and frontend integration remain. The initial secure BlueMap embed is intentionally deferred to Phase 4, where its HTTPS route and browser security policy can be completed with production deployment.
+
+Phase 3's initial product decisions are now recorded. Persistent players use UUID-backed identity with case-preserved, case-insensitive username lookup; Discord accounts and roles remain separate until Phase 5. Story and event titles may repeat while stable unique slugs own their routes. Public archives use bounded pagination, homepage feeds return the latest three published stories and the single next event, event instants are stored in UTC and presented in `Australia/Melbourne`, and past state is derived rather than stored.
+
+The first Goose migrations now create empty player, event, and story tables with UUID identity, required player attribution, case-insensitive Minecraft usernames, stable unique slugs, timezone-aware timestamps, publication fields, and initial feed indexes. PostgreSQL enforces structural identity and relationship guarantees; cross-field event-range, publication, and audit-time validation will be enforced in Go when protected writes are introduced. The migration series was verified up and down against disposable local PostgreSQL.
+
+No initial roster, story set, or event set is required. Phase 3's production tables begin empty and the public APIs and pages must treat that as a successful empty state. Phase 5 member/admin forms create stories and events; in Phase 6, the explicit admin `Whitelisted` action creates or links the new member's persistent player profile from their validated Minecraft identity, so there is no separate manual roster-entry job.
+
+Player gameplay statistics are feasible but remain Phase 9. The current public status API cannot provide playtime, travel, mined or placed blocks, deaths, or kills. WiseHosting exposes those values in its private Player Manager but does not document a supported public export API in the reviewed material, so the roadmap now prefers a controlled daily server-side export keyed to Minecraft UUID after the exact public statistic set and a Minecraft `26.2`-compatible source are approved. Screenshots likewise remain static until Phase 7 introduces authenticated R2 uploads and persistent media metadata.
 
 The latest Phase 2 additions are:
 
@@ -29,7 +37,7 @@ The latest Phase 2 additions are:
 - Primary navigation now opens the full public pages and derives its active underline from the current route; Home is no longer selected away from `/`.
 - The frontend status parser, presentation states, polling behaviour, four-player cap, player-head fallback, route-aware compact-navigation behaviour, homepage integration, and confirmed-online player page have automated coverage. All 39 frontend tests pass.
 
-The accepted backend response contract and verification record are documented in `api/TODO.md`; the completed frontend slice and its verification record are in `web/TODO.md`. BlueMap stays on the secure static-preview fallback until Phase 4 establishes an HTTPS reverse proxy or tunnel and verifies embedding policy. Phase 3 now begins with the public data model and read-only PostgreSQL APIs; no Phase 3 application tables or endpoints exist yet.
+The accepted Phase 2 delivery and verification record is documented in `docs/phase-02-live-minecraft-status-and-player-presence.md`. The active owner-led Phase 3 backend assignment is `api/TODO.md`. BlueMap stays on the secure static-preview fallback until Phase 4 establishes an HTTPS reverse proxy or tunnel and verifies embedding policy. Phase 3 now continues with focused read queries and their public contract; no Phase 3 API endpoints exist yet.
 
 The completed delivery and learning records are captured in `docs/phase-00-foundation-and-product-planning.md`, `docs/phase-01-public-website-shell-and-design-system.md`, and `docs/phase-02-live-minecraft-status-and-player-presence.md`. Every future phase must have a corresponding report under `docs/` before the project status advances.
 
@@ -51,7 +59,7 @@ The current foundation includes:
 - Go, Chi, structured request logging, and HTTP server timeouts
 - An internal `GET /api/v1/health` endpoint with CORS coverage
 - Local PostgreSQL through Docker Compose
-- Goose and sqlc configuration ready for the initial Phase 3 application migrations
+- Goose and sqlc configuration with the initial Phase 3 player, event, and story migrations
 - Frontend formatting, linting, type checking, and production builds
 - Go formatting checks, vetting, tests, and builds
 - GitHub Actions CI for both applications
@@ -139,7 +147,7 @@ curl --fail --show-error \
   http://localhost:8080/api/v1/server/status
 ```
 
-The endpoint returns HTTP `200` for normal `online`, `offline`, and temporarily `unavailable` outcomes so the frontend can render each state deliberately. Online responses include known counts and version information; optional fields are `null` when they are unavailable. The complete stable response examples are recorded in `api/TODO.md`.
+The endpoint returns HTTP `200` for normal `online`, `offline`, and temporarily `unavailable` outcomes so the frontend can render each state deliberately. Online responses include known counts and version information; optional fields are `null` when they are unavailable. The accepted contract decisions and verification evidence are recorded in `docs/phase-02-live-minecraft-status-and-player-presence.md`.
 
 ## Checks
 
@@ -172,15 +180,15 @@ web/public/images/settlements/
 web/public/images/stories/
 ```
 
-The Phase 1 editorial content remains centralised static preview data, while the server-status and confirmed-online player areas now use the live Minecraft status API. Phase 3 replaces player, story, and event fixtures with PostgreSQL-backed public content; Phase 4 replaces the static map with the initial secure BlueMap experience; and Phase 7 replaces screenshot fixtures with storage-backed media without changing the public information architecture.
+The Phase 1 editorial content remains centralised static preview data, while the server-status and confirmed-online player areas now use the live Minecraft status API. Phase 3 replaces player, story, and event fixtures with empty-safe PostgreSQL-backed public reads; Phase 4 replaces the static map with the initial secure BlueMap experience; and Phase 7 replaces screenshot fixtures with storage-backed media without changing the public information architecture.
 
 ## Database Tooling
 
-No application tables or migrations exist yet. As Phase 3 begins, persistent public content must follow this workflow:
+The initial empty Phase 3 player, event, and story tables are defined through Goose migrations. Continue persistent public content work with this workflow:
 
-1. Add Goose migrations under `api/internal/database/migrations`.
-2. Add handwritten queries under `api/internal/database/queries`.
-3. Run sqlc generation using `api/sqlc.yaml`.
-4. Commit generated code under `api/internal/database/generated`.
+1. Add handwritten queries under `api/internal/database/queries`.
+2. Run sqlc generation using `api/sqlc.yaml`.
+3. Inspect and commit generated code under `api/internal/database/generated` without editing it manually.
+4. Add a new Goose migration for any later schema correction; do not rewrite an applied migration.
 
 Never edit generated sqlc files manually or use the production database as the local default.

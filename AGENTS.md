@@ -30,10 +30,13 @@ Do not introduce microservices, Kubernetes, Redis, WebSockets, event buses, or a
 - Build a handcrafted community archive for a long-running private Minecraft world, not a generic landing page or SaaS dashboard.
 - Keep normal Discord login separate from requesting Minecraft server access. `Log In` must never open or submit the join-request flow.
 - Use the product roles `Visitor`, `Applicant`, `Member`, and `Admin`; treat application status as a separate concept.
+- `Visitor` remains unauthenticated, the owner's informal `player` role maps to `Member`, and explicitly marking an application `Whitelisted` promotes that account to `Member` while retaining the separate application status.
+- Members may create, edit, publish, and unpublish their own stories and events after authentication is introduced, and their own screenshots after uploads are introduced. Admins may manage all community content. Enforce ownership and role checks in Go.
 - The site owner uses their normal Discord-authenticated account with the `Admin` role. Do not create a separate admin authentication system.
 - Enforce all account, ownership, posting, application, and admin permissions in Go.
 - The Minecraft server uses Fabric. Do not plan Bukkit, Spigot, or Paper plugins.
 - Begin whitelist management as a manual admin workflow. RCON or a Fabric-side integration belongs to a later phase.
+- Start Phase 3 production player, story, and event tables empty. Do not require seed content: protected Phase 5 forms create stories/events, and Phase 6's explicit `Whitelisted` action creates or links the persistent player profile without a separate roster-entry task.
 - Use real server content and imagery when available, and keep placeholders easy to replace.
 - Treat the implemented Phase 1 public interface as the approved visual baseline. Preserve its layout, section order, navigation order, typography, spacing, and styling unless the owner explicitly requests a redesign.
 
@@ -141,6 +144,7 @@ Do not add repository interfaces or abstraction layers that only wrap sqlc one-f
 - Use Goose for every schema migration.
 - Keep SQL queries under the backend database query directory.
 - Never manually edit generated sqlc files.
+- Use PostgreSQL constraints for structural identity and relationship guarantees. Validate cross-field event-range, publication, and audit-time rules in Go at the owning write boundary.
 - Run sqlc generation after changing schemas or queries.
 - Never modify an already-applied shared or production migration.
 - Create a new migration to correct an old migration.

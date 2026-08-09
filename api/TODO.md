@@ -1,235 +1,178 @@
-# Phase 2 Backend TODO: Live Minecraft Status
+# Phase 3 Backend Assignment: Persistent Public Community Content
 
-Status: complete and accepted on 1 August 2026.
+Status: active backend assignment. The domain-model and first-migration checkpoints are accepted. Continue with the focused Phase 3 read queries and bring their behaviour and public contract to review before handler integration.
 
-Completed owner implementation brief. Codex may review this work, but must not implement or edit the backend code unless the owner explicitly requests a one-off exception.
+## Why I Am Assigning This Work
 
-This completed record predates the senior-to-junior TODO format and retains its accepted response examples for integration history. The active Phase 3 backend assignment is `api/internal/database/TODO.md`; new backend briefs omit implementation code and pseudocode by default.
+Phase 2 proved that the site can expose live, transient Minecraft state safely. Phase 3 introduces a different kind of backend responsibility: durable community content whose meaning must remain correct after restarts, deployments, and later authentication work.
 
-## Outcome
+Your job is to design and implement the first PostgreSQL-backed public read path for players, stories, and events. The important lesson is not merely how to create tables. It is how to turn product language into durable storage, focused queries, explicit Go validation, and a stable public contract without pulling Phase 5 authentication into the design early.
 
-Add a public, read-only Minecraft status endpoint:
+## Prerequisites
 
-```http
-GET /api/v1/server/status
-```
+- Read the Phase 3 requirements in `PRODUCT_REQUIREMENTS.md` and `.agents/skills/goon-squad-webapp/SKILL.md` before proposing the model.
+- Use `docs/phase-02-live-minecraft-status-and-player-presence.md` as the accepted boundary between transient server presence and persistent community profiles.
+- Confirm local PostgreSQL starts through the existing Docker Compose workflow and that development remains pointed at the local database.
+- The accepted Goose migrations now create the empty player, event, and story tables. No Phase 3 queries or generated database package exist yet.
+- Preserve the accepted domain model and migration boundary while designing the query behaviour and public response fields for the next review checkpoint.
 
-The endpoint should query the Fabric server through the Minecraft server-list status protocol, return a stable public-safe response, and shield the server from a status request on every website poll.
+## Expected Outcome
 
-Phase 2 must not add database tables, migrations, authentication, RCON, WiseHosting credentials, a Fabric mod, or persistent status history.
+By the end of this assignment, public visitors can read a paginated persistent player directory, published stories, and published events through the Go API. Individual story and event routes return one publishable record or the repository's standard not-found response. The homepage can request exactly the latest three published stories and the single next published upcoming event without knowing anything about the database.
 
-## Decide the Response Contract First
+The backend remains read-only to public users. The production tables start empty, and an empty player directory, story archive, event archive, and homepage feed are valid Phase 3 outcomes. There are no production seed/import requirements, browser write endpoints, Discord accounts, sessions, ownership permissions, uploads, or admin tools in this phase.
 
-Before coding, settle and document one response shape that lets the frontend distinguish:
+The required public read endpoints are:
 
-- Server online
-- Server offline
-- Status temporarily unavailable
-- Zero players online
-- A known player count whose player-name sample is unavailable
-- Fresh data and cached or stale data
+- `GET /api/v1/players`
+- `GET /api/v1/players/{username}`
+- `GET /api/v1/stories`
+- `GET /api/v1/stories/{slug}`
+- `GET /api/v1/events`
+- `GET /api/v1/events/{slug}`
 
-A suitable shape would include:
+## Approved Product Direction
 
-- A state such as `online`, `offline`, or `unavailable`
-- Current and maximum player counts when known
-- An explicit player-sample availability flag
-  Sampled player usernames and UUIDs only when the server exposes them
-- Minecraft version name and protocol when known
-- The time the Minecraft server was checked
-- An explicit stale or cache indicator if old successful data can be served after a failed refresh
+These decisions are now settled for the Phase 3 design:
 
-Do not infer an empty player list from a missing sample. Do not expose the server description payload, favicon, internal errors, addresses that are not already public, or any management credentials unless the product explicitly needs them.
+- Give each player profile an internal database identifier and store a unique Minecraft UUID as the stable external identity. Preserve the current username's exact casing for display, but enforce case-insensitive uniqueness and lookup because the username may change.
+- Keep the Phase 3 player profile limited to Minecraft identity. Discord identity, account role, application state, posting permissions, and ownership arrive in Phases 5 and 6 and must not be columns on this table.
+- Defer gameplay statistics to Phase 9. The current status API cannot provide them. When introduced, daily statistics snapshots belong in dedicated records keyed to the stable player identity rather than extra profile columns.
+- Give stories and events generated internal identifiers. Attribute their Phase 3 author or organiser to a persistent player profile; Phase 5 later adds authenticated ownership and editor audit relationships.
+- Story and event titles may repeat. Generate a collision-safe unique slug on creation and keep that slug stable when the title changes.
+- Store story and event bodies as text. Stories also need an excerpt; events need start and optional end instants.
+- Keep creation, edit, publication state, and publication time distinct. Public reads include only published records with a valid publication time. Publishing records the current instant, unpublishing hides the record, and republishing records a new publication instant.
+- Store event instants in UTC and present them in `Australia/Melbourne`, using AEST or AEDT according to the date. Derive upcoming/past state from end time, falling back to start time; do not persist `has_passed`.
+- Use bounded page-based pagination for players, stories, and events, defaulting to page 1 with 12 records and allowing no more than 50, with enough response metadata for accessible Previous and Next controls. Invalid or excessive values use the repository's consistent validation-error response.
+- Sort players case-insensitively by username, stories by publication time newest first, upcoming events by start time soonest first, and past events by completion time most recent first. Every order needs a stable tie-breaker.
+- Serve the homepage with the same read model: the latest three published stories and one next published upcoming event, without loading an entire archive.
+- Keep screenshots static in Phase 3. Persistent screenshot metadata and R2 uploads remain Phase 7.
+- Start the production player, story, and event tables empty. Do not invent or request seed content merely to make the read APIs non-empty.
+- Phase 5 protected forms will create stories and events. Phase 6's explicit `Whitelisted` transition will create or link the persistent player profile from the applicant's validated Minecraft UUID and current username; the admin must not perform a separate roster-entry task.
 
-Use the repository's consistent JSON error envelope for request-level failures. Agree with the frontend contract before changing a settled response shape.
+The product role names remain `Visitor`, `Applicant`, `Member`, and `Admin`. The owner's informal `player` role maps to `Member`; roles are not part of the Phase 3 schema.
 
-## Implementation Tasks
+## Initial Data Policy
 
-- [x] Add environment-backed Minecraft status configuration to `api/.env.example`.
-  - Host and port should be independently configurable.
-  - Keep the committed local/default value public-safe.
-  - Add a bounded query timeout.
-- [x] Create a focused Minecraft status client under `api/internal/minecraft/`.
-  - Perform the standard server-list status handshake and decode the response safely.
-  - Bound packet sizes and reject malformed or unexpectedly large responses.
-  - Close connections and honour timeouts on every path.
-  - Keep transport/protocol errors distinct from a valid status response.
-- [x] Define the public API response separately from the raw Minecraft protocol payload.
-  - Return only fields required by Phase 2.
-  - Represent unavailable optional data explicitly.
-  - Use UTC RFC 3339 timestamps.
-- [x] Add a short, concurrency-safe in-memory cache.
-  - Use a TTL short enough for the approximately 30-second frontend polling interval.
-  - Avoid duplicate simultaneous upstream queries when the cache expires.
-  - Decide whether the last successful value may be returned as stale after a refresh failure.
-  - Never persist routine status checks.
-- [x] Add the handler and register `GET /api/v1/server/status` beneath `/api/v1`.
-- [x] Keep handler responsibilities narrow: call the status service/client, translate the result, and encode JSON.
-- [x] Add structured logs without leaking raw packets, credentials, or unnecessary player data.
-- [x] Preserve the existing health route and CORS behaviour.
+You do not need an initial roster, story, event, or attribution package from the owner. Production begins with no rows in these tables. Phase 3 proves the schema, queries, API contract, and empty states without manufacturing community content.
 
-## Tests
+Use narrowly scoped fixtures only in disposable test databases to prove non-empty filtering, ordering, pagination, attribution, and structural uniqueness behaviour. Fixtures are test data, not a production content-loading mechanism. Do not infer or create persistent profiles from the live server-status sample.
 
-- [x] Unit-test protocol decoding with deterministic byte fixtures; do not require the real Minecraft server.
-- [x] Test online status with zero players.
-- [x] Test online status with a player sample.
-- [x] Test a non-zero player count with no sample.
-- [x] Test malformed, truncated, and oversized responses.
-- [x] Test connection timeout or upstream failure behaviour.
-- [x] Test cache hits, expiry, concurrent callers, and the chosen stale-data policy.
-- [x] Test the HTTP route, content type, public response shape, timestamps, and error envelope.
-- [x] Confirm CORS still allows the configured frontend origin.
+## Your Assignment
 
-## Accepted Response Contract
+### 1. Model the Domain Before the Tables
 
-Codex reviewed and accepted the initial backend status slice on 1 August 2026. Normal Minecraft reachability outcomes return HTTP `200`; unknown optional values are explicit JSON `null` values. `cached` identifies an unexpired cache hit, while `stale` is reserved for an older cached value returned after a refresh failure. The completed follow-up reliability work below supersedes the original decision to cache a transient `unavailable` probe over a previously usable status.
+Status: completed and accepted.
 
-## Follow-up Reliability Finding — 1 August 2026
+Describe each persistent concept in plain language and list its invariants. Pay particular attention to identity boundaries:
 
-Before this follow-up, a refresh could appear to make server status and players unavailable when it landed after the 15-second cache TTL and the resulting Minecraft probe failed transiently. The browser refresh was not the cause: it merely triggered the expired cache path. `QueryStatus` converts transport and protocol failures into a successful `Status{State: unavailable}` result with no Go error, so the cache's error-based stale fallback did not run. The unavailable result could therefore replace the last usable status for a full cache TTL, and the former 30-second frontend polling policy made the failure remain visible even longer.
+- A persistent player profile is not a live presence record.
+- A Minecraft identity is not automatically a Discord-authenticated user.
+- An author or organiser attribution in Phase 3 is not automatically an ownership permission in Phase 5.
+- Publication state is not the same as whether a row exists.
+- A mutable username is not the stable player identity.
+- Upcoming/past event state is derived from time rather than persisted state.
 
-- [x] When an expired cache has a prior usable `online` or `offline` result and the refresh produces `unavailable`, return the prior result with `cached: true` and `stale: true` instead of replacing it.
-- [x] Advance or bound the next refresh attempt so requests during an upstream failure do not probe Minecraft continuously.
-- [x] Preserve the existing first-check behaviour: when no usable cached result exists, return the public `unavailable` state normally.
-- [x] Add a deterministic cache test proving an unavailable refresh cannot overwrite a previously usable result and that the stale metadata is correct.
-- [x] Retain the existing HTTP `200` public contract for normal online, offline, and unavailable outcomes.
+Bring this model to review before translating it into schema details.
 
-Follow-up review completed on 1 August 2026 with no outstanding findings. An unavailable refresh after a usable online or offline result now serves the previous result as cached and stale, preserves its original check time, and schedules another upstream attempt after a bounded five-second window. Requests inside that window reuse the stale value, a subsequent usable result replaces it normally, and a first-ever unavailable result remains an ordinary non-stale response. The frontend's five-second unavailable/error retry complements this backend policy.
+### 2. Design the First Migration
 
-Go formatting, vetting, all 75 test and subtest events, race-enabled tests, the server build, and 100 repeated executions of the unavailable-refresh regression test passed. A temporary local server built from the reviewed files returned the live public response with HTTP `200`, the configured CORS origin, correct fresh metadata on the first request, and `cached: true` on the next request.
+Status: completed and accepted. The three migrations apply and reverse successfully against disposable local PostgreSQL.
 
-Online with a player sample:
+Create the smallest schema that fully supports the approved public contract. PostgreSQL owns structural guarantees: primary keys, required values, foreign-key attribution, unique Minecraft identity, case-insensitive username uniqueness, and unique slugs. Cross-field event-range, publication, and audit-time rules are validated in Go when protected write paths arrive. Public read queries must still require both published state and publication time. Include only indexes supported by actual lookup, pagination, filtering, and ordering behaviour, and be ready to explain the query each index supports.
 
-```json
-{
-  "state": "online",
-  "online_players": 2,
-  "max_players": 20,
-  "player_sample_available": true,
-  "players": [
-    {
-      "username": "MagicGN",
-      "uuid": "00000000-0000-0000-0000-000000000001"
-    }
-  ],
-  "version": "26.2",
-  "protocol_version": 776,
-  "checked_at": "2026-08-01T04:07:17Z",
-  "stale": false,
-  "cached": false
-}
-```
+The migration must be reversible in local development and must not modify an already-applied shared migration. Keep image handling to replaceable static references; media records and object storage belong to Phase 7.
 
-Online with a known count but no player sample:
+### 3. Write Focused Read Queries
 
-```json
-{
-  "state": "online",
-  "online_players": 5,
-  "max_players": 20,
-  "player_sample_available": false,
-  "players": [],
-  "version": "26.2",
-  "protocol_version": 776,
-  "checked_at": "2026-08-01T04:07:17Z",
-  "stale": false,
-  "cached": false
-}
-```
+Add handwritten queries for the paginated player directory, case-insensitive individual profile lookup, published story archive and slug lookup, published event archives and slug lookup, the three-story homepage feed, and the single next-event homepage feed. Queries must enforce public visibility themselves rather than fetching private rows and relying on the handler to hide them.
 
-Offline:
+Make ordering deterministic. Think through page boundaries, equal usernames ignoring case, equal publication times, equal event times, empty result sets, and records that exist but are not public.
 
-```json
-{
-  "state": "offline",
-  "online_players": null,
-  "max_players": null,
-  "player_sample_available": null,
-  "players": null,
-  "version": null,
-  "protocol_version": null,
-  "checked_at": "2026-08-01T04:07:17Z",
-  "stale": false,
-  "cached": false
-}
-```
+### 4. Generate and Integrate Database Access
 
-Temporarily unavailable:
+Run sqlc after the migration and queries are ready. Treat generated files as output: inspect them to confirm the types and nullability match your model, but never edit them manually.
 
-```json
-{
-  "state": "unavailable",
-  "online_players": null,
-  "max_players": null,
-  "player_sample_available": null,
-  "players": null,
-  "version": null,
-  "protocol_version": null,
-  "checked_at": "2026-08-01T04:07:17Z",
-  "stale": false,
-  "cached": false
-}
-```
+Connect the generated operations to the Go application using the repository's existing handler flow. Keep HTTP decoding and encoding in handlers; introduce service logic only where it owns a real rule rather than wrapping generated methods one-for-one.
 
-Unexpected request-level failures use the shared error envelope:
+Keep database startup and failure behaviour explicit. The health endpoint must remain independent of PostgreSQL.
 
-```json
-{
-  "error": {
-    "code": "server_status_unavailable",
-    "message": "error retrieving server status"
-  }
-}
-```
+### 5. Expose the Public Read Contract
 
-## Verification
+Add the Phase 3 player, story, and event list/detail routes already assigned by the roadmap. Use stable response fields that express public product concepts rather than leaking generated database types. Validate all page, page-size, username, and slug input in Go.
 
-Run:
+Return only publishable content. Preserve the shared JSON error format, distinguish an empty list from a failed request, and treat a private or missing slug as not found from a public caller's perspective. Do not leak SQL errors, table structure, or internal identifiers the frontend does not need.
 
-```bash
-gofmt -w .
-go vet ./...
-go test ./...
-go test -race ./...
-go build ./cmd/server
-```
+Before frontend integration begins, bring me the proposed response fields and representative state descriptions in prose. We will agree on nullability, timestamps, ordering, and not-found behaviour together.
 
-Then run the API locally and verify:
+### 6. Prove the Behaviour
 
-```bash
-curl --fail --show-error \
-  -H 'Origin: http://localhost:5173' \
-  http://localhost:8080/api/v1/server/status
-```
+Add focused tests at the lowest useful boundary and integration tests where PostgreSQL behaviour matters. Your test plan should cover:
 
-Before handing the backend to frontend work, ask Codex for a review of the diff and the final JSON examples for online, offline, unavailable, and missing-player-sample cases.
+- Migration up and down in a disposable local database
+- Required structural relationships and uniqueness rules
+- UUID-backed identity, case-preserved display names, and case-insensitive username lookup
+- Deterministic list ordering
+- Pagination defaults, limits, metadata, and stable page boundaries
+- Published versus non-public filtering
+- Empty lists
+- Existing but non-public slugs returning the public not-found result
+- Missing slugs
+- Nullable optional fields
+- Event boundary behaviour around the chosen current time and timezone policy
+- Go validation of event ranges, publication consistency, and audit timestamps when the owning write endpoints arrive
+- Homepage limits of exactly three stories and one next event
+- Database failure translation without internal detail leakage
+- Existing health, server-status, timeout, logging, and CORS behaviour remaining intact
 
-Review completed on 1 August 2026. Go formatting, vetting, normal tests, race-enabled tests, and the server build passed. A local black-box check also confirmed the live response, configured-origin CORS headers and preflight, cache metadata, offline mapping, and the bounded unavailable response from a deliberately non-responsive upstream.
+Do not make tests depend on the live Minecraft server or production Neon database.
 
-## Current Integration Facts to Recheck
+## Concepts I Expect You to Practise
 
-Observed on 30 July 2026:
+- Translating product rules into domain invariants
+- Choosing deliberately between structural database guarantees and cross-field Go validation
+- Separating persistent identity, authentication identity, and transient presence
+- Publication filtering as a security and product boundary
+- Deterministic ordering and stable public contracts
+- Timestamp and timezone semantics
+- Migration discipline and generated-code ownership
+- Testing PostgreSQL behaviour without coupling tests to production
+- Keeping handlers focused and avoiding one-for-one abstraction layers
 
-- `51.161.199.235:25584` accepted a TCP connection and answered a server-list status request.
-- The response reported Minecraft `26.2`, protocol `776`, maximum players `20`, and zero online players at the time of the check.
-- No player sample was present, which is valid with zero online players and does not yet prove how the server behaves when populated.
+When you ask for help, tell me which concept is unclear, what you currently believe, and what behaviour you observed. I will help you reason through it without taking the implementation away from you.
 
-These observations are diagnostic only. Do not make tests depend on the live server or treat them as permanent product configuration.
+## Guardrails
 
-## Deferred Phase 4 BlueMap Integration Work
+- Do not add authentication, sessions, protected writes, join applications, admin actions, image uploads, R2, BlueMap work, RCON, or a Fabric integration.
+- Do not store routine Minecraft status or infer persistent player presence from the public status sample.
+- Do not model a player profile as an authenticated user merely to save a later migration.
+- Do not add Discord fields, roles, screenshot records, gameplay-statistic columns, schedulers, or a Fabric statistics integration in Phase 3.
+- Do not manually edit generated sqlc files.
+- Do not point development or tests at production Neon.
+- Do not create generic repository interfaces that only mirror sqlc.
+- Do not change the accepted Phase 1 frontend visual baseline while enabling the new data.
 
-BlueMap is reachable at `http://51.161.199.235:25674/` and reported BlueMap `5.22` on 30 July 2026, but HTTPS negotiation failed. The initial secure embed has been moved from Phase 2 to Phase 4 so it can be completed with production domains and browser policy. Before the frontend embed can be approved:
+## Definition of Done
 
-- [ ] Put BlueMap behind a stable HTTPS URL, preferably the planned map subdomain or another owner-approved endpoint.
-- [ ] Verify iframe embedding headers and the final site's Content Security Policy.
-- [ ] Verify stable deep-link or initial-camera support for Goon Squad Mountain at `-1129, 119, 1030` in the Overworld.
-- [ ] Decide the secure external-link fallback.
-- [ ] Discuss and approve the frontend map experience before Codex implements it.
+This backend assignment is ready for review when:
 
-## Completed Phase 2 Player Decisions
+- The implementation follows the approved product direction, and any proposed deviation has explicit owner approval.
+- Migrations, queries, and generated access code are current and reproducible.
+- Public list and detail routes return only the approved fields and publishable records.
+- Player, story, and event archives paginate deterministically and return the metadata agreed at the contract checkpoint.
+- The homepage queries return at most three latest stories and one next upcoming event.
+- Empty, not-found, invalid, and database-failure outcomes follow the agreed contract.
+- The health route still does not depend on PostgreSQL.
+- Focused tests cover structural guarantees, Go validation where applicable, filtering, ordering, boundary cases, and failure translation.
+- Go formatting, vetting, normal tests, race-enabled tests where relevant, and the server build pass.
+- Migration and sqlc checks pass against local PostgreSQL.
+- New environment or operator steps are documented without secrets.
+- No later-phase infrastructure or permissions were introduced.
 
-- [x] Use direct overlay-aware Mineatar face PNG requests keyed by sampled UUID; do not add a Phase 2 backend proxy.
-- [x] Document provider/browser caching, direct-request privacy, redundant-alt-text handling, and a local Steve-head fallback.
-- [x] Add the owner-supplied Steve-head fallback asset under `web/public/images/players/`.
-- [x] Discuss and approve the homepage live-player presentation before Codex implements it.
-- [x] Use a confirmed-online-only `/players` view until the Phase 3 database-backed directory replaces it.
+## What to Bring to Review
+
+Ask Codex for review at two checkpoints.
+
+The first checkpoint accepted the domain model and migrations on 9 August 2026. No production content or roster input was required.
+
+Second, after implementation, bring the focused diff, a short explanation of the decisions you made, migration and generation evidence, test results, and any part you are least confident about. I will review the backend with concrete file-and-line findings and will not replace your implementation.

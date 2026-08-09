@@ -20,7 +20,7 @@ Do not add a player-head backend endpoint, database persistence, WebSockets, a n
 
 ## Accepted API Contract
 
-Use the complete examples and verification record in `api/TODO.md`. The frontend must preserve these distinctions:
+Use the accepted decisions and verification record in `docs/phase-02-live-minecraft-status-and-player-presence.md`. The frontend must preserve these distinctions:
 
 | Response condition                  | Presentation                                                                                        |
 | ----------------------------------- | --------------------------------------------------------------------------------------------------- |

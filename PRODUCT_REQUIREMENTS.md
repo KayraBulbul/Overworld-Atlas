@@ -46,10 +46,10 @@ The product uses Discord OAuth for authentication and has four product roles:
 |---|---|---|
 | Visitor | An unauthenticated public visitor | Public pages, normal login, and starting a join request |
 | Applicant | A Discord-authenticated person with a join request | Public pages, account page, and application status |
-| Member | An approved community account | Account page and explicitly permitted content-management actions |
+| Member | An approved community account | Account page and management of owned stories/events, plus owned screenshots after Phase 7 |
 | Admin | A trusted member with administrative permission | Member capabilities and the protected admin dashboard |
 
-`Visitor` is an unauthenticated product state and does not need to be stored as a database role. Application status is separate from account role.
+`Visitor` is an unauthenticated product state and does not need to be stored as a database role. The owner's informal term `player` maps to the product role `Member`. A Discord-authenticated person who has submitted a request but is not yet whitelisted is an `Applicant`, not a stored `Visitor`. Application status remains separate from account role.
 
 Application states are:
 
@@ -60,7 +60,7 @@ Application states are:
 
 The site owner uses their ordinary Discord-authenticated account with the `Admin` role. There must not be a separate owner login, admin password, or parallel authentication system.
 
-The exact policy for promoting a whitelisted applicant to `Member` remains an open product decision. Until decided, documentation and implementation must not assume that whitelisting automatically grants member posting permissions.
+When an admin explicitly marks an application `Whitelisted`, the same protected operation promotes the account to `Member`; the application retains its separate `Whitelisted` status. Members may create, edit, publish, and unpublish their own stories and events after Phase 5 introduces authentication and protected writes. Phase 7 extends the same ownership model to screenshots. Admins may manage all community content.
 
 ## Visual Direction
 
@@ -255,9 +255,9 @@ The dedicated Map page should provide a larger or full-screen exploration experi
 
 Include:
 
-- The latest two or three stories
+- The latest three published stories, ordered by publication time
 - Author, date, title, and excerpt
-- Upcoming events
+- The single next published upcoming event, ordered by start time
 - Clearly labelled links from the story and event sections to `/stories` and `/events`
 
 The approved Phase 1 homepage uses a text-ledger treatment for stories and does not require images in that compact section. Story imagery remains appropriate on expanded story previews and individual stories when real media is available.
@@ -281,6 +281,10 @@ Include a curated screenshot preview with dates, contributor names, useful alt t
 
 - Until the Phase 3 database-backed directory exists, `/players` shows only players positively identified by the current live status sample.
 - Phase 3 replaces that confirmed-online-only view with the discoverable persistent player directory.
+- The persistent directory begins empty. Do not seed it from placeholders or infer membership from the live status sample. In Phase 6, explicitly marking an approved application `Whitelisted` creates or links the player's persistent profile from the validated Minecraft UUID and current username as part of the same protected workflow; the admin does not maintain a second roster by hand.
+- Identify a persistent player with an internal database identifier and a unique Minecraft UUID. Store the current Minecraft username separately, preserve its exact casing for display, enforce case-insensitive uniqueness and lookup, and allow later username changes without changing player identity.
+- Phase 3 player profiles contain Minecraft identity only. Discord identity, account role, application state, and posting permissions belong to their later authentication and application models and must not be columns on the Phase 3 player profile.
+- Paginate the directory with accessible Previous and Next navigation. Public archive endpoints default to page 1 with 12 records, allow at most 50 records per page, and return the consistent validation-error response for invalid or excessive pagination values. Search by Minecraft username is case-insensitive.
 - Distinguish persistent member/profile data from transient online activity.
 - Show player heads and Minecraft usernames where data and privacy settings permit.
 - Handle unavailable active-player lists without implying that no one is online.
@@ -290,20 +294,30 @@ Include a curated screenshot preview with dates, contributor names, useful alt t
 ### Stories
 
 - Provide a public listing and individual slug-based pages.
+- The persistent archive begins empty. Stories enter it through the protected Phase 5 member/admin forms rather than Phase 3 seed content.
 - Show author, publication date, title, imagery when available, and readable story content.
+- Store long-form bodies as text; PostgreSQL text storage is appropriate. Apply reasonable input-size limits at the authenticated API boundary when writes are introduced.
+- Titles do not need to be unique. Give each story a unique collision-safe slug that is generated when the story is created and remains stable when its title changes.
+- Paginate the public listing by publication time, newest first, with a deterministic tie-breaker and accessible Previous and Next navigation. Use the shared default of 12 records and maximum of 50 per page.
 - Clearly distinguish drafts from published content in authenticated management views.
 
 ### Events
 
 - Provide public listing and individual slug-based pages.
+- The persistent archive begins empty. Events enter it through the protected Phase 5 member/admin forms rather than Phase 3 seed content.
 - Separate upcoming and past events where useful.
 - Include title, date and time, author or organiser, description, and imagery when available.
+- Titles do not need to be unique. Give each event a unique collision-safe slug that remains stable when its title changes.
+- Store start and optional end instants in UTC and display them in the `Australia/Melbourne` timezone, using AEST or AEDT as appropriate for the date.
+- Derive upcoming and past state from the current time and the event end instant, falling back to the start instant when no end is present. Do not persist a `has_passed` flag that can become stale.
+- Paginate public event archives with deterministic ordering and accessible Previous and Next navigation. Upcoming events sort soonest first; past events sort most recently completed first. Use the shared default of 12 records and maximum of 50 per page.
 
 ### Screenshots
 
 - Provide a responsive gallery with useful alt text, dates, and contributor names.
 - Use centralised static entries in Phase 1.
-- Replace static entries with authorised, storage-backed media records in Phase 7.
+- Replace static entries with authorised, storage-backed media records in Phase 7. Each record includes an internal identifier, owner, title, bounded description, useful alt text, object metadata, upload and edit timestamps, publication state, and publication time; image bytes remain in R2 rather than PostgreSQL.
+- Paginate the persistent Phase 7 gallery by publication time with accessible Previous and Next navigation, using the shared default of 12 records and maximum of 50 per page.
 
 ## Authentication Requirements
 
@@ -333,6 +347,7 @@ After successful normal authentication:
 - Return the user to their originating page.
 - Give members access to `/account`.
 - Allow authorised members to create or manage permitted stories and events.
+- Allow members to manage their own screenshots after Phase 7 introduces uploads.
 - Show admin controls only to the `Admin` role.
 
 ## Request Access
@@ -400,6 +415,7 @@ After successful submission:
 - Join-request status and status explanation
 - Submitted stories
 - Submitted events
+- Submitted screenshots after Phase 7
 - Actions to create, edit, and manage the user's own permitted content
 
 For applicants, application status must be the most prominent account information. `Pending`, `Approved`, `Rejected`, and `Whitelisted` need plain-language explanations and next steps. The page must not imply that `Approved` means the server command has already been run.
@@ -424,8 +440,9 @@ Initial whitelist workflow:
 1. An admin approves the request.
 2. The website generates and copies the whitelist command.
 3. The admin runs the command through the Minecraft server console.
-4. The admin marks the applicant as whitelisted.
-5. The applicant sees in `/account` that they can join.
+4. The admin explicitly marks the applicant as whitelisted.
+5. The same protected action promotes the account from `Applicant` to `Member`, retains the separate `Whitelisted` application status, and creates or links the persistent player profile from the validated Minecraft UUID and current username.
+6. The member sees in `/account` that they can join and use member content permissions.
 
 The command must be generated from the validated stored Minecraft Java username. The dashboard should make the manual boundary explicit and must not claim the command succeeded merely because it was copied.
 
@@ -433,7 +450,7 @@ The dashboard should later be extendable to manage:
 
 - Stories
 - Events
-- Member posting permissions
+- Content moderation
 - Featured homepage content
 - Server information
 - Reports or inappropriate content
@@ -443,10 +460,15 @@ Automatic whitelist management is not part of the initial admin release.
 ## Content Management
 
 - Stories and events use dedicated authenticated create and edit forms.
-- Member write access is permission-based and enforced in Go.
+- Production story and event tables begin empty and are populated through these Phase 5 forms; Phase 3 does not require seed content.
+- Members may create, edit, publish, and unpublish their own stories and events; admins may manage all stories and events. Enforce role and ownership in Go.
+- Phase 7 adds a clearly labelled screenshot-upload action on `/screenshots`; decide before that phase whether its accessible form is a dedicated route or dialog.
 - Ownership and administrative override rules must be explicit.
 - Public pages show only publishable content.
 - The system records who created and last edited important content.
+- A draft is not publicly visible. Publishing captures the current time as the content's publication time; unpublishing removes it from public reads, and republishing records a new publication time.
+- Publication time, rather than creation time, controls public story and screenshot ordering. Event prominence is controlled by its start/end instants after publication filtering.
+- Titles are display content and may repeat. Stable unique slugs identify story and event routes and do not change merely because a title is edited.
 - Homepage feature selection can remain manually configured until the admin roadmap phase adds controls.
 
 ## Minecraft and BlueMap Integrations
@@ -480,6 +502,18 @@ The Minecraft server uses Fabric. Do not plan around Bukkit, Spigot, or Paper pl
 - Direct provider requests disclose ordinary request metadata, including the visitor's network address and the requested player identifier, to Mineatar. This is the accepted Phase 2 privacy tradeoff and should be revisited if player heads are later proxied or self-hosted.
 - When a head is immediately paired with the same visible username, use an empty image alternative so assistive technology does not announce the identity twice. The adjacent username remains the accessible identification.
 
+### Gameplay Statistics
+
+- The current `/api/v1/server/status` integration cannot provide server-specific playtime, travel distance, mined or placed blocks, deaths, kills, or other historical per-player statistics. Its protocol exposes only live status, counts, version information, and an optional online-player sample.
+- WiseHosting's Player Manager can currently display playtime, movement, mined and placed blocks, deaths, kills, and related player data, but the reviewed WiseHosting documentation does not expose a supported public export API for the website. Do not depend on undocumented panel endpoints.
+- Vanilla Minecraft records extensive statistics server-side, and Fabric exposes the statistics system. Phase 9 should obtain selected statistics through a version-compatible, controlled server-side source such as an authenticated Fabric exporter or another explicitly supported export path.
+- Third-party Fabric statistics mods may be evaluated in Phase 9, but do not adopt one until its Minecraft `26.2` compatibility, security boundary, data ownership, maintenance, and integration contract are verified. Do not add a second public website or database merely because a mod bundles one.
+- Persist selected statistics in dedicated statistics or snapshot records keyed to the stable player identity, not as mutable columns on the Phase 3 player profile.
+- The intended first cadence is one idempotent snapshot per day. Record the source check time, preserve the previous usable snapshot after a failed collection, and avoid high-volume raw event ingestion until the public profile questions and charts are agreed.
+- Candidate public profile statistics include total playtime, distance travelled by useful categories, blocks mined or placed, deaths, and kills. Confirm the exact public set and units before Phase 9 implementation.
+
+Research references: [Fabric statistics documentation](https://docs.fabricmc.net/develop/statistics), [Minecraft Java Edition 26.1 player-storage changes](https://www.minecraft.net/en-us/article/minecraft-java-edition-26-1), [WiseHosting Player Manager statistics](https://wisehosting.com/news/introducing-the-enhanced-player-manager), and [WiseHosting panel file/SFTP access](https://wisehosting.com/help/how-to-access-and-use-the-game-panel).
+
 ### Whitelisting
 
 Begin with the manual admin workflow. Never expose RCON, WiseHosting, server-console, or management credentials to the browser.
@@ -493,18 +527,20 @@ Choose between these only after the manual workflow is proven and hosting capabi
 
 ## Data Planning
 
-No schema is implemented by this requirements update. When their phases begin, plan persistent models for:
+The initial Phase 3 schema now implements the player, story, and event boundaries below. Continue to use these boundaries as later phases add queries, authentication, writes, media, and statistics:
 
-- Discord-authenticated users and secure sessions
-- Member/player profiles and Minecraft identity
-- Simple account roles and posting permissions
-- Join applications and application status history or audit fields
-- Stories and story authorship
-- Events and event authorship
-- Images and object metadata in the upload phase
-- Featured content configuration only when administration requires it
+- Phase 3 production player, story, and event tables begin empty. Test fixtures may exercise non-empty behaviour only in disposable test databases. Do not add a production seed/import requirement.
+- Phase 3 player profiles use an internal identifier, a unique Minecraft UUID, and the current case-preserved Minecraft username. Username lookup and uniqueness are case-insensitive; username changes do not change identity.
+- Phase 3 stories use an internal identifier, stable unique slug, non-unique title, excerpt, text body, player-profile author attribution, creation and edit timestamps, publication state, and publication time.
+- Phase 3 events use an internal identifier, stable unique slug, non-unique title, text description/body, player-profile organiser attribution, start and optional end instants, creation and edit timestamps, publication state, and publication time. Upcoming/past state is derived rather than stored.
+- PostgreSQL enforces Phase 3 structural identity and relationship guarantees through required values, primary keys, foreign keys, case-insensitive username uniqueness, Minecraft UUID uniqueness, and slug uniqueness. The Go API owns cross-field validation for event ranges, publication consistency, and audit timestamps when write endpoints are introduced.
+- Phase 5 adds Discord-authenticated users, secure sessions, account roles, ownership and editor audit relationships, and the optional link from an account to its player profile. Discord identity and role do not belong on the Phase 3 player table.
+- Phase 6 adds join applications, application status history or audit fields, and the explicit whitelisted-to-member transition without merging application status into account role. That transition also creates or links the persistent player profile from the validated Minecraft identity, so a new member does not require separate roster maintenance.
+- Phase 7 adds screenshot/media ownership, titles, bounded descriptions, alt text, object keys and metadata, upload/edit/publication timestamps, and publication state. PostgreSQL stores metadata only; R2 stores image bytes.
+- Phase 9 adds selected latest values and daily historical snapshots for gameplay statistics keyed to the stable player identity. Do not place a growing set of statistic columns on the player profile.
+- Add featured-content configuration only when administration requires it.
 
-Keep account role, application status, posting permission, and transient online status as distinct concepts. Use PostgreSQL only for persistent application data and do not store image bytes in PostgreSQL.
+Keep account role, application status, content ownership, persistent player identity, transient online status, and historical gameplay statistics as distinct concepts.
 
 ## Delivery Phases
 
@@ -515,7 +551,7 @@ The detailed roadmap and exit criteria live in `.agents/skills/goon-squad-webapp
 | Phase 0 | Requirements, architecture, routes, conceptual data model, roles, design system, integration planning, and the existing foundation tooling |
 | Phase 1 | Public layout, editorial visual system, themes, route-based public navigation, homepage structure, replaceable static previews and expanded public preview pages, screenshots, a disabled join-form preview, and Copy Server IP |
 | Phase 2 | Live server status, active-player data, player heads, and the temporary confirmed-online `/players` view |
-| Phase 3 | PostgreSQL-backed public player directory, stories, and events with homepage feeds |
+| Phase 3 | Empty-safe PostgreSQL-backed public player directory, stories, and events with homepage feeds; no production seed content required |
 | Phase 4 | Production deployment and hardening of the public read-only product, including the initial secure BlueMap HTTPS route, homepage embed, `/map` experience, and external fallback |
 | Phase 5 | Discord OAuth, sessions, roles, `/account`, posting permissions, and protected story/event forms |
 | Phase 6 | Request-access dialog, applicant account state, application tracking, `/admin`, and manual whitelist workflow |
@@ -539,12 +575,11 @@ The following decisions need owner input before their implementation phase:
 1. Minecraft/Fabric version, required client mods, rules, and post-approval instructions.
 2. Real story and screenshot media, and the initial BlueMap camera target.
 3. How existing accounts are recognised for normal login before someone applies, such as pre-provisioned Discord identities or confirmed Discord server membership.
-4. Whether whitelisted applicants automatically become `Member`, require a separate promotion, or receive member status through another process.
-5. Which members may create stories and events, whether publication requires review, and whether organiser/co-author roles are needed.
-6. Whether `/join` should exist in addition to the dialog.
-7. The initial real community roster for the Phase 3 `/players` directory and whether all member profiles and activity are public.
-8. Phase 4 BlueMap production HTTPS/reverse-proxy arrangement, iframe policy, and deep-link capabilities. Caddy or Nginx is suitable if WiseHosting provides a viable process and HTTPS port; the current server-hosted URL is `http://51.161.199.235:25674/` and is not production-ready for secure embedding.
-9. Whether later whitelist automation should prefer backend RCON or a custom Fabric-side integration after WiseHosting capabilities are verified.
-10. Reapplication and duplicate-request policy after rejection or Minecraft username changes.
+4. Whether stories or events need co-authors, multiple organisers, moderation, or publication review beyond the approved single-owner direct-publishing model.
+5. Whether `/join` should exist in addition to the dialog.
+6. Phase 4 BlueMap production HTTPS/reverse-proxy arrangement, iframe policy, and deep-link capabilities. Caddy or Nginx is suitable if WiseHosting provides a viable process and HTTPS port; the current server-hosted URL is `http://51.161.199.235:25674/` and is not production-ready for secure embedding.
+7. The exact public statistic set and whether Phase 9 should use a custom authenticated Fabric exporter, a supported WiseHosting export if one becomes available, or a verified compatible third-party Fabric mod.
+8. Whether later whitelist automation should prefer backend RCON or a custom Fabric-side integration after WiseHosting capabilities are verified.
+9. Reapplication and duplicate-request policy after rejection or Minecraft username changes.
 
 These are intentionally unresolved. They do not justify choosing additional infrastructure or silently inventing product policy during scaffolding.
