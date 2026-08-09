@@ -1,10 +1,12 @@
-# Goon Squad Website
+# Overworld Atlas
 
 ## Project Overview
 
-This repository contains the Goon Squad Minecraft community website.
+This repository contains Overworld Atlas, the engineering project behind the Goon Squad Minecraft community website.
 
-The canonical product requirements are in `PRODUCT_REQUIREMENTS.md`. The detailed architecture and phased implementation roadmap are in `.agents/skills/goon-squad-webapp/SKILL.md`. Read both before planning or implementing a product feature.
+The canonical product requirements are in `PRODUCT_REQUIREMENTS.md`. The detailed architecture and phased implementation roadmap are in `.agents/skills/overworld-atlas-webapp/SKILL.md`. Read both before planning or implementing a product feature.
+
+Use **Overworld Atlas** for the repository, engineering project, and documentation identity. Keep **Goon Squad** for the actual website brand, server/community references, in-world names, user-facing copy, domains, and established asset filenames. A documentation identity change must not silently rename the public product.
 
 The project uses:
 
@@ -66,7 +68,7 @@ Required routes include `/`, `/map`, `/players`, `/stories`, `/stories/:slug`, `
 Use this structure:
 
 ```text
-goon-squad/
+overworld-atlas/
 ├── web/
 │   └── React frontend
 ├── api/
@@ -75,7 +77,7 @@ goon-squad/
 │   └── Completed phase reports and learning records
 ├── .agents/
 │   └── skills/
-│       └── goon-squad-webapp/
+│       └── overworld-atlas-webapp/
 │           └── SKILL.md
 ├── AGENTS.md
 ├── PRODUCT_REQUIREMENTS.md
@@ -159,7 +161,7 @@ After changing database schemas or queries:
 
 ## Project Phases
 
-Use the `goon-squad-webapp` skill for the full roadmap.
+Use the `overworld-atlas-webapp` skill for the full roadmap.
 
 The intended order is:
 
@@ -216,7 +218,7 @@ Before implementing a feature:
 5. Implement the smallest complete vertical slice.
 6. Avoid unrelated refactors.
 
-When the owner requests a product or implementation requirement change, update `PRODUCT_REQUIREMENTS.md` and every corresponding Markdown source of truth, roadmap, or operational document in the same change. Do not leave superseded requirements in `AGENTS.md`, `.agents/skills/goon-squad-webapp/SKILL.md`, `README.md`, or other affected documentation.
+When the owner requests a product or implementation requirement change, update `PRODUCT_REQUIREMENTS.md` and every corresponding Markdown source of truth, roadmap, or operational document in the same change. Do not leave superseded requirements in `AGENTS.md`, `.agents/skills/overworld-atlas-webapp/SKILL.md`, `README.md`, or other affected documentation.
 
 After work changes the implemented scope or roadmap position, update `README.md` under `Current Project Status` in the same change. Keep its active phase, completion point, latest additions, and next planned phase accurate; do not leave stale status for a later session.
 
@@ -257,10 +259,10 @@ After database changes, also run sqlc generation and migration checks.
 The detailed project architecture and implementation roadmap is stored at:
 
 ```text
-.agents/skills/goon-squad-webapp/SKILL.md
+.agents/skills/overworld-atlas-webapp/SKILL.md
 ```
 
-Use the `goon-squad-webapp` skill when:
+Use the `overworld-atlas-webapp` skill when:
 
 - Planning a feature
 - Deciding which phase a feature belongs to

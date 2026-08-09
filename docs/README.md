@@ -1,6 +1,6 @@
 # Phase Learning and Delivery Reports
 
-This directory records what was actually delivered and learned in each completed roadmap phase. It is a retrospective record, not a replacement for current requirements in `PRODUCT_REQUIREMENTS.md`, repository rules in `AGENTS.md`, or the roadmap in `.agents/skills/goon-squad-webapp/SKILL.md`.
+This directory records what Overworld Atlas actually delivered and learned in each completed roadmap phase. It is a retrospective record, not a replacement for current requirements in `PRODUCT_REQUIREMENTS.md`, repository rules in `AGENTS.md`, or the roadmap in `.agents/skills/overworld-atlas-webapp/SKILL.md`.
 
 Codex creates or updates one report when an entire phase is accepted. A phase is not marked complete in `README.md` until its report is current.
 

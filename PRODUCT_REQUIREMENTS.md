@@ -1,8 +1,8 @@
-# Goon Squad Website Product Requirements
+# Overworld Atlas Product Requirements
 
 ## Document Status
 
-This document is the canonical product and experience specification for the Goon Squad Minecraft community website. `AGENTS.md` defines repository-wide engineering rules, and `.agents/skills/goon-squad-webapp/SKILL.md` defines the architecture and phased implementation roadmap.
+This document is the canonical product and experience specification for Overworld Atlas, the engineering project behind the Goon Squad Minecraft community website. `AGENTS.md` defines repository-wide engineering rules, and `.agents/skills/overworld-atlas-webapp/SKILL.md` defines the architecture and phased implementation roadmap.
 
 When the owner changes a requirement, update this document and every corresponding Markdown source of truth, roadmap, or operational document in the same change.
 
@@ -12,7 +12,7 @@ The existing HTML mock is rough visual direction only. It is not a final layout 
 
 ## Product Purpose
 
-The website is the public and member-facing archive for the private, long-running Goon Squad Fabric Minecraft server. It should act as the community hub for:
+Overworld Atlas produces the public and member-facing archive for the private, long-running Goon Squad Fabric Minecraft server. The shipped website remains branded Goon Squad and should act as the community hub for:
 
 - Current server information and active players
 - The BlueMap world map
@@ -24,6 +24,12 @@ The website is the public and member-facing archive for the private, long-runnin
 - Applicant status and trusted administration
 
 The experience should feel specific to the world and its history, not like a generic marketing page, SaaS dashboard, or interchangeable gaming template.
+
+## Project and Product Naming
+
+- **Overworld Atlas** is the repository, engineering project, and documentation name.
+- **Goon Squad** remains the public website, Minecraft server, and community brand.
+- Existing user-facing copy, in-world names such as Goon Squad Mountain, production domains, logo references, and established asset filenames retain the public brand unless the owner separately requests a product rename.
 
 ## Product Principles
 
@@ -508,7 +514,7 @@ Keep account role, application status, posting permission, and transient online 
 
 ## Delivery Phases
 
-The detailed roadmap and exit criteria live in `.agents/skills/goon-squad-webapp/SKILL.md`. The required allocation is:
+The detailed roadmap and exit criteria live in `.agents/skills/overworld-atlas-webapp/SKILL.md`. The required allocation is:
 
 | Phase | Product allocation |
 |---|---|

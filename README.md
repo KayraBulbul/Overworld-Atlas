@@ -1,17 +1,19 @@
-# Goon Squad SMP
+# Overworld Atlas
 
-The Goon Squad Minecraft community website is a modular monolith with a React frontend, a Go API, and PostgreSQL. Work is organised through the phased product roadmap, beginning with the foundation and public editorial interface.
+Overworld Atlas is the engineering project behind a private Minecraft community website. It is a modular monolith with a React frontend, a Go API, and PostgreSQL. Work is organised through the phased product roadmap, beginning with the foundation and public editorial interface.
+
+The repository and its engineering documentation use the name **Overworld Atlas**. The website itself remains branded **Goon Squad**, so user-facing copy, in-world names, domains, and established asset filenames keep that name.
 
 Product and implementation planning is documented in:
 
 - `PRODUCT_REQUIREMENTS.md` for canonical product and experience requirements
 - `AGENTS.md` for repository-wide engineering constraints
-- `.agents/skills/goon-squad-webapp/SKILL.md` for architecture and the phased delivery roadmap
+- `.agents/skills/overworld-atlas-webapp/SKILL.md` for architecture and the phased delivery roadmap
 - `docs/README.md` for phase learning and delivery reports
 
 ## Current Project Status
 
-Last updated: 2 August 2026.
+Last updated: 9 August 2026.
 
 Phase 0, Phase 1, and Phase 2 are complete. The project is now beginning Phase 3: PostgreSQL-backed public players, stories, events, and homepage feeds. Phase 2 delivered live Minecraft status and player presence across the Go API and public frontend. The initial secure BlueMap embed is intentionally deferred to Phase 4, where its HTTPS route and browser security policy can be completed with production deployment.
 

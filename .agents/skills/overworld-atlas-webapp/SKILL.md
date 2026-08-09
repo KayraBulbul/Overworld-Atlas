@@ -1,13 +1,15 @@
 ---
-name: goon-squad-webapp
-description: Guide the architecture, phased implementation, and engineering conventions for the Goon Squad Minecraft server website. Use when planning, implementing, reviewing, or extending the React/Vite frontend, Go API, PostgreSQL database, BlueMap integration, Discord authentication, join workflow, media storage, or Minecraft server integrations.
+name: overworld-atlas-webapp
+description: Guide the architecture, phased implementation, and engineering conventions for Overworld Atlas, the project behind the Goon Squad Minecraft server website. Use when planning, implementing, reviewing, or extending the React/Vite frontend, Go API, PostgreSQL database, BlueMap integration, Discord authentication, join workflow, media storage, or Minecraft server integrations.
 ---
 
-# Goon Squad Web Application
+# Overworld Atlas Web Application
 
 ## Purpose and Source of Truth
 
-Build the community website for the private Goon Squad Fabric Minecraft server hosted through WiseHosting.
+Build Overworld Atlas, the community website project for the private Goon Squad Fabric Minecraft server hosted through WiseHosting.
+
+Use **Overworld Atlas** for the repository, engineering project, skill, and documentation identity. Keep **Goon Squad** for the shipped website brand, Minecraft server/community references, in-world names, user-facing copy, domains, and established asset filenames.
 
 Use these documents together:
 
@@ -245,7 +247,7 @@ Never expose WiseHosting, server-console, RCON, or whitelist-management credenti
 Use a monorepo:
 
 ```text
-goon-squad/
+overworld-atlas/
 ├── web/
 │   ├── src/
 │   │   ├── api/
