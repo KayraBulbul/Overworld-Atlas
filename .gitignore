@@ -13,4 +13,5 @@ web/dist/
 # Editor and operating system files
 .DS_Store
 .idea/
-.vscode/
+.vscode/*
+!.vscode/extensions.json
