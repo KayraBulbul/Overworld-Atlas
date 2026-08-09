@@ -466,7 +466,7 @@ Automatic whitelist management is not part of the initial admin release.
 - Ownership and administrative override rules must be explicit.
 - Public pages show only publishable content.
 - The system records who created and last edited important content.
-- A draft is not publicly visible. Publishing captures the current time as the content's publication time; unpublishing removes it from public reads, and republishing records a new publication time.
+- A draft is not publicly visible. `is_published` is authoritative for public visibility. The owning Go write path captures the current time as the content's publication time when publishing, hides it when unpublishing, and records a new publication time when republishing.
 - Publication time, rather than creation time, controls public story and screenshot ordering. Event prominence is controlled by its start/end instants after publication filtering.
 - Titles are display content and may repeat. Stable unique slugs identify story and event routes and do not change merely because a title is edited.
 - Homepage feature selection can remain manually configured until the admin roadmap phase adds controls.
@@ -534,6 +534,7 @@ The initial Phase 3 schema now implements the player, story, and event boundarie
 - Phase 3 stories use an internal identifier, stable unique slug, non-unique title, excerpt, text body, player-profile author attribution, creation and edit timestamps, publication state, and publication time.
 - Phase 3 events use an internal identifier, stable unique slug, non-unique title, text description/body, player-profile organiser attribution, start and optional end instants, creation and edit timestamps, publication state, and publication time. Upcoming/past state is derived rather than stored.
 - PostgreSQL enforces Phase 3 structural identity and relationship guarantees through required values, primary keys, foreign keys, case-insensitive username uniqueness, Minecraft UUID uniqueness, and slug uniqueness. The Go API owns cross-field validation for event ranges, publication consistency, and audit timestamps when write endpoints are introduced.
+- Phase 3 public story and event reads use `is_published` as their visibility boundary. Protected Go write handlers introduced later own the invariant that a published record has the appropriate publication time.
 - Phase 5 adds Discord-authenticated users, secure sessions, account roles, ownership and editor audit relationships, and the optional link from an account to its player profile. Discord identity and role do not belong on the Phase 3 player table.
 - Phase 6 adds join applications, application status history or audit fields, and the explicit whitelisted-to-member transition without merging application status into account role. That transition also creates or links the persistent player profile from the validated Minecraft identity, so a new member does not require separate roster maintenance.
 - Phase 7 adds screenshot/media ownership, titles, bounded descriptions, alt text, object keys and metadata, upload/edit/publication timestamps, and publication state. PostgreSQL stores metadata only; R2 stores image bytes.

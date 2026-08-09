@@ -713,7 +713,7 @@ Do not conflate player profiles with authenticated Discord users prematurely. Di
 
 Store event instants in UTC and render them using `Australia/Melbourne`, allowing AEST or AEDT to follow the event date. Derive upcoming/past state from end time, or start time when no end exists; do not store a stale `has_passed` flag.
 
-Public visibility requires published state and a publication time. Publishing records the current instant, unpublishing removes the record from public reads, and republishing records a new publication instant. Titles may repeat; slugs are collision-safe route identifiers and remain stable after title edits.
+`is_published` is authoritative for public visibility. The owning Go write path records the current instant when publishing, unpublishing removes the record from public reads, and republishing records a new publication instant. Titles may repeat; slugs are collision-safe route identifiers and remain stable after title edits.
 
 ### Public API
 
@@ -746,7 +746,7 @@ Replace static previews with exactly the latest three published stories and the 
 
 This is the first phase that depends on application tables. Use Goose migrations, handwritten query files, and generated sqlc code. Production player, story, and event tables begin empty; do not add a seed/import requirement or manufacture content to make public reads non-empty. Use disposable test fixtures only to verify non-empty behaviour.
 
-The initial schema uses PostgreSQL for structural identity and relationship guarantees: required values, primary keys, foreign keys, case-insensitive username uniqueness, Minecraft UUID uniqueness, and slug uniqueness. Validate cross-field event ranges, publication consistency, and audit timestamps in Go when protected write endpoints are introduced. Public read queries must independently require published state and publication time.
+The initial schema uses PostgreSQL for structural identity and relationship guarantees: required values, primary keys, foreign keys, case-insensitive username uniqueness, Minecraft UUID uniqueness, and slug uniqueness. Validate cross-field event ranges, publication consistency, and audit timestamps in Go when protected write endpoints are introduced. Public read queries use `is_published` as the visibility boundary; the owning Go write path guarantees publication-time consistency.
 
 Do not build authentication and the first public data model in the same vertical slice. Protected writes remain Phase 5.
 

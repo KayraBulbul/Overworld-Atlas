@@ -13,9 +13,11 @@ Product and implementation planning is documented in:
 
 Last updated: 9 August 2026.
 
-Phase 0, Phase 1, and Phase 2 are complete. Phase 3 is active: PostgreSQL-backed public players, stories, events, and homepage feeds. Its domain-model and initial-migration checkpoints are complete; focused read queries, generated sqlc access, public handlers, and frontend integration remain. The initial secure BlueMap embed is intentionally deferred to Phase 4, where its HTTPS route and browser security policy can be completed with production deployment.
+Phase 0, Phase 1, and Phase 2 are complete. Phase 3 is active: PostgreSQL-backed public players, stories, events, and homepage feeds. Its domain-model, migration, focused-query, and generated sqlc checkpoints are complete; the public response contract, Go handlers, tests, and frontend integration remain. The initial secure BlueMap embed is intentionally deferred to Phase 4, where its HTTPS route and browser security policy can be completed with production deployment.
 
 Phase 3's initial product decisions are now recorded. Persistent players use UUID-backed identity with case-preserved, case-insensitive username lookup; Discord accounts and roles remain separate until Phase 5. Story and event titles may repeat while stable unique slugs own their routes. Public archives use bounded pagination, homepage feeds return the latest three published stories and the single next event, event instants are stored in UTC and presented in `Australia/Melbourne`, and past state is derived rather than stored.
+
+The handwritten read layer now provides deterministic player pages and counts; published story detail, archive, count, and latest-three operations; and published event detail, upcoming, ongoing, past, count, and next-event operations. Story and event results include their attributed player username, event time-sensitive operations accept a caller-supplied current instant, and handlers will translate page numbers into bounded limits and offsets. `is_published` is the authoritative public-visibility flag; the later protected Go write path owns publication-time consistency.
 
 The first Goose migrations now create empty player, event, and story tables with UUID identity, required player attribution, case-insensitive Minecraft usernames, stable unique slugs, timezone-aware timestamps, publication fields, and initial feed indexes. PostgreSQL enforces structural identity and relationship guarantees; cross-field event-range, publication, and audit-time validation will be enforced in Go when protected writes are introduced. The migration series was verified up and down against disposable local PostgreSQL.
 
@@ -37,7 +39,7 @@ The latest Phase 2 additions are:
 - Primary navigation now opens the full public pages and derives its active underline from the current route; Home is no longer selected away from `/`.
 - The frontend status parser, presentation states, polling behaviour, four-player cap, player-head fallback, route-aware compact-navigation behaviour, homepage integration, and confirmed-online player page have automated coverage. All 39 frontend tests pass.
 
-The accepted Phase 2 delivery and verification record is documented in `docs/phase-02-live-minecraft-status-and-player-presence.md`. The active owner-led Phase 3 backend assignment is `api/TODO.md`. BlueMap stays on the secure static-preview fallback until Phase 4 establishes an HTTPS reverse proxy or tunnel and verifies embedding policy. Phase 3 now continues with focused read queries and their public contract; no Phase 3 API endpoints exist yet.
+The accepted Phase 2 delivery and verification record is documented in `docs/phase-02-live-minecraft-status-and-player-presence.md`. The active owner-led Phase 3 backend assignment is `api/TODO.md`. BlueMap stays on the secure static-preview fallback until Phase 4 establishes an HTTPS reverse proxy or tunnel and verifies embedding policy. Phase 3 now continues with its public response contract and handler integration; no Phase 3 API endpoints exist yet.
 
 The completed delivery and learning records are captured in `docs/phase-00-foundation-and-product-planning.md`, `docs/phase-01-public-website-shell-and-design-system.md`, and `docs/phase-02-live-minecraft-status-and-player-presence.md`. Every future phase must have a corresponding report under `docs/` before the project status advances.
 
@@ -59,7 +61,7 @@ The current foundation includes:
 - Go, Chi, structured request logging, and HTTP server timeouts
 - An internal `GET /api/v1/health` endpoint with CORS coverage
 - Local PostgreSQL through Docker Compose
-- Goose and sqlc configuration with the initial Phase 3 player, event, and story migrations
+- Goose and sqlc configuration with the initial Phase 3 player, event, and story migrations, focused read queries, and generated pgx access package
 - Frontend formatting, linting, type checking, and production builds
 - Go formatting checks, vetting, tests, and builds
 - GitHub Actions CI for both applications
@@ -184,7 +186,7 @@ The Phase 1 editorial content remains centralised static preview data, while the
 
 ## Database Tooling
 
-The initial empty Phase 3 player, event, and story tables are defined through Goose migrations. Continue persistent public content work with this workflow:
+The initial empty Phase 3 player, event, and story tables are defined through Goose migrations. Their focused read queries and generated sqlc package are committed. Continue later database changes with this workflow:
 
 1. Add handwritten queries under `api/internal/database/queries`.
 2. Run sqlc generation using `api/sqlc.yaml`.

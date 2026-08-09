@@ -1,6 +1,6 @@
 # Phase 3 Backend Assignment: Persistent Public Community Content
 
-Status: active backend assignment. The domain-model and first-migration checkpoints are accepted. Continue with the focused Phase 3 read queries and bring their behaviour and public contract to review before handler integration.
+Status: active backend assignment. The domain-model, migration, focused-query, and generated-access checkpoints are accepted. Continue with the public response contract and Go handler integration.
 
 ## Why I Am Assigning This Work
 
@@ -13,8 +13,8 @@ Your job is to design and implement the first PostgreSQL-backed public read path
 - Read the Phase 3 requirements in `PRODUCT_REQUIREMENTS.md` and `.agents/skills/goon-squad-webapp/SKILL.md` before proposing the model.
 - Use `docs/phase-02-live-minecraft-status-and-player-presence.md` as the accepted boundary between transient server presence and persistent community profiles.
 - Confirm local PostgreSQL starts through the existing Docker Compose workflow and that development remains pointed at the local database.
-- The accepted Goose migrations now create the empty player, event, and story tables. No Phase 3 queries or generated database package exist yet.
-- Preserve the accepted domain model and migration boundary while designing the query behaviour and public response fields for the next review checkpoint.
+- The accepted Goose migrations create the empty player, event, and story tables. The focused Phase 3 read queries and reproducible sqlc-generated database package are also in place.
+- Preserve the accepted domain model, migration boundary, and query behaviour while designing the public response fields for the next review checkpoint.
 
 ## Expected Outcome
 
@@ -41,7 +41,7 @@ These decisions are now settled for the Phase 3 design:
 - Give stories and events generated internal identifiers. Attribute their Phase 3 author or organiser to a persistent player profile; Phase 5 later adds authenticated ownership and editor audit relationships.
 - Story and event titles may repeat. Generate a collision-safe unique slug on creation and keep that slug stable when the title changes.
 - Store story and event bodies as text. Stories also need an excerpt; events need start and optional end instants.
-- Keep creation, edit, publication state, and publication time distinct. Public reads include only published records with a valid publication time. Publishing records the current instant, unpublishing hides the record, and republishing records a new publication instant.
+- Keep creation, edit, publication state, and publication time distinct. `is_published` is the authoritative public-visibility flag. The owning Go write path must record the current instant when publishing, hide the record when unpublishing, and record a new publication instant when republishing.
 - Store event instants in UTC and present them in `Australia/Melbourne`, using AEST or AEDT according to the date. Derive upcoming/past state from end time, falling back to start time; do not persist `has_passed`.
 - Use bounded page-based pagination for players, stories, and events, defaulting to page 1 with 12 records and allowing no more than 50, with enough response metadata for accessible Previous and Next controls. Invalid or excessive values use the repository's consistent validation-error response.
 - Sort players case-insensitively by username, stories by publication time newest first, upcoming events by start time soonest first, and past events by completion time most recent first. Every order needs a stable tie-breaker.
@@ -79,17 +79,21 @@ Bring this model to review before translating it into schema details.
 
 Status: completed and accepted. The three migrations apply and reverse successfully against disposable local PostgreSQL.
 
-Create the smallest schema that fully supports the approved public contract. PostgreSQL owns structural guarantees: primary keys, required values, foreign-key attribution, unique Minecraft identity, case-insensitive username uniqueness, and unique slugs. Cross-field event-range, publication, and audit-time rules are validated in Go when protected write paths arrive. Public read queries must still require both published state and publication time. Include only indexes supported by actual lookup, pagination, filtering, and ordering behaviour, and be ready to explain the query each index supports.
+Create the smallest schema that fully supports the approved public contract. PostgreSQL owns structural guarantees: primary keys, required values, foreign-key attribution, unique Minecraft identity, case-insensitive username uniqueness, and unique slugs. Cross-field event-range, publication, and audit-time rules are validated in Go when protected write paths arrive. Public read queries use `is_published` as the visibility boundary; publication-time consistency belongs to the owning Go write path. Include only indexes supported by actual lookup, pagination, filtering, and ordering behaviour, and be ready to explain the query each index supports.
 
 The migration must be reversible in local development and must not modify an already-applied shared migration. Keep image handling to replaceable static references; media records and object storage belong to Phase 7.
 
 ### 3. Write Focused Read Queries
+
+Status: completed and accepted. The queries cover player lookup/list/count, published story detail/list/count/homepage feed, and published event detail/upcoming/ongoing/past lists and counts with a caller-supplied current instant.
 
 Add handwritten queries for the paginated player directory, case-insensitive individual profile lookup, published story archive and slug lookup, published event archives and slug lookup, the three-story homepage feed, and the single next-event homepage feed. Queries must enforce public visibility themselves rather than fetching private rows and relying on the handler to hide them.
 
 Make ordering deterministic. Think through page boundaries, equal usernames ignoring case, equal publication times, equal event times, empty result sets, and records that exist but are not public.
 
 ### 4. Generate and Integrate Database Access
+
+Status: generated access completed and accepted; Go application integration remains.
 
 Run sqlc after the migration and queries are ready. Treat generated files as output: inspect them to confirm the types and nullability match your model, but never edit them manually.
 
@@ -171,8 +175,8 @@ This backend assignment is ready for review when:
 
 ## What to Bring to Review
 
-Ask Codex for review at two checkpoints.
+Ask Codex for review at the checkpoints below.
 
-The first checkpoint accepted the domain model and migrations on 9 August 2026. No production content or roster input was required.
+The first checkpoints accepted the domain model, migrations, focused queries, and reproducible generated sqlc package on 9 August 2026. No production content or roster input was required.
 
-Second, after implementation, bring the focused diff, a short explanation of the decisions you made, migration and generation evidence, test results, and any part you are least confident about. I will review the backend with concrete file-and-line findings and will not replace your implementation.
+Next, bring the proposed public response contract before handler integration, then bring the focused implementation diff, test results, and any part you are least confident about. I will review the backend with concrete file-and-line findings and will not replace your implementation.
