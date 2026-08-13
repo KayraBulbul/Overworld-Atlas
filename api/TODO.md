@@ -103,7 +103,7 @@ Keep database startup and failure behaviour explicit. The health endpoint must r
 
 ### 5. Expose the Public Read Contract
 
-Add the Phase 3 player, story, and event list/detail routes already assigned by the roadmap. Use stable response fields that express public product concepts rather than leaking generated database types. Validate all page, page-size, username, and slug input in Go.
+Add the Phase 3 player, story, and event list/detail routes already assigned by the roadmap. Use stable response fields that express public product concepts rather than leaking generated database types. Validate page, page-size, and slug input in Go. The parameterised, read-only player lookup may pass any supplied username to PostgreSQL and return the same public not-found response for malformed and well-formed-but-unknown values.
 
 Return only publishable content. Preserve the shared JSON error format, distinguish an empty list from a failed request, and treat a private or missing slug as not found from a public caller's perspective. Do not leak SQL errors, table structure, or internal identifiers the frontend does not need.
 
