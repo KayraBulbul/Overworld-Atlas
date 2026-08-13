@@ -45,13 +45,13 @@ The completed delivery and learning records are captured in `docs/phase-00-found
 
 ## Collaboration Workflow
 
-The owner writes all backend implementation code, including the Go API, database work, and server-side integrations. Codex supports backend work by preparing focused Markdown TODO briefs and reviewing the owner's code; it does not edit backend implementation files unless the owner explicitly requests an exception for a specific task.
+The owner writes all backend production implementation code, including the Go API, database work, and server-side integrations. Codex owns backend automated test implementation and maintenance, including test files, fixtures, helpers, and test-only dependencies or configuration. Codex otherwise supports backend work through focused Markdown TODO briefs and code review, and does not edit backend production files unless the owner explicitly requests an exception for a specific task.
 
 Backend TODOs are written as senior-to-junior assignments. They explain the outcome, reasoning, responsibilities, concepts, constraints, acceptance criteria, and review handoff without supplying implementation code or pseudocode by default. Backend help remains concept-first so the owner can reason through and implement the solution.
 
 Frontend behaviour, layout, states, and integration contracts are discussed extensively with the owner before implementation. Once the owner approves the direction, Codex implements the frontend while preserving the accepted Phase 1 visual baseline.
 
-At the end of each accepted roadmap phase, Codex writes a report under `docs/` covering its frontend work, the owner's backend work, concepts practised, verification, deferred work, and an evidence-based senior-engineer report on the owner's development.
+At the end of each accepted roadmap phase, Codex writes a report under `docs/` covering its frontend and backend-test work, the owner's backend production work, concepts practised, verification, deferred work, and an evidence-based senior-engineer report on the owner's development.
 
 ## Foundation
 

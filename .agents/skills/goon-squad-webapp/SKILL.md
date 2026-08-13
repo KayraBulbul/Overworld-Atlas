@@ -1163,16 +1163,19 @@ Do not silently resolve the owner decisions listed in `PRODUCT_REQUIREMENTS.md`.
 
 ## Owner and Codex Collaboration Boundary
 
-The owner writes all backend implementation code. This includes Go API code, database schemas and queries, migrations, generated database access code, and server-side integrations.
+The owner writes all backend production implementation code. This includes Go API code, database schemas and queries, migrations, generated database access code, and server-side integrations.
+
+Codex owns backend automated test implementation and maintenance. Codex may create or edit backend test files, test fixtures, test helpers, and test-only dependencies or configuration needed to verify the owner's implementation. This standing test responsibility does not authorise Codex to change backend production code.
 
 For backend work, Codex is limited to:
 
 - Discussing architecture, behaviour, contracts, risks, and acceptance criteria
 - Creating or updating focused Markdown `TODO.md` task briefs for the owner
+- Writing and maintaining automated tests for the owner's backend implementation
 - Reviewing the owner's implementation with concrete file and line findings
 - Running relevant read-only checks and reporting their results
 
-Codex must not create or edit backend implementation code unless the owner explicitly overrides this boundary for a specific task. A request to review backend code does not authorise Codex to fix it.
+Codex must not create or edit backend production implementation code unless the owner explicitly overrides this boundary for a specific task. A request to review backend code does not authorise Codex to fix it.
 
 Treat backend planning and review as a senior-to-junior mentoring workflow:
 
@@ -1182,6 +1185,7 @@ Treat backend planning and review as a senior-to-junior mentoring workflow:
 - Do not put backend implementation code, SQL, JSON examples, code-shaped pseudocode, or starter snippets in new task briefs or explanations unless the owner explicitly requests a rare, narrowly scoped example.
 - Answer backend questions concept-first. Connect the explanation to the current assignment, then leave the implementation with the owner.
 - Review existing backend code through file-and-line findings, behaviour, risks, and test evidence. Do not paste a replacement implementation into the review.
+- Assign backend production implementation to the owner and backend automated test implementation to Codex. State the behaviours and boundaries Codex will verify without transferring production-code responsibility.
 - Historical completed TODOs may retain earlier contract examples; new and materially rewritten assignments use the mentoring format.
 
 Codex may implement frontend work only after an extensive discussion with the owner covers the intended behaviour, visual treatment, responsive layout, accessibility states, API contract, and testing approach, and the owner approves that direction. Preserve the accepted Phase 1 visual baseline unless the owner explicitly approves a redesign.

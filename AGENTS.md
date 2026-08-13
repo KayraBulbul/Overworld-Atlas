@@ -185,9 +185,10 @@ Do not introduce later-phase infrastructure early unless a current feature genui
 
 ### Owner and Codex Responsibilities
 
-- The owner writes all backend implementation code, including Go API code, database schemas and queries, migrations, generated database access code, and server-side integrations.
-- Codex must not create or edit backend implementation code unless the owner explicitly overrides this rule for a specific task.
-- For backend work, Codex may inspect the repository, research and discuss the approach, create or update focused Markdown `TODO.md` task briefs, and review code written by the owner.
+- The owner writes all backend production implementation code, including Go API code, database schemas and queries, migrations, generated database access code, and server-side integrations.
+- Codex owns backend automated test implementation and maintenance. Codex may create or edit backend test files, test fixtures, test helpers, and test-only dependencies or configuration needed to verify the owner's implementation.
+- Codex must not create or edit backend production implementation code unless the owner explicitly overrides this rule for a specific task. Backend test work is the standing exception and does not authorise production-code changes.
+- For backend work, Codex may inspect the repository, research and discuss the approach, create or update focused Markdown `TODO.md` task briefs, write and maintain automated tests, and review code written by the owner.
 - Backend reviews should report concrete findings with file and line references, verify the phase requirements and security boundaries, and run the relevant read-only checks. Codex must not silently turn a review into an implementation pass.
 - Codex may implement frontend code only after the owner and Codex have extensively discussed the feature's behaviour, states, layout, and integration contract and the owner has approved the direction.
 - Frontend implementation must preserve the accepted Phase 1 visual baseline unless the owner explicitly approves a redesign.
@@ -200,13 +201,14 @@ Do not introduce later-phase infrastructure early unless a current feature genui
 - Do not include backend implementation code, SQL, JSON examples, code-shaped pseudocode, or starter snippets in new task briefs or backend guidance unless the owner explicitly asks for a rare, narrowly scoped example.
 - When the owner asks for help, teach the underlying concept first, connect it to the current task, and let the owner attempt the implementation. Ask for their reasoning or observed behaviour when that will make the review more useful.
 - Backend reviews may point to files, lines, identifiers, behaviour, and test evidence, but should not paste replacement implementations. Findings remain concrete and ordered by severity.
+- Assign backend production implementation to the owner and backend automated test implementation to Codex. Test plans should state the behaviour and boundaries Codex will verify without transferring production-code responsibility.
 - Completed historical TODOs may retain old contract examples as records. All new or materially rewritten backend assignments follow this mentoring format.
 
 ### Phase Completion Reports
 
 - When an entire roadmap phase is accepted, Codex creates a Markdown report under `docs/` before marking the phase complete.
 - Use the naming convention `phase-XX-short-name.md` and follow `docs/README.md`.
-- Record what Codex implemented on the frontend, what the owner implemented on the backend, the important integration decisions, concepts covered, verification evidence, deferred work, and the final scope boundary.
+- Record what Codex implemented on the frontend and in backend tests, what the owner implemented in backend production code, the important integration decisions, concepts covered, verification evidence, deferred work, and the final scope boundary.
 - Include a specific, evidence-based senior-engineer report on the owner's backend work: strengths demonstrated, areas to improve, and a practical focus for the next phase. Do not invent observations or use school-style grading unless the owner requests it.
 - If a phase has no frontend or backend work, say so explicitly instead of manufacturing activity.
 - Update the phase report if completion findings cause follow-up work before acceptance. Link the accepted report from `README.md` when advancing the current project status.

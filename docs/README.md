@@ -13,8 +13,8 @@ Use `phase-XX-short-name.md`, with a zero-padded phase number and a stable descr
 Each report should include:
 
 1. Phase status, completion date, outcome, and final scope boundary.
-2. Frontend work implemented by Codex.
-3. Backend work implemented by the owner.
+2. Frontend and backend automated test work implemented by Codex.
+3. Backend production work implemented by the owner.
 4. Shared contracts, decisions, and integration work.
 5. Backend, frontend, and cross-cutting concepts covered.
 6. Verification evidence, including the checks that passed and any important manual validation.
@@ -38,6 +38,6 @@ Do not infer motivation, confidence, or understanding from missing evidence. Do 
 
 ## Relationship to TODO Files
 
-Backend `TODO.md` files are forward-looking senior-to-junior assignments owned by the active phase. They explain what the owner is responsible for, why it matters, the concepts to practise, acceptance criteria, verification, and the review handoff without supplying implementation code or pseudocode by default.
+Backend `TODO.md` files are forward-looking senior-to-junior assignments owned by the active phase. They explain what backend production work the owner is responsible for, what automated tests Codex will implement, why the work matters, the concepts to practise, acceptance criteria, verification, and the review handoff without supplying production implementation code or pseudocode by default.
 
 Phase reports are backward-looking acceptance records. Once a phase is complete, the report captures the final truth even if an earlier TODO changed during implementation.

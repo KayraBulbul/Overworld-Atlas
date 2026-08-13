@@ -111,7 +111,9 @@ Before frontend integration begins, bring me the proposed response fields and re
 
 ### 6. Prove the Behaviour
 
-Add focused tests at the lowest useful boundary and integration tests where PostgreSQL behaviour matters. Your test plan should cover:
+Codex owns implementing and maintaining focused backend tests at the lowest useful boundary and integration tests where PostgreSQL behaviour matters. You remain responsible for the production implementation and should bring its intended behaviour and observed results back for review so Codex can keep the test coverage aligned with the contract.
+
+The backend test plan should cover:
 
 - Migration up and down in a disposable local database
 - Required structural relationships and uniqueness rules
