@@ -9,16 +9,20 @@ import (
 	"time"
 
 	"github.com/KayraBulbul/Goon-Squad-SMP/api/internal/config"
+	database "github.com/KayraBulbul/Goon-Squad-SMP/api/internal/database/generated"
 	"github.com/KayraBulbul/Goon-Squad-SMP/api/internal/handlers"
 	"github.com/KayraBulbul/Goon-Squad-SMP/api/internal/middleware"
 	"github.com/KayraBulbul/Goon-Squad-SMP/api/internal/minecraft"
+	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/cors"
 )
 
-func newRouter(logger *slog.Logger, options cors.Options, cache *minecraft.Cache, address string) http.Handler {
+func newRouter(logger *slog.Logger, options cors.Options, cache *minecraft.Cache, address string, dbQueries *database.Queries) http.Handler {
 	r := chi.NewRouter()
+
+	playerHandler := handlers.NewPlayerHandler(dbQueries, logger)
 
 	r.Use(middleware.RequestLogger(logger))
 
@@ -27,6 +31,8 @@ func newRouter(logger *slog.Logger, options cors.Options, cache *minecraft.Cache
 	r.Route("/api/v1", func(r chi.Router) {
 		r.Get("/health", handlers.HealthHandler)
 		r.Get("/server/status", handlers.ServerStatusHandler(cache, address, logger))
+		r.Get("/players", playerHandler.GetPlayersPageHandler)
+		r.Get("/players/{username}", playerHandler.GetPlayerByUsernameHandler)
 	})
 
 	return r
@@ -36,6 +42,21 @@ func main() {
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 
 	cfg := config.GetConfig()
+
+	ctx := context.Background()
+	pool, err := pgxpool.New(ctx, cfg.DatabaseURL)
+	if err != nil {
+		logger.Error("error connecting to database", "error", err)
+		return
+	}
+	defer pool.Close()
+
+	err = pool.Ping(ctx)
+	if err != nil {
+		logger.Error("error pinging database", "error", err)
+		return
+	}
+	dbQueries := database.New(pool)
 
 	query := func(ctx context.Context, address string) (minecraft.Status, error) {
 		ctx, cancel := context.WithTimeout(ctx, cfg.MinecraftQueryTimeout)
@@ -60,7 +81,7 @@ func main() {
 		},
 		AllowCredentials: true,
 		MaxAge:           300,
-	}, cache, address)
+	}, cache, address, dbQueries)
 
 	server := &http.Server{
 		Addr:              cfg.APIAddress,

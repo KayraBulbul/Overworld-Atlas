@@ -39,7 +39,7 @@ func TestHealthRoute(t *testing.T) {
 		},
 		AllowCredentials: true,
 		MaxAge:           300,
-	}, cache, address)
+	}, cache, address, nil)
 
 	request := httptest.NewRequest(
 		http.MethodGet,
@@ -106,7 +106,7 @@ func TestHealthRouteCORS(t *testing.T) {
 			},
 			AllowCredentials: true,
 			MaxAge:           300,
-		}, cache, address)
+		}, cache, address, nil)
 
 		request := httptest.NewRequest(
 			http.MethodGet,
@@ -157,7 +157,7 @@ func TestHealthRouteCORS(t *testing.T) {
 			},
 			AllowCredentials: true,
 			MaxAge:           300,
-		}, cache, address)
+		}, cache, address, nil)
 
 		request := httptest.NewRequest(
 			http.MethodOptions,
@@ -218,7 +218,7 @@ func TestHealthRouteCORS(t *testing.T) {
 			},
 			AllowCredentials: true,
 			MaxAge:           300,
-		}, cache, address)
+		}, cache, address, nil)
 
 		request := httptest.NewRequest(
 			http.MethodGet,
@@ -297,6 +297,7 @@ func TestServerStatusRoute(t *testing.T) {
 		},
 		cache,
 		"localhost:25565",
+		nil,
 	)
 
 	request := httptest.NewRequest(
