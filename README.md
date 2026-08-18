@@ -1,19 +1,21 @@
-# Goon Squad SMP
+# Overworld Atlas
 
-The Goon Squad Minecraft community website is a modular monolith with a React frontend, a Go API, and PostgreSQL. Work is organised through the phased product roadmap, beginning with the foundation and public editorial interface.
+The Overworld Atlas Minecraft community website is a modular monolith with a React frontend, a Go API, and PostgreSQL. Work is organised through the phased product roadmap, beginning with the foundation and public editorial interface.
 
 Product and implementation planning is documented in:
 
 - `PRODUCT_REQUIREMENTS.md` for canonical product and experience requirements
 - `AGENTS.md` for repository-wide engineering constraints
-- `.agents/skills/goon-squad-webapp/SKILL.md` for architecture and the phased delivery roadmap
+- `.agents/skills/overworld-atlas-webapp/SKILL.md` for architecture and the phased delivery roadmap
 - `docs/README.md` for phase learning and delivery reports
 
 ## Current Project Status
 
-Last updated: 9 August 2026.
+Last updated: 17 August 2026.
 
 Phase 0, Phase 1, and Phase 2 are complete. Phase 3 is active: PostgreSQL-backed public players, stories, events, and homepage feeds. Its domain-model, migration, focused-query, and generated sqlc checkpoints are complete; the public response contract, Go handlers, tests, and frontend integration remain. The initial secure BlueMap embed is intentionally deferred to Phase 4, where its HTTPS route and browser security policy can be completed with production deployment.
+
+The product, interface, source documentation, and local project identifiers were rebranded as Overworld Atlas on 17 August 2026. The approved Phase 1 layout and visual system remain unchanged apart from the new name and primary wordmark.
 
 Phase 3's initial product decisions are now recorded. Persistent players use UUID-backed identity with case-preserved, case-insensitive username lookup; Discord accounts and roles remain separate until Phase 5. Story and event titles may repeat while stable unique slugs own their routes. Public archives use bounded pagination, homepage feeds return the latest three published stories and the single next event, event instants are stored in UTC and presented in `Australia/Melbourne`, and past state is derived rather than stored.
 
@@ -171,7 +173,7 @@ GitHub Actions runs the same categories of checks on pushes and pull requests.
 
 ## Phase 1 Assets
 
-Keep manually managed, replaceable images under `web/public/images/`. The official primary logo is `web/public/images/branding/goon-squad-logo.png`, the Phase 1 featured settlement image is `web/public/images/settlements/featured_settlement.webp`, and the replaceable player-head fallback is `web/public/images/players/steve-head.png`.
+Keep manually managed, replaceable images under `web/public/images/`. The official primary logo is `web/public/images/branding/overworld-atlas-logo.png`, the Phase 1 featured settlement image is `web/public/images/settlements/featured_settlement.webp`, and the replaceable player-head fallback is `web/public/images/players/steve-head.png`.
 
 Use the remaining directories by content type:
 

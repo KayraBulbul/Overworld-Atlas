@@ -36,8 +36,8 @@ export function SiteHeader() {
         <Link className={tw('brand')} to="/" onClick={closeMenu}>
           <img
             className={tw('brand-logo')}
-            src="/images/branding/goon-squad-logo.png"
-            alt="Goon Squad"
+            src="/images/branding/overworld-atlas-logo.png"
+            alt="Overworld Atlas"
           />
         </Link>
 

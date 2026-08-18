@@ -10,7 +10,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/KayraBulbul/Goon-Squad-SMP/api/internal/minecraft"
+	"github.com/KayraBulbul/Overworld-Atlas/api/internal/minecraft"
 	"github.com/go-chi/cors"
 )
 

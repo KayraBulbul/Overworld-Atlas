@@ -1,4 +1,4 @@
-module github.com/KayraBulbul/Goon-Squad-SMP/api
+module github.com/KayraBulbul/Overworld-Atlas/api
 
 go 1.26.5
 

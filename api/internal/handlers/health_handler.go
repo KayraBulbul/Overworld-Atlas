@@ -4,7 +4,7 @@ package handlers
 import (
 	"net/http"
 
-	"github.com/KayraBulbul/Goon-Squad-SMP/api/internal/respond"
+	"github.com/KayraBulbul/Overworld-Atlas/api/internal/respond"
 )
 
 func HealthHandler(w http.ResponseWriter, r *http.Request) {

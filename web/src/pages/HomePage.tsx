@@ -151,7 +151,7 @@ export function HomePage() {
             <div className={tw('map-window-toolbar')}>
               <span className={tw('map-window-title')}>
                 <span aria-hidden="true" />
-                Goon Squad world map
+                Overworld Atlas world map
               </span>
               <div className={tw('map-window-controls')} aria-hidden="true">
                 <span>-</span>

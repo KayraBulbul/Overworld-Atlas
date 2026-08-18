@@ -13,7 +13,7 @@ import (
 	"testing"
 	"time"
 
-	database "github.com/KayraBulbul/Goon-Squad-SMP/api/internal/database/generated"
+	database "github.com/KayraBulbul/Overworld-Atlas/api/internal/database/generated"
 	"github.com/jackc/pgx/v5"
 	"github.com/pashagolub/pgxmock/v4"
 )

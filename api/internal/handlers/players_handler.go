@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"strconv"
 
-	database "github.com/KayraBulbul/Goon-Squad-SMP/api/internal/database/generated"
-	"github.com/KayraBulbul/Goon-Squad-SMP/api/internal/respond"
+	database "github.com/KayraBulbul/Overworld-Atlas/api/internal/database/generated"
+	"github.com/KayraBulbul/Overworld-Atlas/api/internal/respond"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 )

@@ -18,10 +18,9 @@ describe('SiteHeader', () => {
       </MemoryRouter>,
     )
 
-    expect(screen.getByRole('img', { name: 'Goon Squad' })).toHaveAttribute(
-      'src',
-      '/images/branding/goon-squad-logo.png',
-    )
+    expect(
+      screen.getByRole('img', { name: 'Overworld Atlas' }),
+    ).toHaveAttribute('src', '/images/branding/overworld-atlas-logo.png')
 
     const destinations = [
       { label: 'Home', href: '/' },

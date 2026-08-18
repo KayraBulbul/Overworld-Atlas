@@ -2,9 +2,9 @@ services:
   postgres:
     image: postgres:17-alpine
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-goon_squad}
-      POSTGRES_USER: ${POSTGRES_USER:-goon_squad}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-goon_squad_dev}
+      POSTGRES_DB: ${POSTGRES_DB:-overworld_atlas}
+      POSTGRES_USER: ${POSTGRES_USER:-overworld_atlas}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-overworld_atlas_dev}
     ports:
       - "${POSTGRES_PORT:-5432}:5432"
     healthcheck:

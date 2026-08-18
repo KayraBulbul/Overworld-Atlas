@@ -8,11 +8,11 @@ import (
 	"os"
 	"time"
 
-	"github.com/KayraBulbul/Goon-Squad-SMP/api/internal/config"
-	database "github.com/KayraBulbul/Goon-Squad-SMP/api/internal/database/generated"
-	"github.com/KayraBulbul/Goon-Squad-SMP/api/internal/handlers"
-	"github.com/KayraBulbul/Goon-Squad-SMP/api/internal/middleware"
-	"github.com/KayraBulbul/Goon-Squad-SMP/api/internal/minecraft"
+	"github.com/KayraBulbul/Overworld-Atlas/api/internal/config"
+	database "github.com/KayraBulbul/Overworld-Atlas/api/internal/database/generated"
+	"github.com/KayraBulbul/Overworld-Atlas/api/internal/handlers"
+	"github.com/KayraBulbul/Overworld-Atlas/api/internal/middleware"
+	"github.com/KayraBulbul/Overworld-Atlas/api/internal/minecraft"
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/go-chi/chi/v5"
@@ -22,6 +22,8 @@ import (
 func newRouter(logger *slog.Logger, options cors.Options, cache *minecraft.Cache, address string, dbQueries *database.Queries) http.Handler {
 	r := chi.NewRouter()
 
+	storyHandler := handlers.NewStoryHandler(dbQueries, logger)
+	eventsHandler := handlers.NewEventsHandler(dbQueries, logger)
 	playerHandler := handlers.NewPlayerHandler(dbQueries, logger)
 
 	r.Use(middleware.RequestLogger(logger))
@@ -33,6 +35,10 @@ func newRouter(logger *slog.Logger, options cors.Options, cache *minecraft.Cache
 		r.Get("/server/status", handlers.ServerStatusHandler(cache, address, logger))
 		r.Get("/players", playerHandler.GetPlayersPageHandler)
 		r.Get("/players/{username}", playerHandler.GetPlayerByUsernameHandler)
+		r.Get("/stories", storyHandler.GetStoriesPageHandler)
+		r.Get("/stories/{slug}", storyHandler.GetStoryBySlugHandler)
+		r.Get("/events", eventsHandler.GetEventsPageHandler)
+		r.Get("/events/{slug}", eventsHandler.GetEventBySlugHandler)
 	})
 
 	return r

@@ -1,13 +1,13 @@
 ---
-name: goon-squad-webapp
-description: Guide the architecture, phased implementation, and engineering conventions for the Goon Squad Minecraft server website. Use when planning, implementing, reviewing, or extending the React/Vite frontend, Go API, PostgreSQL database, BlueMap integration, Discord authentication, join workflow, media storage, or Minecraft server integrations.
+name: overworld-atlas-webapp
+description: Guide the architecture, phased implementation, and engineering conventions for the Overworld Atlas Minecraft server website. Use when planning, implementing, reviewing, or extending the React/Vite frontend, Go API, PostgreSQL database, BlueMap integration, Discord authentication, join workflow, media storage, or Minecraft server integrations.
 ---
 
-# Goon Squad Web Application
+# Overworld Atlas Web Application
 
 ## Purpose and Source of Truth
 
-Build the community website for the private Goon Squad Fabric Minecraft server hosted through WiseHosting.
+Build the community website for the private Overworld Atlas Fabric Minecraft server hosted through WiseHosting.
 
 Use these documents together:
 
@@ -209,13 +209,13 @@ Do not add microservices, Kubernetes, Redis, WebSockets, event buses, or separat
 ```text
 User
   |
-  +-- goonsquad.example.com
+  +-- overworldatlas.example.com
   |     |
   |     +-- Cloudflare Pages
   |           |
   |           +-- React + Vite
   |
-  +-- api.goonsquad.example.com
+  +-- api.overworldatlas.example.com
   |     |
   |     +-- Fly.io Sydney
   |           |
@@ -227,7 +227,7 @@ User
   |                 +-- Cloudflare R2 later
   |                 +-- Optional RCON or Fabric integration later
   |
-  +-- map.goonsquad.example.com
+  +-- map.overworldatlas.example.com
         |
         +-- BlueMap hosted with the Minecraft server
 ```
@@ -248,7 +248,7 @@ Never expose WiseHosting, server-console, RCON, or whitelist-management credenti
 Use a monorepo:
 
 ```text
-goon-squad/
+overworld-atlas/
 ├── web/
 │   ├── src/
 │   │   ├── api/
@@ -344,7 +344,7 @@ Add these protected routes in the authentication and member-content phase:
 
 `/join` is optional and may provide a full-page/shareable alternative to the join dialog. It does not replace the modal requirement.
 
-Primary navigation should directly label Home, Players, Map, Stories, Events, Screenshots, and Join in homepage order, alongside the Goon Squad logo/name, theme toggle, and contextual login/account control. The public content labels open `/`, `/players`, `/map`, `/stories`, `/events`, or `/screenshots`. Only the current route is marked active: Home matches `/` exactly, while story and event detail routes keep their parent section active. Clearly labelled actions within each homepage section may also open the corresponding full page. Mobile navigation may collapse spatially but may not obscure the information architecture behind vague labels.
+Primary navigation should directly label Home, Players, Map, Stories, Events, Screenshots, and Join in homepage order, alongside the Overworld Atlas logo/name, theme toggle, and contextual login/account control. The public content labels open `/`, `/players`, `/map`, `/stories`, `/events`, or `/screenshots`. Only the current route is marked active: Home matches `/` exactly, while story and event detail routes keep their parent section active. Clearly labelled actions within each homepage section may also open the corresponding full page. Mobile navigation may collapse spatially but may not obscure the information architecture behind vague labels.
 
 Rules and server information may live in the Join flow. `/rules` and `/server` may remain supplemental routes if useful, but are not substitutes for required destinations.
 
@@ -356,7 +356,7 @@ The homepage is a community hub with four distinct editorial sections, not a mar
 
 Include:
 
-- Logo and Goon Squad name
+- Logo and Overworld Atlas name
 - Concise server description
 - Live online/offline state
 - Online player count
@@ -618,7 +618,7 @@ Create the public editorial shell and homepage structure using centralised stati
 
 ### Deliver
 
-- Goon Squad branding with replaceable real-content placeholders
+- Overworld Atlas branding with replaceable real-content placeholders
 - Editorial atlas typography exploration and design tokens
 - Coherent light and dark themes
 - Light-by-default guest theme state that resets on refresh; signed-in persistence belongs to Phase 5
@@ -775,7 +775,7 @@ Deploy the complete public read-only product consistently and introduce BlueMap 
 - BlueMap remaining with WiseHosting behind a stable HTTPS route
 - Nearly full-width BlueMap embed on the homepage and a larger exploration experience on `/map`
 - Standard BlueMap zoom, rotation, and exploration controls
-- Initial camera target near Goon Squad Mountain when stable deep links or camera configuration support it
+- Initial camera target near Overworld Atlas Mountain when stable deep links or camera configuration support it
 - Clear loading, embedding-blocked, unavailable, and secure external-link fallbacks
 - Verified iframe headers, site CSP, URL stability, and parent/child browser policy
 - Production and API domains

@@ -10,7 +10,7 @@ Your job is to design and implement the first PostgreSQL-backed public read path
 
 ## Prerequisites
 
-- Read the Phase 3 requirements in `PRODUCT_REQUIREMENTS.md` and `.agents/skills/goon-squad-webapp/SKILL.md` before proposing the model.
+- Read the Phase 3 requirements in `PRODUCT_REQUIREMENTS.md` and `.agents/skills/overworld-atlas-webapp/SKILL.md` before proposing the model.
 - Use `docs/phase-02-live-minecraft-status-and-player-presence.md` as the accepted boundary between transient server presence and persistent community profiles.
 - Confirm local PostgreSQL starts through the existing Docker Compose workflow and that development remains pointed at the local database.
 - The accepted Goose migrations create the empty player, event, and story tables. The focused Phase 3 read queries and reproducible sqlc-generated database package are also in place.

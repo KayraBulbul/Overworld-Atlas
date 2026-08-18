@@ -6,20 +6,20 @@ import type {
 
 export const siteContent = {
   server: {
-    name: 'Goon Squad',
+    name: 'Overworld Atlas',
     address: '51.161.199.235:25584',
     description:
       'A long-running private Fabric survival world built around ambitious projects, shared history, and plans that rarely survive first contact.',
     blueMapUrl: 'http://51.161.199.235:25674/',
   },
   settlement: {
-    name: 'Goon Squad Mountain',
+    name: 'Overworld Atlas Mountain',
     coordinates: '-1129, 119, 1030',
     dimension: 'Overworld',
     description: 'The promised land',
     imageSrc: '/images/settlements/featured_settlement.webp',
     imageAlt:
-      "A path through Goon Squad Mountain, with Ethan's hole beside the route and the greenhouse and trading hall visible in the background.",
+      "A path through Overworld Atlas Mountain, with Ethan's hole beside the route and the greenhouse and trading hall visible in the background.",
   },
 } as const
 

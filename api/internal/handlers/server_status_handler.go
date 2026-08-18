@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/KayraBulbul/Goon-Squad-SMP/api/internal/minecraft"
-	"github.com/KayraBulbul/Goon-Squad-SMP/api/internal/respond"
+	"github.com/KayraBulbul/Overworld-Atlas/api/internal/minecraft"
+	"github.com/KayraBulbul/Overworld-Atlas/api/internal/respond"
 )
 
 func ServerStatusHandler(cache *minecraft.Cache, address string, logger *slog.Logger) http.HandlerFunc {

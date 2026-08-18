@@ -69,4 +69,4 @@ jobs:
         run: go test ./...
 
       - name: Build
-        run: go build -o /tmp/goon-squad-server ./cmd/server
+        run: go build -o /tmp/overworld-atlas-server ./cmd/server

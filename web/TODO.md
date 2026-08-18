@@ -86,4 +86,4 @@ Unknown maximum counts should not produce text such as `0/null`. Use a count-onl
 
 ## Deferred Phase 4 BlueMap Work
 
-Keep the existing static map preview and secure-integration-pending `/map` state until Phase 4 gives BlueMap a stable HTTPS URL. Caddy or Nginx remains the preferred reverse-proxy route if WiseHosting provides a viable process and HTTPS port; Cloudflare Tunnel or a separately hosted proxy remains a fallback. Recheck iframe headers, site CSP, stable map URL, and the Goon Squad Mountain camera target before embedding.
+Keep the existing static map preview and secure-integration-pending `/map` state until Phase 4 gives BlueMap a stable HTTPS URL. Caddy or Nginx remains the preferred reverse-proxy route if WiseHosting provides a viable process and HTTPS port; Cloudflare Tunnel or a separately hosted proxy remains a fallback. Recheck iframe headers, site CSP, stable map URL, and the Overworld Atlas Mountain camera target before embedding.

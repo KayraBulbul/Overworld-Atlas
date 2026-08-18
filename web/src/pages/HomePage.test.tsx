@@ -31,12 +31,12 @@ describe('HomePage', () => {
     ).toBeInTheDocument()
     expect(
       screen
-        .getByRole('heading', { name: 'Goon Squad Mountain' })
+        .getByRole('heading', { name: 'Overworld Atlas Mountain' })
         .closest('.home-hero'),
     ).toBeInTheDocument()
     expect(
       screen.getByRole('img', {
-        name: /a path through goon squad mountain/i,
+        name: /a path through overworld atlas mountain/i,
       }),
     ).toHaveAttribute('src', '/images/settlements/featured_settlement.webp')
     expect(screen.getByText('-1129, 119, 1030')).toBeInTheDocument()

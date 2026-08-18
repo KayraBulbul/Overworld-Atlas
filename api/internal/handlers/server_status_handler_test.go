@@ -12,7 +12,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/KayraBulbul/Goon-Squad-SMP/api/internal/minecraft"
+	"github.com/KayraBulbul/Overworld-Atlas/api/internal/minecraft"
 )
 
 func TestServerStatusHandlerReturnsOfflineStatus(t *testing.T) {

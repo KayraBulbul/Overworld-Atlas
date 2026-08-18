@@ -1,8 +1,8 @@
-# Goon Squad Website Product Requirements
+# Overworld Atlas Website Product Requirements
 
 ## Document Status
 
-This document is the canonical product and experience specification for the Goon Squad Minecraft community website. `AGENTS.md` defines repository-wide engineering rules, and `.agents/skills/goon-squad-webapp/SKILL.md` defines the architecture and phased implementation roadmap.
+This document is the canonical product and experience specification for the Overworld Atlas Minecraft community website. `AGENTS.md` defines repository-wide engineering rules, and `.agents/skills/overworld-atlas-webapp/SKILL.md` defines the architecture and phased implementation roadmap.
 
 When the owner changes a requirement, update this document and every corresponding Markdown source of truth, roadmap, or operational document in the same change.
 
@@ -12,7 +12,7 @@ The existing HTML mock is rough visual direction only. It is not a final layout 
 
 ## Product Purpose
 
-The website is the public and member-facing archive for the private, long-running Goon Squad Fabric Minecraft server. It should act as the community hub for:
+The website is the public and member-facing archive for the private, long-running Overworld Atlas Fabric Minecraft server. It should act as the community hub for:
 
 - Current server information and active players
 - The BlueMap world map
@@ -140,7 +140,7 @@ These are provisional design tokens, not immutable final values.
 
 The primary navigation includes:
 
-- Goon Squad logo and name
+- Overworld Atlas logo and name
 - Home
 - Players
 - Map
@@ -206,7 +206,7 @@ Phase 1 may use centralised static preview data to demonstrate layouts and futur
 
 Include:
 
-- Goon Squad logo and name
+- Overworld Atlas logo and name
 - A concise description of the server
 - Live online or offline state
 - Online player count
@@ -219,7 +219,7 @@ Copying the server IP should happen immediately. The button should briefly chang
 
 The server address is `51.161.199.235:25584`.
 
-The official Phase 1 logo is `web/public/images/branding/goon-squad-logo.png`.
+The official Phase 1 logo is `web/public/images/branding/overworld-atlas-logo.png`.
 
 `Request Access` opens the join-request dialog. In Phase 1 the complete form may be previewed, but its submission action remains disabled and explains that applications are not yet being accepted through the website.
 
@@ -238,7 +238,7 @@ Include:
 
 Use real server imagery when available. Any placeholder asset and content must be centralised or otherwise easy to replace.
 
-The Phase 1 featured settlement is Goon Squad Mountain at X `-1129`, Y `119`, Z `1030` in the Overworld. Its short description is "The promised land", and its image is `web/public/images/settlements/featured_settlement.webp`.
+The Phase 1 featured settlement is Overworld Atlas Mountain at X `-1129`, Y `119`, Z `1030` in the Overworld. Its short description is "The promised land", and its image is `web/public/images/settlements/featured_settlement.webp`.
 
 ### Embedded World Map
 
@@ -545,7 +545,7 @@ Keep account role, application status, content ownership, persistent player iden
 
 ## Delivery Phases
 
-The detailed roadmap and exit criteria live in `.agents/skills/goon-squad-webapp/SKILL.md`. The required allocation is:
+The detailed roadmap and exit criteria live in `.agents/skills/overworld-atlas-webapp/SKILL.md`. The required allocation is:
 
 | Phase | Product allocation |
 |---|---|
