@@ -31,7 +31,7 @@ type ServerStatusPayload = {
   cached: unknown
 }
 
-const defaultApiBaseUrl = 'http://localhost:6969/api/v1'
+const defaultApiBaseUrl = 'http://localhost:8080/api/v1'
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
