@@ -15,3 +15,8 @@ web/dist/
 .idea/
 .vscode/*
 !.vscode/extensions.json
+
+AGENTS.md
+PRODUCT_REQUIREMENTS.md
+
+.agents/*
