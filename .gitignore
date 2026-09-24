@@ -16,7 +16,10 @@ web/dist/
 .vscode/*
 !.vscode/extensions.json
 
+# Local agent instructions and task briefs
 AGENTS.md
+CLAUDE.md
 PRODUCT_REQUIREMENTS.md
-
-.agents/*
+.agents/
+.claude/
+TODO.md
